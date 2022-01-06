@@ -44,7 +44,7 @@ public class ServerMain {
 		host = args[3];
 		port = Integer.valueOf(args[4]);
 
-		final BindableService impl = new HelloWorldServiceImpl();
+		final BindableService impl = new ClientServerServiceImpl();
 
 		// Create a new server to listen on port.
 		Server serverMain = ServerBuilder.forPort(port).addService(impl).build();
