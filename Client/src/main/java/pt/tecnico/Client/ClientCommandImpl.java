@@ -33,6 +33,7 @@ public class ClientCommandImpl {
 
                 case "list":
                 case "ls":
+                    listFiles();
                     break;
                 default:
                     System.out.println("ERROR - Invalid Command");
@@ -83,8 +84,32 @@ public class ClientCommandImpl {
     }
     
     void readFile(String[] args) {
+        if(args.length > 2 || args.length < 1) {
+            System.out.println("ERRO - Formato read");
+            return;
+        }
+
+        String fileName = args[1];
+
+        try{
+
+            ClientServer.ReadFileRequest request =  ClientServer.ReadFileRequest.newBuilder()
+                                                        .setFileName(fileName)
+                                                        .build();
+            
+            ClientServer.ReadFileResponse response = 1;
+
+
+
+        } catch (Exception e) {
+            //TODO: handle exception
+        }
     
+    }
     
+
+    void listFiles(){
+        
     }
 }
 
