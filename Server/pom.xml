@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>ProtectedRemoteFilesProtect</artifactId>
+        <groupId>pt.tecnico</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>Server</artifactId>
+
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+
+        <mainclass>pt.tecnico.Server.ServerMain</mainclass>
+        <zoo.host>localhost</zoo.host>
+        <zoo.port>2181</zoo.port>
+        <server.path>/grpc/hello</server.path>
+        <server.host>localhost</server.host>
+        <server.port>8081</server.port>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>pt.tecnico</groupId>
+            <artifactId>GRPC</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <!-- ZK Naming -->
+        <dependency>
+            <groupId>pt.ulisboa.tecnico.sdis</groupId>
+            <artifactId>zk-naming</artifactId>
+            <version>1.0.4</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Plug-in used to compile the sources of your project. Java 9 requires
+                at least version 3.7.0 to properly handle modules. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${version.maven-compiler-plugin}</version>
+                <configuration>
+                    <source>${version.java}</source>
+                    <target>${version.java}</target>
+                </configuration>
+            </plugin>
+            <!-- Plug-in that provides two goals to execute system and Java programs -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${version.exec-maven-plugin}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>${mainclass}</mainClass>
+                    <arguments>
+                        <argument>${zoo.host}</argument>
+                        <argument>${zoo.port}</argument>
+                        <argument>${server.path}</argument>
+                        <argument>${server.host}</argument>
+                        <argument>${server.port}</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

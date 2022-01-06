@@ -1,0 +1,66 @@
+/usr/lib/jvm/adoptopenjdk-11-hotspot-amd64/bin/javadoc
+@options
+@packages
+-classpath
+'/home/fenix/.m2/repository/org/apache/zookeeper/zookeeper/3.6.2/zookeeper-3.6.2.jar:/home/fenix/.m2/repository/commons-lang/commons-lang/2.6/commons-lang-2.6.jar:/home/fenix/.m2/repository/org/apache/zookeeper/zookeeper-jute/3.6.2/zookeeper-jute-3.6.2.jar:/home/fenix/.m2/repository/org/apache/yetus/audience-annotations/0.5.0/audience-annotations-0.5.0.jar:/home/fenix/.m2/repository/io/netty/netty-handler/4.1.50.Final/netty-handler-4.1.50.Final.jar:/home/fenix/.m2/repository/io/netty/netty-common/4.1.50.Final/netty-common-4.1.50.Final.jar:/home/fenix/.m2/repository/io/netty/netty-resolver/4.1.50.Final/netty-resolver-4.1.50.Final.jar:/home/fenix/.m2/repository/io/netty/netty-buffer/4.1.50.Final/netty-buffer-4.1.50.Final.jar:/home/fenix/.m2/repository/io/netty/netty-transport/4.1.50.Final/netty-transport-4.1.50.Final.jar:/home/fenix/.m2/repository/io/netty/netty-codec/4.1.50.Final/netty-codec-4.1.50.Final.jar:/home/fenix/.m2/repository/io/netty/netty-transport-native-epoll/4.1.50.Final/netty-transport-native-epoll-4.1.50.Final.jar:/home/fenix/.m2/repository/io/netty/netty-transport-native-unix-common/4.1.50.Final/netty-transport-native-unix-common-4.1.50.Final.jar:/home/fenix/.m2/repository/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar:/home/fenix/.m2/repository/org/slf4j/slf4j-log4j12/1.7.25/slf4j-log4j12-1.7.25.jar:/home/fenix/.m2/repository/log4j/log4j/1.2.17/log4j-1.2.17.jar'
+-encoding
+'UTF-8'
+-protected
+-sourcepath
+'/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/src/main/java'
+-author
+-bottom
+'Copyright &#169; 2022. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'ZooKeeper Naming 1.0.4 API'
+-linkoffline
+'https://docs.oracle.com/en/java/javase/11/docs/api' '/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/javadoc-bundle-options'
+-use
+-version
+-windowtitle
+'ZooKeeper Naming 1.0.4 API'
+pt.ulisboa.tecnico.sdis.zk
+pt.ulisboa.tecnico.sdis.zk
+pt.ulisboa.tecnico.sdis.zk
+/home/fenix/.m2/repository/org/apache/zookeeper/zookeeper/3.6.2/zookeeper-3.6.2.jar = 1617889825199
+/home/fenix/.m2/repository/commons-lang/commons-lang/2.6/commons-lang-2.6.jar = 1617889825007
+/home/fenix/.m2/repository/org/apache/zookeeper/zookeeper-jute/3.6.2/zookeeper-jute-3.6.2.jar = 1617889824755
+/home/fenix/.m2/repository/org/apache/yetus/audience-annotations/0.5.0/audience-annotations-0.5.0.jar = 1617889824803
+/home/fenix/.m2/repository/io/netty/netty-handler/4.1.50.Final/netty-handler-4.1.50.Final.jar = 1617889825175
+/home/fenix/.m2/repository/io/netty/netty-common/4.1.50.Final/netty-common-4.1.50.Final.jar = 1617889825123
+/home/fenix/.m2/repository/io/netty/netty-resolver/4.1.50.Final/netty-resolver-4.1.50.Final.jar = 1617889824939
+/home/fenix/.m2/repository/io/netty/netty-buffer/4.1.50.Final/netty-buffer-4.1.50.Final.jar = 1617889825179
+/home/fenix/.m2/repository/io/netty/netty-transport/4.1.50.Final/netty-transport-4.1.50.Final.jar = 1617889825291
+/home/fenix/.m2/repository/io/netty/netty-codec/4.1.50.Final/netty-codec-4.1.50.Final.jar = 1617889825275
+/home/fenix/.m2/repository/io/netty/netty-transport-native-epoll/4.1.50.Final/netty-transport-native-epoll-4.1.50.Final.jar = 1617889825255
+/home/fenix/.m2/repository/io/netty/netty-transport-native-unix-common/4.1.50.Final/netty-transport-native-unix-common-4.1.50.Final.jar = 1617889825243
+/home/fenix/.m2/repository/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar = 1617889825263
+/home/fenix/.m2/repository/org/slf4j/slf4j-log4j12/1.7.25/slf4j-log4j12-1.7.25.jar = 1617889825299
+/home/fenix/.m2/repository/log4j/log4j/1.2.17/log4j-1.2.17.jar = 1617889825451
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/src/main/java = 1617199238373
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/serialized-form.html = 1641404190843
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/member-search-index.js = 1641404190899
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/index-all.html = 1641404190899
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/type-search-index.zip = 1641404190895
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/stylesheet.css = 1641404190919
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/deprecated-list.html = 1641404190911
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/search.js = 1641404190919
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/type-search-index.js = 1641404190895
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/package-search-index.js = 1641404190895
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/help-doc.html = 1641404190915
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/allpackages-index.html = 1641404190907
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/constant-values.html = 1641404190831
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/package-search-index.zip = 1641404190895
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/overview-tree.html = 1641404190875
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/allclasses-index.html = 1641404190903
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/member-search-index.zip = 1641404190899
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/element-list = 1641404190811
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/allclasses.html = 1641404190911
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/script.js = 1641404190919
+/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/index.html = 1641404190911

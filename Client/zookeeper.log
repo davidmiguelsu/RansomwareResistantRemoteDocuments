@@ -1,0 +1,33 @@
+2022-01-05 18:20:14,237 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:zookeeper.version=3.6.2--803c7f1a12f85978cb049af5e4ef23bd8b688715, built on 09/04/2020 12:44 GMT
+2022-01-05 18:20:14,239 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:host.name=neofenix
+2022-01-05 18:20:14,239 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.version=11.0.11
+2022-01-05 18:20:14,239 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.vendor=AdoptOpenJDK
+2022-01-05 18:20:14,239 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.home=/usr/lib/jvm/adoptopenjdk-11-hotspot-amd64
+2022-01-05 18:20:14,240 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.class.path=/home/fenix/apache-maven-3.6.3/boot/plexus-classworlds-2.6.0.jar
+2022-01-05 18:20:14,240 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.library.path=/usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib
+2022-01-05 18:20:14,240 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.io.tmpdir=/tmp
+2022-01-05 18:20:14,240 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.compiler=<NA>
+2022-01-05 18:20:14,240 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.name=Linux
+2022-01-05 18:20:14,240 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.arch=amd64
+2022-01-05 18:20:14,240 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.version=5.11.0-41-generic
+2022-01-05 18:20:14,240 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.name=fenix
+2022-01-05 18:20:14,240 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.home=/home/fenix
+2022-01-05 18:20:14,240 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.dir=/home/fenix/Documents/SIRS_Stuff/ProjTemplate/Client
+2022-01-05 18:20:14,240 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.free=288MB
+2022-01-05 18:20:14,241 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.max=3970MB
+2022-01-05 18:20:14,241 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.total=322MB
+2022-01-05 18:20:14,244 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ZooKeeper@1006] - Initiating client connection, connectString=localhost:2181 sessionTimeout=5000 watcher=pt.ulisboa.tecnico.sdis.zk.ZKNaming$1@5c662e05
+2022-01-05 18:20:14,247 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():X509Util@77] - Setting -D jdk.tls.rejectClientInitiatedRenegotiation=true to disable client-initiated TLS renegotiation
+2022-01-05 18:20:14,251 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ClientCnxnSocket@239] - jute.maxbuffer value is 1048575 Bytes
+2022-01-05 18:20:14,256 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ClientCnxn@1716] - zookeeper.request.timeout value is 0. feature enabled=false
+2022-01-05 18:20:14,267 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1167] - Opening socket connection to server localhost/127.0.0.1:2181.
+2022-01-05 18:20:14,267 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1169] - SASL config status: Will not attempt to authenticate using SASL (unknown error)
+2022-01-05 18:20:14,276 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@999] - Socket connection established, initiating session, client: /127.0.0.1:48454, server: localhost/127.0.0.1:2181
+2022-01-05 18:20:14,300 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1433] - Session establishment complete on server localhost/127.0.0.1:2181, session id = 0x1000019d930002d, negotiated timeout = 5000
+2022-01-05 18:20:14,345 [myid:localhost:2181] - WARN  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1279] - An exception was thrown while closing send thread for session 0x1000019d930002d.
+EndOfStreamException: Unable to read additional data from server sessionid 0x1000019d930002d, likely server has closed socket
+	at org.apache.zookeeper.ClientCnxnSocketNIO.doIO(ClientCnxnSocketNIO.java:77)
+	at org.apache.zookeeper.ClientCnxnSocketNIO.doTransport(ClientCnxnSocketNIO.java:350)
+	at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1275)
+2022-01-05 18:20:14,447 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ZooKeeper@1619] - Session: 0x1000019d930002d closed
+2022-01-05 18:20:14,447 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main()-EventThread:ClientCnxn$EventThread@577] - EventThread shut down for session: 0x1000019d930002d
