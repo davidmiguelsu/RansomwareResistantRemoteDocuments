@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.Scanner;
 
 import com.google.protobuf.ByteString;
 
@@ -15,6 +16,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
 import pt.ulisboa.tecnico.sdis.zk.ZKNaming;
+import pt.ulisboa.tecnico.sdis.zk.ZKNamingException;
 
 public class ClientMain {
 
@@ -58,19 +60,29 @@ public class ClientMain {
 		// while(true) {
 		// 	string command = br.readLine();
 		// }
+		ClientCommandImpl commands = new ClientCommandImpl(stub);
+		Scanner inputScanner = new Scanner(System.in);
+		try {
+			do{
+				System.out.print("> ");
+			}while (commands.ExecuteCommand(inputScanner.nextLine()));			
+		} catch (Exception e) {
+			//TODO: handle exception
+		}
 
-		File file = new File("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/README.md");
-		FileInputStream fis = new FileInputStream(file);
 
-		ClientServer.WriteFileRequest request = ClientServer.WriteFileRequest.newBuilder()
-													.setFileName("Blah")
-													.setFile(ByteString.copyFrom(fis.readAllBytes()))
-													.setHash("1")
-													.build();
+		// File file = new File("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/README.md");
+		// FileInputStream fis = new FileInputStream(file);
+
+		// ClientServer.WriteFileRequest request = ClientServer.WriteFileRequest.newBuilder()
+		// 											.setFileName("Blah")
+		// 											.setFile(ByteString.copyFrom(fis.readAllBytes()))
+		// 											.setHash("1")
+		// 											.build();
 		
-		ClientServer.WriteFileResponse response = stub.writeFile(request);
+		// ClientServer.WriteFileResponse response = stub.writeFile(request);
 
-		fis.close();
+		// fis.close();
 
 		System.out.println(response.getAck());
 		// ClientServer.HelloRequest request = ClientServer.HelloRequest.newBuilder().setName("friend").build();
