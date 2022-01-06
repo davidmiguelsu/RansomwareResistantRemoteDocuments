@@ -84,14 +84,14 @@ public class ClientMain {
 
 		// fis.close();
 
-		System.out.println(response.getAck());
+		// System.out.println(response.getAck());
 		// ClientServer.HelloRequest request = ClientServer.HelloRequest.newBuilder().setName("friend").build();
 
 		// Finally, make the call using the stub
 		// ClientServer.HelloResponse response = stub.greeting(request);
 
 		// HelloResponse has auto-generated toString method that shows its contents
-		System.out.println(response);
+		// System.out.println(response);
 
 		// A Channel should be shutdown before stopping the process.
 		channel.shutdownNow();

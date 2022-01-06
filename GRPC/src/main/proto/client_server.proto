@@ -21,6 +21,14 @@ message ReadFileResponse {
 
 }
 
+message DeleteFileRequest {
+	string fileName = 1;
+}
+
+message DeleteFileResponse {
+	string ack = 1;
+}
+
 message ListFileRequest {
 }
 
@@ -55,5 +63,6 @@ service ClientToServerService {
 
 	rpc writeFile(WriteFileRequest) returns (WriteFileResponse);
 	rpc readFile(ReadFileRequest) returns (ReadFileResponse);
+	rpc deleteFile(DeleteFileRequest) returns (DeleteFileResponse);
 	rpc listFiles(ListFileRequest) returns (ListFileResponse);
 }

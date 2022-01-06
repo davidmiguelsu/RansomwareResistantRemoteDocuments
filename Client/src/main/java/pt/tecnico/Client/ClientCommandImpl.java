@@ -2,6 +2,7 @@ package pt.tecnico.Client;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 import com.google.protobuf.ByteString;
 
@@ -12,9 +13,11 @@ import pt.ulisboa.tecnico.sdis.zk.ZKNamingException;
 
 public class ClientCommandImpl {
     ClientToServerServiceGrpc.ClientToServerServiceBlockingStub stub = null;
+    String dirPath = "";
 
     ClientCommandImpl(ClientToServerServiceGrpc.ClientToServerServiceBlockingStub serverStub) {
         stub = serverStub;
+        dirPath = System.getProperty("user.home") + "/Downloads/";
     }  
     
     public boolean ExecuteCommand(String input) throws ZKNamingException{
@@ -26,15 +29,22 @@ public class ClientCommandImpl {
                     writeFile(args);
                     break;
                 
-                case "read":
-                case "r":
+                case "download":
+                case "d":
                     readFile(args);
+                    break;
+
+                case "delete":
+                case "del":
+                    deleteFile(args);
                     break;
 
                 case "list":
                 case "ls":
                     listFiles();
                     break;
+                case "exit":
+                    return false;
                 default:
                     System.out.println("ERROR - Invalid Command");
                     break;
@@ -50,7 +60,7 @@ public class ClientCommandImpl {
     }
 
     void writeFile(String[] args) {
-        if(args.length < 1 || args.length > 3) {
+        if(args.length == 1 || args.length > 3) {
             System.out.println("ERRO - Formato write");
             return;
         }
@@ -78,13 +88,13 @@ public class ClientCommandImpl {
             System.out.println(response.getAck());
             fis.close();
         } catch (Exception e) {
-            //TODO: handle exception
+             System.out.println("ERRO - Formato write (File not found)");
         }
 		
     }
     
     void readFile(String[] args) {
-        if(args.length > 2 || args.length < 1) {
+        if(args.length < 1 || args.length > 2) {
             System.out.println("ERRO - Formato read");
             return;
         }
@@ -97,19 +107,44 @@ public class ClientCommandImpl {
                                                         .setFileName(fileName)
                                                         .build();
             
-            ClientServer.ReadFileResponse response = 1;
+            ClientServer.ReadFileResponse response = stub.readFile(request);
+            // System.out.println(response.getFile().toStringUtf8());
+            FileOutputStream writer = new FileOutputStream(dirPath + fileName);
+			writer.write(response.getFile().toByteArray());
 
+			writer.close();
+	
 
 
         } catch (Exception e) {
-            //TODO: handle exception
+            System.out.println("ERRO - Formato write (File not found)");
         }
     
     }
     
 
     void listFiles(){
-        
+        ClientServer.ListFileRequest request = ClientServer.ListFileRequest.newBuilder().build();
+
+        ClientServer.ListFileResponse response = stub.listFiles(request);
+        for (String fileName : response.getFileNameList()) {
+            System.out.println(fileName);
+        }
+    }
+
+    void deleteFile(String[] args){
+
+        if(args.length != 2) {
+            System.out.println("ERRO - Formato delete");
+            return;
+        }
+
+        ClientServer.DeleteFileRequest request = ClientServer.DeleteFileRequest.newBuilder()
+            .setFileName(args[1])
+            .build();
+            
+        ClientServer.DeleteFileResponse response = stub.deleteFile(request);
+        System.out.println(response.getAck());
     }
 }
 
