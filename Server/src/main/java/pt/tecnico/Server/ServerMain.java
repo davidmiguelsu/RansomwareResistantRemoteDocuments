@@ -1,10 +1,14 @@
 package pt.tecnico.Server;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import io.grpc.BindableService;
 import io.grpc.ServerBuilder;
 import io.grpc.Server;
 import pt.ulisboa.tecnico.sdis.zk.ZKNaming;
 import pt.ulisboa.tecnico.sdis.zk.ZKNamingException;
+import pt.ulisboa.tecnico.sdis.zk.ZKRecord;
 
 public class ServerMain {
 
@@ -17,6 +21,7 @@ public class ServerMain {
 
 	/** ZooKeeper path where information about the server will be published. */
 	private static String path;
+	private static String realPath;
 	/** Server host name. */
 	private static String host;
 	/** Server host port. */
@@ -41,24 +46,63 @@ public class ServerMain {
 		zooHost = args[0];
 		zooPort = Integer.valueOf(args[1]);
 		path = args[2];
+		realPath = args[2];
 		host = args[3];
 		port = Integer.valueOf(args[4]);
 
 		ClientServerServiceImpl serverImpl = new ClientServerServiceImpl();
 		serverImpl.SetupStoragePath();
 		final BindableService impl = serverImpl;
-		
+	
+		// Register on ZooKeeper.
+		System.out.println("Contacting ZooKeeper at " + zooHost + ":" + zooPort + "...");
+		zkNaming = new ZKNaming(zooHost, Integer.toString(zooPort));
+
+
+		//TODO: Manage whenever a machine goes down
+		System.out.println("Looking up " + path + "...");
+		try {
+			Collection<ZKRecord> records = zkNaming.listRecords(path);
+			int numberOfServers = records.size();
+			ArrayList<ZKRecord> recordList = new ArrayList<>(records);
+			if(recordList.size() == 0) {
+				path += "/1";
+				System.out.println("Binding " + path + " to " + host + ":" + port + "...");
+				zkNaming.rebind(path, host, Integer.toString(port));
+				
+			}
+			else {
+				String[] nameList = recordList.get(recordList.size() - 1).getPath().split("/");
+				int lastToken = Integer.parseInt(nameList[nameList.length - 1]);
+				// System.out.println(lastToken);
+				System.out.println("NUMBER: " + numberOfServers);
+				port += lastToken;
+				path += "/" + Integer.toString(lastToken + 1);
+				System.out.println("Binding " + path + " to " + host + ":" + port + "...");
+				zkNaming.rebind(path, host, Integer.toString(port));
+			}
+			
+		} catch (ZKNamingException e) {
+			e.printStackTrace();
+			// System.out.println(e.printStackTrace(););
+			path += "/1";
+			System.out.println("Binding " + path + " to " + host + ":" + port + "...");
+			zkNaming.rebind(path, host, Integer.toString(port));
+		}
+
+		// System.out.println(numberOfServers);
+
+
+		// System.out.println("Binding " + path + " to " + host + ":" + port + "...");
+		// zkNaming.rebind(path, host, Integer.toString(port));
+
 		// Create a new server to listen on port.
 		Server serverMain = ServerBuilder.forPort(port).addService(impl).build();
 		// Start the server.
 		serverMain.start();
 		// Server threads are running in the background.
 
-		// Register on ZooKeeper.
-		System.out.println("Contacting ZooKeeper at " + zooHost + ":" + zooPort + "...");
-		zkNaming = new ZKNaming(zooHost, Integer.toString(zooPort));
-		System.out.println("Binding " + path + " to " + host + ":" + port + "...");
-		zkNaming.rebind(path, host, Integer.toString(port));
+
 		// Use hook to register a thread to be called on shutdown.
 		Runtime.getRuntime().addShutdownHook(new Unbind());
 

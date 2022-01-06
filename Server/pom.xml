@@ -18,9 +18,9 @@
         <mainclass>pt.tecnico.Server.ServerMain</mainclass>
         <zoo.host>localhost</zoo.host>
         <zoo.port>2181</zoo.port>
-        <server.path>/grpc/hello</server.path>
+        <server.path>/grpc/Ransom</server.path>
         <server.host>localhost</server.host>
-        <server.port>8081</server.port>
+        <server.port>8001</server.port>
     </properties>
 
     <dependencies>
