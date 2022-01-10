@@ -3,58 +3,79 @@ package pt.tecnico.Client;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Random;
 
 import com.google.protobuf.ByteString;
 
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import pt.tecnico.grpc.ClientServer;
 import pt.tecnico.grpc.ClientToServerServiceGrpc;
+import pt.ulisboa.tecnico.sdis.zk.ZKNaming;
 import pt.ulisboa.tecnico.sdis.zk.ZKNamingException;
+import pt.ulisboa.tecnico.sdis.zk.ZKRecord;
 
 public class ClientCommandImpl {
+    String zooHost = "";
+    String zooPort = "";
+    String path = "";
+
+    ManagedChannel channel = null;
     ClientToServerServiceGrpc.ClientToServerServiceBlockingStub stub = null;
     String dirPath = "";
 
-    ClientCommandImpl(ClientToServerServiceGrpc.ClientToServerServiceBlockingStub serverStub) {
-        stub = serverStub;
+    ClientCommandImpl() {
+        // stub = serverStub;
         dirPath = System.getProperty("user.home") + "/Downloads/";
     }  
     
     public boolean ExecuteCommand(String input) throws ZKNamingException{
         String[] args = input.split("[ ]+");
         try{
-            switch (args[0]){
-                case "write":
-                case "w":            
-                    writeFile(args);
-                    break;
-                
-                case "download":
-                case "d":
-                    readFile(args);
-                    break;
-
-                case "delete":
-                case "del":
-                    deleteFile(args);
-                    break;
-
-                case "list":
-                case "ls":
-                    listFiles();
-                    break;
-                case "exit":
-                    return false;
-                default:
-                    System.out.println("ERROR - Invalid Command");
-                    break;
-            }
+            return handleCommand(args);
         }
         catch (StatusRuntimeException sre) {
-            // if(!ConnectToServer(zooKeeperHost, zooKeeperPort, serverPath))
-            //     throw new ZKNamingException();
-            // else
-            //     ExecuteCommand(input);      //Repeat the parsing if it managed to reconnect
+            String result = connectToServer(zooHost, zooPort, path);
+            if(result == "ERROR_LIST_RECORDS" || result == "ERROR_NO_SERVER_AVAILABLE"){
+                System.out.println("No servers are currently active");
+                return false;
+            }
+            else{
+                return handleCommand(args);      //Repeat the parsing if it managed to reconnect
+            }
+        }
+        // return true;
+    }
+
+    boolean handleCommand(String[] args) {
+        switch (args[0]){
+            case "write":
+            case "w":            
+                writeFile(args);
+                break;
+            
+            case "download":
+            case "d":
+                readFile(args);
+                break;
+
+            case "delete":
+            case "del":
+                deleteFile(args);
+                break;
+
+            case "list":
+            case "ls":
+                listFiles();
+                break;
+            case "exit":
+                return false;
+            default:
+                System.out.println("ERROR - Invalid Command");
+                break;
         }
         return true;
     }
@@ -145,6 +166,55 @@ public class ClientCommandImpl {
             
         ClientServer.DeleteFileResponse response = stub.deleteFile(request);
         System.out.println(response.getAck());
+    }
+
+
+    //------------
+    public String connectToServer(String host, String port, String serverPath) {
+        zooHost = host;
+        zooPort = port;
+        path = serverPath;
+
+        System.out.println("Contacting ZooKeeper at " + host + ":" + port + "...");
+        ZKNaming zkNaming = new ZKNaming(host, port);
+		System.out.println("Looking up " + serverPath + "...");
+		// final String target = zkNaming.lookup(path).getURI();
+		// Collection<ZKRecord> records = zkNaming.listRecords(path);
+
+        try {
+            if(channel != null) {
+                ShutdownChannel();
+            }
+            
+            Collection<ZKRecord> records = zkNaming.listRecords(serverPath);
+            int numberOfServers = records.size();
+            
+            if(numberOfServers == 0) {
+                System.err.println("ConnectToServer: No servers available");
+                return "ERROR_NO_SERVER_AVAILABLE";
+            }
+
+            ArrayList<ZKRecord> recordList = new ArrayList<>(records);
+            Random rand = new Random();
+            int chosenServerIndex = rand.nextInt(numberOfServers);
+            String target = recordList.get(chosenServerIndex).getURI();
+
+            channel = ManagedChannelBuilder.forTarget(target).usePlaintext().build();
+            ClientToServerServiceGrpc.ClientToServerServiceBlockingStub newStub = ClientToServerServiceGrpc.newBlockingStub(channel);
+            stub = newStub;
+            System.out.println("Located server at " + target);
+            return "OK";
+        } catch (ZKNamingException zkne) {
+            System.err.println("ConnectToServer: Failed to lookup records" + zkne.getStackTrace());
+            return "ERROR_LIST_RECORDS";
+        }
+    }
+
+    public void ShutdownChannel() {
+        channel.shutdownNow();
+    }
+    public void setStub(ClientToServerServiceGrpc.ClientToServerServiceBlockingStub newStub) {
+        stub = newStub;
     }
 }
 

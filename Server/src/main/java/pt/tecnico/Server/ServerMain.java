@@ -50,10 +50,14 @@ public class ServerMain {
 		host = args[3];
 		port = Integer.valueOf(args[4]);
 
-		ClientServerServiceImpl serverImpl = new ClientServerServiceImpl();
-		serverImpl.SetupStoragePath();
-		final BindableService impl = serverImpl;
-	
+		ClientServerServiceImpl clientServerImpl = new ClientServerServiceImpl();
+		clientServerImpl.SetupStoragePath();
+
+		ServerServerServiceImpl serverServerImpl = new ServerServerServiceImpl();
+		// serverServerImpl.SetupStoragePath();		Maybe not needed?
+
+		final BindableService impl = clientServerImpl;
+		final BindableService betweenServerImpl = serverServerImpl;
 		// Register on ZooKeeper.
 		System.out.println("Contacting ZooKeeper at " + zooHost + ":" + zooPort + "...");
 		zkNaming = new ZKNaming(zooHost, Integer.toString(zooPort));
@@ -102,13 +106,17 @@ public class ServerMain {
 		serverMain.start();
 		// Server threads are running in the background.
 
+		Server betweenServer = ServerBuilder.forPort(port + 1000).addService(betweenServerImpl).build();
+		betweenServer.start();
 
 		// Use hook to register a thread to be called on shutdown.
 		Runtime.getRuntime().addShutdownHook(new Unbind());
 
+
 		System.out.println("Server started and awaiting requests on port " + port);
 		// Do not exit the main thread. Wait until server is terminated.
 		serverMain.awaitTermination();
+		betweenServer.awaitTermination();
 	}
 
 	/** 

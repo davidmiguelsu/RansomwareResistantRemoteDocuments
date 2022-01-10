@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: pt.ulisboa.tecnico.sdis.zk.ZKNamingIT
 -------------------------------------------------------------------------------
-Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.369 s - in pt.ulisboa.tecnico.sdis.zk.ZKNamingIT
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 14.126 s - in pt.ulisboa.tecnico.sdis.zk.ZKNamingIT

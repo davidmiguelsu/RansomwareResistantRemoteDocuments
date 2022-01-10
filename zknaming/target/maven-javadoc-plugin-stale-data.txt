@@ -7,20 +7,20 @@
 'UTF-8'
 -protected
 -sourcepath
-'/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/src/main/java'
+'/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/src/main/java'
 -author
 -bottom
 'Copyright &#169; 2022. All rights reserved.'
 -charset
 'UTF-8'
 -d
-'/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs'
+'/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs'
 -docencoding
 'UTF-8'
 -doctitle
 'ZooKeeper Naming 1.0.4 API'
 -linkoffline
-'https://docs.oracle.com/en/java/javase/11/docs/api' '/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/javadoc-bundle-options'
+'https://docs.oracle.com/en/java/javase/11/docs/api' '/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/javadoc-bundle-options'
 -use
 -version
 -windowtitle
@@ -43,24 +43,24 @@ pt.ulisboa.tecnico.sdis.zk
 /home/fenix/.m2/repository/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar = 1617889825263
 /home/fenix/.m2/repository/org/slf4j/slf4j-log4j12/1.7.25/slf4j-log4j12-1.7.25.jar = 1617889825299
 /home/fenix/.m2/repository/log4j/log4j/1.2.17/log4j-1.2.17.jar = 1617889825451
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/src/main/java = 1617199238373
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/serialized-form.html = 1641404190843
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/member-search-index.js = 1641404190899
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/index-all.html = 1641404190899
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/type-search-index.zip = 1641404190895
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/stylesheet.css = 1641404190919
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/deprecated-list.html = 1641404190911
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/search.js = 1641404190919
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/type-search-index.js = 1641404190895
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/package-search-index.js = 1641404190895
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/help-doc.html = 1641404190915
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/allpackages-index.html = 1641404190907
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/constant-values.html = 1641404190831
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/package-search-index.zip = 1641404190895
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/overview-tree.html = 1641404190875
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/allclasses-index.html = 1641404190903
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/member-search-index.zip = 1641404190899
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/element-list = 1641404190811
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/allclasses.html = 1641404190911
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/script.js = 1641404190919
-/home/fenix/Documents/SIRS_Stuff/ProjTemplate/zknaming/target/apidocs/index.html = 1641404190911
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/src/main/java = 1641467654251
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/serialized-form.html = 1641814953586
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/member-search-index.js = 1641814953666
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/index-all.html = 1641814953670
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/type-search-index.zip = 1641814953666
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/stylesheet.css = 1641814953694
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/deprecated-list.html = 1641814953686
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/search.js = 1641814953694
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/type-search-index.js = 1641814953666
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/package-search-index.js = 1641814953662
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/help-doc.html = 1641814953694
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/allpackages-index.html = 1641814953682
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/constant-values.html = 1641814953578
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/package-search-index.zip = 1641814953666
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/overview-tree.html = 1641814953642
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/allclasses-index.html = 1641814953678
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/member-search-index.zip = 1641814953666
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/element-list = 1641814953562
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/allclasses.html = 1641814953690
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/script.js = 1641814953694
+/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/index.html = 1641814953690
