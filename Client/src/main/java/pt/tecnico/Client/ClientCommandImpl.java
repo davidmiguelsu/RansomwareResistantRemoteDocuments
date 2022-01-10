@@ -71,6 +71,11 @@ public class ClientCommandImpl {
             case "ls":
                 listFiles();
                 break;
+
+            case "help":
+            case "h":
+                System.out.println(" \n The commands available are: \n Create File - write arg / w arg \n Read File - download arg / d arg \n List Files - list / ls \n Delete file - delete arg / d arg \n Close the session -  exit \n \n");   
+                break;            
             case "exit":
                 return false;
             default:
@@ -82,7 +87,7 @@ public class ClientCommandImpl {
 
     void writeFile(String[] args) {
         if(args.length == 1 || args.length > 3) {
-            System.out.println("ERRO - Formato write");
+            System.out.println("ERROR - Write format - You need to use this format ->  \" write arg / w arg \"  ");
             return;
         }
 
@@ -109,14 +114,14 @@ public class ClientCommandImpl {
             System.out.println(response.getAck());
             fis.close();
         } catch (Exception e) {
-             System.out.println("ERRO - Formato write (File not found)");
+             System.out.println("ERROR - Write - (File not found) | Dont forget you need to use this format ->  \" write arg / w arg \"  \n ");
         }
 		
     }
     
     void readFile(String[] args) {
         if(args.length < 1 || args.length > 2) {
-            System.out.println("ERRO - Formato read");
+            System.out.println("ERROR - Read format - You need to use this format -> \" download arg / d arg \"  \n ");
             return;
         }
 
@@ -138,7 +143,7 @@ public class ClientCommandImpl {
 
 
         } catch (Exception e) {
-            System.out.println("ERRO - Formato write (File not found)");
+            System.out.println("ERROR - Read - (File not found) | Dont forget you need to use this format -> \" download arg / d arg \" \n");
         }
     
     }
@@ -156,7 +161,7 @@ public class ClientCommandImpl {
     void deleteFile(String[] args){
 
         if(args.length != 2) {
-            System.out.println("ERRO - Formato delete");
+            System.out.println("ERROR - Delete - You need to use this format -> \" delete arg / del arg \"  \n");
             return;
         }
 

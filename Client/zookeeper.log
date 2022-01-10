@@ -31,3 +31,199 @@ EndOfStreamException: Unable to read additional data from server sessionid 0x100
 	at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1275)
 2022-01-05 18:20:14,447 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ZooKeeper@1619] - Session: 0x1000019d930002d closed
 2022-01-05 18:20:14,447 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main()-EventThread:ClientCnxn$EventThread@577] - EventThread shut down for session: 0x1000019d930002d
+2022-01-10 12:38:05,828 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:zookeeper.version=3.6.2--803c7f1a12f85978cb049af5e4ef23bd8b688715, built on 09/04/2020 12:44 GMT
+2022-01-10 12:38:05,830 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:host.name=DESKTOP-2D3O1MH
+2022-01-10 12:38:05,831 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.version=11.0.1
+2022-01-10 12:38:05,831 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.vendor=Oracle Corporation
+2022-01-10 12:38:05,831 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.home=C:\jdk-11.0.1
+2022-01-10 12:38:05,831 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.class.path=C:\maven\boot\plexus-classworlds-2.6.0.jar
+2022-01-10 12:38:05,831 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.library.path=C:\jdk-11.0.1\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\jdk-11.0.1\bin;C:\maven\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\Program Files\Microsoft VS Code\bin;C:\HashiCorp\Vagrant\bin;C:\Program Files\Git\cmd;C:\Program Files\dotnet\;C:\jdk-11.0.1\bin;C:\maven\bin;C:\Users\david\AppData\Local\Programs\Python\Python38\Scripts\;C:\Users\david\AppData\Local\Programs\Python\Python38\;C:\Users\david\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Oracle\VirtualBox;;.
+2022-01-10 12:38:05,831 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.io.tmpdir=C:\Users\david\AppData\Local\Temp\
+2022-01-10 12:38:05,831 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.compiler=<NA>
+2022-01-10 12:38:05,831 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.name=Windows 10
+2022-01-10 12:38:05,831 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.arch=amd64
+2022-01-10 12:38:05,831 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.version=10.0
+2022-01-10 12:38:05,831 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.name=david
+2022-01-10 12:38:05,831 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.home=C:\Users\david
+2022-01-10 12:38:05,831 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.dir=C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\Client
+2022-01-10 12:38:05,832 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.free=468MB
+2022-01-10 12:38:05,832 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.max=8180MB
+2022-01-10 12:38:05,832 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.total=512MB
+2022-01-10 12:38:05,834 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ZooKeeper@1006] - Initiating client connection, connectString=localhost:2181 sessionTimeout=5000 watcher=pt.ulisboa.tecnico.sdis.zk.ZKNaming$1@4ac8013
+2022-01-10 12:38:05,837 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():X509Util@77] - Setting -D jdk.tls.rejectClientInitiatedRenegotiation=true to disable client-initiated TLS renegotiation
+2022-01-10 12:38:05,845 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ClientCnxnSocket@239] - jute.maxbuffer value is 1048575 Bytes
+2022-01-10 12:38:05,849 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ClientCnxn@1716] - zookeeper.request.timeout value is 0. feature enabled=false
+2022-01-10 12:38:05,856 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1167] - Opening socket connection to server localhost/0:0:0:0:0:0:0:1:2181.
+2022-01-10 12:38:05,856 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1169] - SASL config status: Will not attempt to authenticate using SASL (unknown error)
+2022-01-10 12:38:05,858 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@999] - Socket connection established, initiating session, client: /0:0:0:0:0:0:0:1:56316, server: localhost/0:0:0:0:0:0:0:1:2181
+2022-01-10 12:38:05,862 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1433] - Session establishment complete on server localhost/0:0:0:0:0:0:0:1:2181, session id = 0x100488c9463002d, negotiated timeout = 5000
+2022-01-10 12:38:05,971 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ZooKeeper@1619] - Session: 0x100488c9463002d closed
+2022-01-10 12:38:05,971 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main()-EventThread:ClientCnxn$EventThread@577] - EventThread shut down for session: 0x100488c9463002d
+2022-01-10 12:38:23,946 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:zookeeper.version=3.6.2--803c7f1a12f85978cb049af5e4ef23bd8b688715, built on 09/04/2020 12:44 GMT
+2022-01-10 12:38:23,948 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:host.name=DESKTOP-2D3O1MH
+2022-01-10 12:38:23,948 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.version=11.0.1
+2022-01-10 12:38:23,949 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.vendor=Oracle Corporation
+2022-01-10 12:38:23,949 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.home=C:\jdk-11.0.1
+2022-01-10 12:38:23,949 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.class.path=C:\maven\boot\plexus-classworlds-2.6.0.jar
+2022-01-10 12:38:23,949 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.library.path=C:\jdk-11.0.1\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\jdk-11.0.1\bin;C:\maven\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\Program Files\Microsoft VS Code\bin;C:\HashiCorp\Vagrant\bin;C:\Program Files\Git\cmd;C:\Program Files\dotnet\;C:\jdk-11.0.1\bin;C:\maven\bin;C:\Users\david\AppData\Local\Programs\Python\Python38\Scripts\;C:\Users\david\AppData\Local\Programs\Python\Python38\;C:\Users\david\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Oracle\VirtualBox;;.
+2022-01-10 12:38:23,949 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.io.tmpdir=C:\Users\david\AppData\Local\Temp\
+2022-01-10 12:38:23,949 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.compiler=<NA>
+2022-01-10 12:38:23,949 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.name=Windows 10
+2022-01-10 12:38:23,949 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.arch=amd64
+2022-01-10 12:38:23,949 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.version=10.0
+2022-01-10 12:38:23,949 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.name=david
+2022-01-10 12:38:23,949 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.home=C:\Users\david
+2022-01-10 12:38:23,949 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.dir=C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\Client
+2022-01-10 12:38:23,949 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.free=497MB
+2022-01-10 12:38:23,950 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.max=8180MB
+2022-01-10 12:38:23,950 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.total=512MB
+2022-01-10 12:38:23,953 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ZooKeeper@1006] - Initiating client connection, connectString=localhost:2181 sessionTimeout=5000 watcher=pt.ulisboa.tecnico.sdis.zk.ZKNaming$1@575076cc
+2022-01-10 12:38:23,955 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():X509Util@77] - Setting -D jdk.tls.rejectClientInitiatedRenegotiation=true to disable client-initiated TLS renegotiation
+2022-01-10 12:38:24,160 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ClientCnxnSocket@239] - jute.maxbuffer value is 1048575 Bytes
+2022-01-10 12:38:24,164 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ClientCnxn@1716] - zookeeper.request.timeout value is 0. feature enabled=false
+2022-01-10 12:38:24,170 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1167] - Opening socket connection to server localhost/127.0.0.1:2181.
+2022-01-10 12:38:24,170 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1169] - SASL config status: Will not attempt to authenticate using SASL (unknown error)
+2022-01-10 12:38:24,172 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@999] - Socket connection established, initiating session, client: /127.0.0.1:56375, server: localhost/127.0.0.1:2181
+2022-01-10 12:38:24,177 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1433] - Session establishment complete on server localhost/127.0.0.1:2181, session id = 0x100488c94630032, negotiated timeout = 5000
+2022-01-10 12:38:24,289 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ZooKeeper@1619] - Session: 0x100488c94630032 closed
+2022-01-10 12:38:24,289 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main()-EventThread:ClientCnxn$EventThread@577] - EventThread shut down for session: 0x100488c94630032
+2022-01-10 16:33:06,888 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:zookeeper.version=3.6.2--803c7f1a12f85978cb049af5e4ef23bd8b688715, built on 09/04/2020 12:44 GMT
+2022-01-10 16:33:06,890 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:host.name=DESKTOP-2D3O1MH
+2022-01-10 16:33:06,890 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.version=11.0.1
+2022-01-10 16:33:06,891 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.vendor=Oracle Corporation
+2022-01-10 16:33:06,891 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.home=C:\jdk-11.0.1
+2022-01-10 16:33:06,891 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.class.path=C:\maven\boot\plexus-classworlds-2.6.0.jar
+2022-01-10 16:33:06,891 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.library.path=C:\jdk-11.0.1\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\jdk-11.0.1\bin;C:\maven\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\Program Files\Microsoft VS Code\bin;C:\HashiCorp\Vagrant\bin;C:\Program Files\Git\cmd;C:\Program Files\dotnet\;C:\jdk-11.0.1\bin;C:\maven\bin;C:\Users\david\AppData\Local\Programs\Python\Python38\Scripts\;C:\Users\david\AppData\Local\Programs\Python\Python38\;C:\Users\david\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Oracle\VirtualBox;;.
+2022-01-10 16:33:06,891 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.io.tmpdir=C:\Users\david\AppData\Local\Temp\
+2022-01-10 16:33:06,891 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.compiler=<NA>
+2022-01-10 16:33:06,891 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.name=Windows 10
+2022-01-10 16:33:06,892 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.arch=amd64
+2022-01-10 16:33:06,892 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.version=10.0
+2022-01-10 16:33:06,892 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.name=david
+2022-01-10 16:33:06,892 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.home=C:\Users\david
+2022-01-10 16:33:06,892 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.dir=C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\Client
+2022-01-10 16:33:06,892 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.free=430MB
+2022-01-10 16:33:06,893 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.max=8180MB
+2022-01-10 16:33:06,893 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.total=512MB
+2022-01-10 16:33:06,896 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ZooKeeper@1006] - Initiating client connection, connectString=localhost:2181 sessionTimeout=5000 watcher=pt.ulisboa.tecnico.sdis.zk.ZKNaming$1@2c0dcea8
+2022-01-10 16:33:06,899 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():X509Util@77] - Setting -D jdk.tls.rejectClientInitiatedRenegotiation=true to disable client-initiated TLS renegotiation
+2022-01-10 16:33:07,144 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ClientCnxnSocket@239] - jute.maxbuffer value is 1048575 Bytes
+2022-01-10 16:33:07,149 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ClientCnxn@1716] - zookeeper.request.timeout value is 0. feature enabled=false
+2022-01-10 16:33:07,156 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1167] - Opening socket connection to server localhost/127.0.0.1:2181.
+2022-01-10 16:33:07,156 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1169] - SASL config status: Will not attempt to authenticate using SASL (unknown error)
+2022-01-10 16:33:07,158 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@999] - Socket connection established, initiating session, client: /127.0.0.1:64513, server: localhost/127.0.0.1:2181
+2022-01-10 16:33:07,168 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1433] - Session establishment complete on server localhost/127.0.0.1:2181, session id = 0x1004963da470000, negotiated timeout = 5000
+2022-01-10 16:33:07,291 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ZooKeeper@1619] - Session: 0x1004963da470000 closed
+2022-01-10 16:33:07,291 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main()-EventThread:ClientCnxn$EventThread@577] - EventThread shut down for session: 0x1004963da470000
+2022-01-10 16:33:26,909 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:zookeeper.version=3.6.2--803c7f1a12f85978cb049af5e4ef23bd8b688715, built on 09/04/2020 12:44 GMT
+2022-01-10 16:33:26,911 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:host.name=DESKTOP-2D3O1MH
+2022-01-10 16:33:26,911 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.version=11.0.1
+2022-01-10 16:33:26,911 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.vendor=Oracle Corporation
+2022-01-10 16:33:26,912 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.home=C:\jdk-11.0.1
+2022-01-10 16:33:26,912 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.class.path=C:\maven\boot\plexus-classworlds-2.6.0.jar
+2022-01-10 16:33:26,912 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.library.path=C:\jdk-11.0.1\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\jdk-11.0.1\bin;C:\maven\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\Program Files\Microsoft VS Code\bin;C:\HashiCorp\Vagrant\bin;C:\Program Files\Git\cmd;C:\Program Files\dotnet\;C:\jdk-11.0.1\bin;C:\maven\bin;C:\Users\david\AppData\Local\Programs\Python\Python38\Scripts\;C:\Users\david\AppData\Local\Programs\Python\Python38\;C:\Users\david\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Oracle\VirtualBox;;.
+2022-01-10 16:33:26,912 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.io.tmpdir=C:\Users\david\AppData\Local\Temp\
+2022-01-10 16:33:26,912 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.compiler=<NA>
+2022-01-10 16:33:26,912 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.name=Windows 10
+2022-01-10 16:33:26,912 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.arch=amd64
+2022-01-10 16:33:26,912 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.version=10.0
+2022-01-10 16:33:26,912 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.name=david
+2022-01-10 16:33:26,912 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.home=C:\Users\david
+2022-01-10 16:33:26,912 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.dir=C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\Client
+2022-01-10 16:33:26,912 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.free=432MB
+2022-01-10 16:33:26,913 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.max=8180MB
+2022-01-10 16:33:26,913 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.total=512MB
+2022-01-10 16:33:26,916 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ZooKeeper@1006] - Initiating client connection, connectString=localhost:2181 sessionTimeout=5000 watcher=pt.ulisboa.tecnico.sdis.zk.ZKNaming$1@4962f343
+2022-01-10 16:33:26,918 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():X509Util@77] - Setting -D jdk.tls.rejectClientInitiatedRenegotiation=true to disable client-initiated TLS renegotiation
+2022-01-10 16:33:27,134 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ClientCnxnSocket@239] - jute.maxbuffer value is 1048575 Bytes
+2022-01-10 16:33:27,138 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ClientCnxn@1716] - zookeeper.request.timeout value is 0. feature enabled=false
+2022-01-10 16:33:27,145 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1167] - Opening socket connection to server localhost/0:0:0:0:0:0:0:1:2181.
+2022-01-10 16:33:27,145 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1169] - SASL config status: Will not attempt to authenticate using SASL (unknown error)
+2022-01-10 16:33:27,147 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@999] - Socket connection established, initiating session, client: /0:0:0:0:0:0:0:1:64605, server: localhost/0:0:0:0:0:0:0:1:2181
+2022-01-10 16:33:27,152 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1433] - Session establishment complete on server localhost/0:0:0:0:0:0:0:1:2181, session id = 0x1004963da470004, negotiated timeout = 5000
+2022-01-10 16:33:27,270 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ZooKeeper@1619] - Session: 0x1004963da470004 closed
+2022-01-10 16:33:27,270 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main()-EventThread:ClientCnxn$EventThread@577] - EventThread shut down for session: 0x1004963da470004
+2022-01-10 16:33:44,414 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:zookeeper.version=3.6.2--803c7f1a12f85978cb049af5e4ef23bd8b688715, built on 09/04/2020 12:44 GMT
+2022-01-10 16:33:44,416 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:host.name=DESKTOP-2D3O1MH
+2022-01-10 16:33:44,416 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.version=11.0.1
+2022-01-10 16:33:44,416 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.vendor=Oracle Corporation
+2022-01-10 16:33:44,416 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.home=C:\jdk-11.0.1
+2022-01-10 16:33:44,416 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.class.path=C:\maven\boot\plexus-classworlds-2.6.0.jar
+2022-01-10 16:33:44,417 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.library.path=C:\jdk-11.0.1\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\jdk-11.0.1\bin;C:\maven\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\Program Files\Microsoft VS Code\bin;C:\HashiCorp\Vagrant\bin;C:\Program Files\Git\cmd;C:\Program Files\dotnet\;C:\jdk-11.0.1\bin;C:\maven\bin;C:\Users\david\AppData\Local\Programs\Python\Python38\Scripts\;C:\Users\david\AppData\Local\Programs\Python\Python38\;C:\Users\david\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Oracle\VirtualBox;;.
+2022-01-10 16:33:44,417 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.io.tmpdir=C:\Users\david\AppData\Local\Temp\
+2022-01-10 16:33:44,417 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.compiler=<NA>
+2022-01-10 16:33:44,417 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.name=Windows 10
+2022-01-10 16:33:44,417 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.arch=amd64
+2022-01-10 16:33:44,417 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.version=10.0
+2022-01-10 16:33:44,417 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.name=david
+2022-01-10 16:33:44,417 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.home=C:\Users\david
+2022-01-10 16:33:44,417 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.dir=C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\Client
+2022-01-10 16:33:44,417 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.free=430MB
+2022-01-10 16:33:44,418 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.max=8180MB
+2022-01-10 16:33:44,418 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.total=512MB
+2022-01-10 16:33:44,420 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ZooKeeper@1006] - Initiating client connection, connectString=localhost:2181 sessionTimeout=5000 watcher=pt.ulisboa.tecnico.sdis.zk.ZKNaming$1@76b6a7a2
+2022-01-10 16:33:44,423 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():X509Util@77] - Setting -D jdk.tls.rejectClientInitiatedRenegotiation=true to disable client-initiated TLS renegotiation
+2022-01-10 16:33:44,636 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ClientCnxnSocket@239] - jute.maxbuffer value is 1048575 Bytes
+2022-01-10 16:33:44,640 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ClientCnxn@1716] - zookeeper.request.timeout value is 0. feature enabled=false
+2022-01-10 16:33:44,647 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1167] - Opening socket connection to server localhost/0:0:0:0:0:0:0:1:2181.
+2022-01-10 16:33:44,647 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1169] - SASL config status: Will not attempt to authenticate using SASL (unknown error)
+2022-01-10 16:33:44,648 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@999] - Socket connection established, initiating session, client: /0:0:0:0:0:0:0:1:64672, server: localhost/0:0:0:0:0:0:0:1:2181
+2022-01-10 16:33:44,660 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1433] - Session establishment complete on server localhost/0:0:0:0:0:0:0:1:2181, session id = 0x1004963da470005, negotiated timeout = 5000
+2022-01-10 16:33:44,780 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ZooKeeper@1619] - Session: 0x1004963da470005 closed
+2022-01-10 16:33:44,780 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main()-EventThread:ClientCnxn$EventThread@577] - EventThread shut down for session: 0x1004963da470005
+2022-01-10 16:34:29,200 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:zookeeper.version=3.6.2--803c7f1a12f85978cb049af5e4ef23bd8b688715, built on 09/04/2020 12:44 GMT
+2022-01-10 16:34:29,202 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:host.name=DESKTOP-2D3O1MH
+2022-01-10 16:34:29,203 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.version=11.0.1
+2022-01-10 16:34:29,203 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.vendor=Oracle Corporation
+2022-01-10 16:34:29,203 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.home=C:\jdk-11.0.1
+2022-01-10 16:34:29,203 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.class.path=C:\maven\boot\plexus-classworlds-2.6.0.jar
+2022-01-10 16:34:29,203 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.library.path=C:\jdk-11.0.1\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\jdk-11.0.1\bin;C:\maven\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\Program Files\Microsoft VS Code\bin;C:\HashiCorp\Vagrant\bin;C:\Program Files\Git\cmd;C:\Program Files\dotnet\;C:\jdk-11.0.1\bin;C:\maven\bin;C:\Users\david\AppData\Local\Programs\Python\Python38\Scripts\;C:\Users\david\AppData\Local\Programs\Python\Python38\;C:\Users\david\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Oracle\VirtualBox;;.
+2022-01-10 16:34:29,203 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.io.tmpdir=C:\Users\david\AppData\Local\Temp\
+2022-01-10 16:34:29,203 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.compiler=<NA>
+2022-01-10 16:34:29,203 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.name=Windows 10
+2022-01-10 16:34:29,203 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.arch=amd64
+2022-01-10 16:34:29,204 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.version=10.0
+2022-01-10 16:34:29,204 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.name=david
+2022-01-10 16:34:29,204 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.home=C:\Users\david
+2022-01-10 16:34:29,204 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.dir=C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\Client
+2022-01-10 16:34:29,204 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.free=430MB
+2022-01-10 16:34:29,204 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.max=8180MB
+2022-01-10 16:34:29,204 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.total=512MB
+2022-01-10 16:34:29,207 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ZooKeeper@1006] - Initiating client connection, connectString=localhost:2181 sessionTimeout=5000 watcher=pt.ulisboa.tecnico.sdis.zk.ZKNaming$1@677bbd6e
+2022-01-10 16:34:29,209 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():X509Util@77] - Setting -D jdk.tls.rejectClientInitiatedRenegotiation=true to disable client-initiated TLS renegotiation
+2022-01-10 16:34:29,431 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ClientCnxnSocket@239] - jute.maxbuffer value is 1048575 Bytes
+2022-01-10 16:34:29,435 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ClientCnxn@1716] - zookeeper.request.timeout value is 0. feature enabled=false
+2022-01-10 16:34:29,442 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1167] - Opening socket connection to server localhost/0:0:0:0:0:0:0:1:2181.
+2022-01-10 16:34:29,442 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1169] - SASL config status: Will not attempt to authenticate using SASL (unknown error)
+2022-01-10 16:34:29,444 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@999] - Socket connection established, initiating session, client: /0:0:0:0:0:0:0:1:64733, server: localhost/0:0:0:0:0:0:0:1:2181
+2022-01-10 16:34:29,448 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1433] - Session establishment complete on server localhost/0:0:0:0:0:0:0:1:2181, session id = 0x1004963da470006, negotiated timeout = 5000
+2022-01-10 16:34:29,573 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ZooKeeper@1619] - Session: 0x1004963da470006 closed
+2022-01-10 16:34:29,573 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main()-EventThread:ClientCnxn$EventThread@577] - EventThread shut down for session: 0x1004963da470006
+2022-01-10 16:36:34,656 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:zookeeper.version=3.6.2--803c7f1a12f85978cb049af5e4ef23bd8b688715, built on 09/04/2020 12:44 GMT
+2022-01-10 16:36:34,658 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:host.name=DESKTOP-2D3O1MH
+2022-01-10 16:36:34,659 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.version=11.0.1
+2022-01-10 16:36:34,659 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.vendor=Oracle Corporation
+2022-01-10 16:36:34,659 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.home=C:\jdk-11.0.1
+2022-01-10 16:36:34,659 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.class.path=C:\maven\boot\plexus-classworlds-2.6.0.jar
+2022-01-10 16:36:34,659 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.library.path=C:\jdk-11.0.1\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\jdk-11.0.1\bin;C:\maven\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\Program Files\Microsoft VS Code\bin;C:\HashiCorp\Vagrant\bin;C:\Program Files\Git\cmd;C:\Program Files\dotnet\;C:\jdk-11.0.1\bin;C:\maven\bin;C:\Users\david\AppData\Local\Programs\Python\Python38\Scripts\;C:\Users\david\AppData\Local\Programs\Python\Python38\;C:\Users\david\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Oracle\VirtualBox;;.
+2022-01-10 16:36:34,659 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.io.tmpdir=C:\Users\david\AppData\Local\Temp\
+2022-01-10 16:36:34,659 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:java.compiler=<NA>
+2022-01-10 16:36:34,659 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.name=Windows 10
+2022-01-10 16:36:34,659 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.arch=amd64
+2022-01-10 16:36:34,659 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.version=10.0
+2022-01-10 16:36:34,659 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.name=david
+2022-01-10 16:36:34,659 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.home=C:\Users\david
+2022-01-10 16:36:34,659 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:user.dir=C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\Client
+2022-01-10 16:36:34,660 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.free=432MB
+2022-01-10 16:36:34,660 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.max=8180MB
+2022-01-10 16:36:34,660 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():Environment@98] - Client environment:os.memory.total=512MB
+2022-01-10 16:36:34,663 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ZooKeeper@1006] - Initiating client connection, connectString=localhost:2181 sessionTimeout=5000 watcher=pt.ulisboa.tecnico.sdis.zk.ZKNaming$1@202dac87
+2022-01-10 16:36:34,665 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():X509Util@77] - Setting -D jdk.tls.rejectClientInitiatedRenegotiation=true to disable client-initiated TLS renegotiation
+2022-01-10 16:36:34,880 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ClientCnxnSocket@239] - jute.maxbuffer value is 1048575 Bytes
+2022-01-10 16:36:34,884 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ClientCnxn@1716] - zookeeper.request.timeout value is 0. feature enabled=false
+2022-01-10 16:36:34,891 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1167] - Opening socket connection to server localhost/0:0:0:0:0:0:0:1:2181.
+2022-01-10 16:36:34,892 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1169] - SASL config status: Will not attempt to authenticate using SASL (unknown error)
+2022-01-10 16:36:34,893 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@999] - Socket connection established, initiating session, client: /0:0:0:0:0:0:0:1:64959, server: localhost/0:0:0:0:0:0:0:1:2181
+2022-01-10 16:36:34,898 [myid:localhost:2181] - INFO  [pt.tecnico.Client.ClientMain.main(localhost:2181):ClientCnxn$SendThread@1433] - Session establishment complete on server localhost/0:0:0:0:0:0:0:1:2181, session id = 0x10049675f310003, negotiated timeout = 5000
+2022-01-10 16:36:35,022 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main():ZooKeeper@1619] - Session: 0x10049675f310003 closed
+2022-01-10 16:36:35,022 [myid:] - INFO  [pt.tecnico.Client.ClientMain.main()-EventThread:ClientCnxn$EventThread@577] - EventThread shut down for session: 0x10049675f310003

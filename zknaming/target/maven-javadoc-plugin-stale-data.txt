@@ -1,66 +1,26 @@
-/usr/lib/jvm/adoptopenjdk-11-hotspot-amd64/bin/javadoc
-@options
-@packages
--classpath
-'/home/fenix/.m2/repository/org/apache/zookeeper/zookeeper/3.6.2/zookeeper-3.6.2.jar:/home/fenix/.m2/repository/commons-lang/commons-lang/2.6/commons-lang-2.6.jar:/home/fenix/.m2/repository/org/apache/zookeeper/zookeeper-jute/3.6.2/zookeeper-jute-3.6.2.jar:/home/fenix/.m2/repository/org/apache/yetus/audience-annotations/0.5.0/audience-annotations-0.5.0.jar:/home/fenix/.m2/repository/io/netty/netty-handler/4.1.50.Final/netty-handler-4.1.50.Final.jar:/home/fenix/.m2/repository/io/netty/netty-common/4.1.50.Final/netty-common-4.1.50.Final.jar:/home/fenix/.m2/repository/io/netty/netty-resolver/4.1.50.Final/netty-resolver-4.1.50.Final.jar:/home/fenix/.m2/repository/io/netty/netty-buffer/4.1.50.Final/netty-buffer-4.1.50.Final.jar:/home/fenix/.m2/repository/io/netty/netty-transport/4.1.50.Final/netty-transport-4.1.50.Final.jar:/home/fenix/.m2/repository/io/netty/netty-codec/4.1.50.Final/netty-codec-4.1.50.Final.jar:/home/fenix/.m2/repository/io/netty/netty-transport-native-epoll/4.1.50.Final/netty-transport-native-epoll-4.1.50.Final.jar:/home/fenix/.m2/repository/io/netty/netty-transport-native-unix-common/4.1.50.Final/netty-transport-native-unix-common-4.1.50.Final.jar:/home/fenix/.m2/repository/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar:/home/fenix/.m2/repository/org/slf4j/slf4j-log4j12/1.7.25/slf4j-log4j12-1.7.25.jar:/home/fenix/.m2/repository/log4j/log4j/1.2.17/log4j-1.2.17.jar'
--encoding
-'UTF-8'
--protected
--sourcepath
-'/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/src/main/java'
--author
--bottom
-'Copyright &#169; 2022. All rights reserved.'
--charset
-'UTF-8'
--d
-'/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs'
--docencoding
-'UTF-8'
--doctitle
-'ZooKeeper Naming 1.0.4 API'
--linkoffline
-'https://docs.oracle.com/en/java/javase/11/docs/api' '/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/javadoc-bundle-options'
--use
--version
--windowtitle
-'ZooKeeper Naming 1.0.4 API'
-pt.ulisboa.tecnico.sdis.zk
-pt.ulisboa.tecnico.sdis.zk
-pt.ulisboa.tecnico.sdis.zk
-/home/fenix/.m2/repository/org/apache/zookeeper/zookeeper/3.6.2/zookeeper-3.6.2.jar = 1617889825199
-/home/fenix/.m2/repository/commons-lang/commons-lang/2.6/commons-lang-2.6.jar = 1617889825007
-/home/fenix/.m2/repository/org/apache/zookeeper/zookeeper-jute/3.6.2/zookeeper-jute-3.6.2.jar = 1617889824755
-/home/fenix/.m2/repository/org/apache/yetus/audience-annotations/0.5.0/audience-annotations-0.5.0.jar = 1617889824803
-/home/fenix/.m2/repository/io/netty/netty-handler/4.1.50.Final/netty-handler-4.1.50.Final.jar = 1617889825175
-/home/fenix/.m2/repository/io/netty/netty-common/4.1.50.Final/netty-common-4.1.50.Final.jar = 1617889825123
-/home/fenix/.m2/repository/io/netty/netty-resolver/4.1.50.Final/netty-resolver-4.1.50.Final.jar = 1617889824939
-/home/fenix/.m2/repository/io/netty/netty-buffer/4.1.50.Final/netty-buffer-4.1.50.Final.jar = 1617889825179
-/home/fenix/.m2/repository/io/netty/netty-transport/4.1.50.Final/netty-transport-4.1.50.Final.jar = 1617889825291
-/home/fenix/.m2/repository/io/netty/netty-codec/4.1.50.Final/netty-codec-4.1.50.Final.jar = 1617889825275
-/home/fenix/.m2/repository/io/netty/netty-transport-native-epoll/4.1.50.Final/netty-transport-native-epoll-4.1.50.Final.jar = 1617889825255
-/home/fenix/.m2/repository/io/netty/netty-transport-native-unix-common/4.1.50.Final/netty-transport-native-unix-common-4.1.50.Final.jar = 1617889825243
-/home/fenix/.m2/repository/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar = 1617889825263
-/home/fenix/.m2/repository/org/slf4j/slf4j-log4j12/1.7.25/slf4j-log4j12-1.7.25.jar = 1617889825299
-/home/fenix/.m2/repository/log4j/log4j/1.2.17/log4j-1.2.17.jar = 1617889825451
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/src/main/java = 1641467654251
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/serialized-form.html = 1641814953586
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/member-search-index.js = 1641814953666
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/index-all.html = 1641814953670
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/type-search-index.zip = 1641814953666
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/stylesheet.css = 1641814953694
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/deprecated-list.html = 1641814953686
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/search.js = 1641814953694
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/type-search-index.js = 1641814953666
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/package-search-index.js = 1641814953662
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/help-doc.html = 1641814953694
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/allpackages-index.html = 1641814953682
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/constant-values.html = 1641814953578
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/package-search-index.zip = 1641814953666
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/overview-tree.html = 1641814953642
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/allclasses-index.html = 1641814953678
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/member-search-index.zip = 1641814953666
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/element-list = 1641814953562
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/allclasses.html = 1641814953690
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/script.js = 1641814953694
-/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/zknaming/target/apidocs/index.html = 1641814953690
+cmd.exe
+/X
+/C
+"C:\jdk-11.0.1\bin\javadoc.exe @options @packages"
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\allclasses-index.html = 1641818196713
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\allclasses.html = 1641818196721
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\allpackages-index.html = 1641818196715
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\constant-values.html = 1641818196659
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\deprecated-list.html = 1641818196719
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\element-list = 1641818196645
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\help-doc.html = 1641818196724
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\index-all.html = 1641818196709
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\index.html = 1641818196722
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\member-search-index.js = 1641818196707
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\member-search-index.zip = 1641818196707
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\options = 1641818195891
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\overview-tree.html = 1641818196690
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\package-search-index.js = 1641818196702
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\package-search-index.zip = 1641818196704
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\packages = 1641818195892
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\script.js = 1641818196728
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\search.js = 1641818196730
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\serialized-form.html = 1641818196665
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\stylesheet.css = 1641818196727
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\type-search-index.js = 1641818196705
+C:\Users\david\Nova pasta\RansomwareResistantRemoteDocuments\zknaming\target\apidocs\type-search-index.zip = 1641818196706
