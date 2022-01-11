@@ -17,6 +17,8 @@ import io.grpc.stub.StreamObserver;
 
 public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToServerServiceImplBase {
 	public static String filePath = "";
+    private ServerController serverMain;
+
 
 	@Override
 	public void greeting(ClientServer.HelloRequest request, StreamObserver<ClientServer.HelloResponse> responseObserver) {
@@ -149,6 +151,10 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 	
 
 	//-------
+
+    public void SetServerMain(ServerController main) {
+        serverMain = main;
+    }
 
 	public void SetupStoragePath() {
 		filePath = System.getProperty("user.home") + "/Documents/SIRS_Test/"; //"RansomwareResistantRemoteDocuments/Server/Files/" + args[2];

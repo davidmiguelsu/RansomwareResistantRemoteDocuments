@@ -1,11 +1,11 @@
 syntax = "proto3";
 package pt.tecnico.grpc;
 
-message TestRequest {
+message PingRequest {
   string name = 1;
 }
 
-message TestResponse {
+message PingResponse {
   string name = 1;
 }
 
@@ -29,7 +29,7 @@ message RetrieveFileResponse {
 }
 service ServerToServerService {
   // Define a RPC operation
-  rpc test(TestRequest) returns (TestResponse);
+  rpc ping(PingRequest) returns (PingResponse);
   rpc sendFile(SendFileRequest) returns (SendFileResponse);
   rpc retrieveFile(RetrieveFileRequest) returns (RetrieveFileResponse);
 }

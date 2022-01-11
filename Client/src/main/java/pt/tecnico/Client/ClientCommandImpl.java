@@ -200,9 +200,9 @@ public class ClientCommandImpl {
             }
 
             ArrayList<ZKRecord> recordList = new ArrayList<>(records);
-            Random rand = new Random();
-            int chosenServerIndex = rand.nextInt(numberOfServers);
-            String target = recordList.get(chosenServerIndex).getURI();
+            // Random rand = new Random();
+            // int chosenServerIndex = rand.nextInt(numberOfServers);
+            String target = recordList.get(0).getURI();     //Always connects to the first server (First server == Master server)
 
             channel = ManagedChannelBuilder.forTarget(target).usePlaintext().build();
             ClientToServerServiceGrpc.ClientToServerServiceBlockingStub newStub = ClientToServerServiceGrpc.newBlockingStub(channel);
