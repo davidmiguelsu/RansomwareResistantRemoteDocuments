@@ -1,5 +1,6 @@
 package pt.tecnico.Server;
 
+import pt.tecnico.Server.ServerController.ChildServerInfo;
 import pt.tecnico.grpc.ClientServer;
 import pt.tecnico.grpc.ClientToServerServiceGrpc;
 
@@ -8,6 +9,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,23 +19,20 @@ import io.grpc.stub.StreamObserver;
 
 public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToServerServiceImplBase {
 	public static String filePath = "";
-    private ServerController serverMain;
+    private ServerController serverController;
 
 
 	@Override
 	public void greeting(ClientServer.HelloRequest request, StreamObserver<ClientServer.HelloResponse> responseObserver) {
+		//TODO: Working under assumption that the leader server is the only one that can receive pings atm
 
-		// HelloRequest has auto-generated toString method that shows its contents
-		System.out.println(request);
+		System.out.println("Received ping");
 
-		// You must use a builder to construct a new Protobuffer object
-		ClientServer.HelloResponse response = ClientServer.HelloResponse.newBuilder()
-				.setGreeting("Hello " + request.getName()).build();
+		serverController.addChildServerToList(request.getName());
+		
+		ClientServer.HelloResponse response = ClientServer.HelloResponse.getDefaultInstance();
 
-		// Use responseObserver to send a single response back
 		responseObserver.onNext(response);
-
-		// When you are done, you must call onCompleted
 		responseObserver.onCompleted();
 	}
 
@@ -48,6 +47,14 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			writer.close();
 			
 			System.out.println("Sucessfull write of file " + request.getFileName());
+
+			if(serverController.isLeader) {
+				for (ChildServerInfo info : serverController.childServerList) {
+					ClientServer.WriteFileResponse childRes = info.stub.writeFile(request);
+
+					//TODO: CHeck if response is an OK or ERROR
+				}
+			}
 
 			ClientServer.WriteFileResponse response = ClientServer.WriteFileResponse.newBuilder()
 			.setAck("Confirmed write of file " + request.getFileName())
@@ -84,10 +91,26 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		try {
 			FileInputStream fis = new FileInputStream(file);
 
-            ClientServer.ReadFileResponse response = ClientServer.ReadFileResponse.newBuilder()
-                                                        .setFile(ByteString.copyFrom(fis.readAllBytes()))
-                                                        .build();
+			ClientServer.ReadFileResponse response = ClientServer.ReadFileResponse.newBuilder()
+														.setFile(ByteString.copyFrom(fis.readAllBytes()))
+														.build();
 			fis.close();
+			
+			List<ClientServer.ReadFileResponse> responseList = new ArrayList<>();
+			responseList.add(response);
+
+			if(serverController.isLeader) {
+				for (ChildServerInfo info : serverController.childServerList) {
+					responseList.add(info.stub.readFile(request));
+					
+					//TODO: CHeck if response is an OK or ERROR & check if file matches
+				}
+				
+				// for (ClientServer.ReadFileResponse res : responseList) {
+					
+				// }
+			}
+			
 
 			responseObserver.onNext(response);
 
@@ -128,6 +151,17 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 				ackStr = "Failed to delete the file.";
 			} 
   
+			if(serverController.isLeader) {
+				for (ChildServerInfo info : serverController.childServerList) {
+					info.stub.deleteFile(request);
+					
+					//TODO: CHeck if response is an OK or ERROR & check if file matches
+				}
+				
+				// for (ClientServer.ReadFileResponse res : responseList) {
+					
+				// }
+			}
 		} else {
 			ackStr = "File does not exist.";
 		}
@@ -153,7 +187,7 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 	//-------
 
     public void SetServerMain(ServerController main) {
-        serverMain = main;
+        serverController = main;
     }
 
 	public void SetupStoragePath() {
@@ -165,6 +199,14 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 	}
 
 
+	//TODO: Delete when moving testing to VMs
+	public void SetupStoragePath(String path) {
+		filePath = System.getProperty("user.home") + "/Documents/SIRS_Test/" + path.charAt(path.length() - 1) + "/"; //"RansomwareResistantRemoteDocuments/Server/Files/" + args[2];
+		File dir = new File(filePath);
+		if(!dir.exists()) {
+			dir.mkdir();
+		}
+	}
 
 
 }

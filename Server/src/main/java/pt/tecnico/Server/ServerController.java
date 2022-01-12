@@ -10,6 +10,8 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import pt.tecnico.grpc.ClientServer;
+import pt.tecnico.grpc.ClientToServerServiceGrpc;
 import pt.tecnico.grpc.ServerServer;
 import pt.tecnico.grpc.ServerToServerServiceGrpc;
 import pt.ulisboa.tecnico.sdis.zk.ZKNaming;
@@ -33,8 +35,8 @@ public class ServerController {
 	private static int portForClient;
 	private static int portForServer;
 
-	private static boolean isLeader;
-	private List<ChildServerInfo> childServerList = new ArrayList<ChildServerInfo>();
+	public static boolean isLeader;
+	public List<ChildServerInfo> childServerList = new ArrayList<ChildServerInfo>();
 
 
     public void main(String[] args) throws ZKNamingException {
@@ -48,7 +50,7 @@ public class ServerController {
 		portForServer = portForClient + 1000;
 
         ClientServerServiceImpl clientServerImpl = new ClientServerServiceImpl();
-		clientServerImpl.SetupStoragePath();
+		// clientServerImpl.SetupStoragePath();
 
 		ServerServerServiceImpl serverServerImpl = new ServerServerServiceImpl();
 
@@ -95,7 +97,7 @@ public class ServerController {
 			zkNaming.rebind(realPath, host, Integer.toString(portForClient));
 		}
 		
-		
+		clientServerImpl.SetupStoragePath(realPath);
 		Runtime.getRuntime().addShutdownHook(new Unbind());
 
         try {
@@ -105,7 +107,7 @@ public class ServerController {
 
                 serverMain.start();
 
-                Server betweenServer = ServerBuilder.forPort(portForServer).addService(betweenServerImpl).build();
+                Server betweenServer = ServerBuilder.forPort(portForServer).addService(impl).build();
                 betweenServer.start();
                 //We can use ZK watches here?
                 System.out.println("Server started and awaiting requests from clients on port " + portForClient + ", and pings from servers on port " + portForServer);
@@ -114,7 +116,7 @@ public class ServerController {
                 betweenServer.awaitTermination();
             }
             else {
-                Server betweenServer = ServerBuilder.forPort(portForServer).addService(betweenServerImpl).build();
+                Server betweenServer = ServerBuilder.forPort(portForServer).addService(impl).build();
                 betweenServer.start();
 
                 notifyServerLeader(zkNaming);
@@ -141,7 +143,7 @@ public class ServerController {
         }
 
 		ManagedChannel channel = ManagedChannelBuilder.forTarget(uri).usePlaintext().build();
-		ServerToServerServiceGrpc.ServerToServerServiceBlockingStub stub = ServerToServerServiceGrpc.newBlockingStub(channel);
+		ClientToServerServiceGrpc.ClientToServerServiceBlockingStub stub = ClientToServerServiceGrpc.newBlockingStub(channel);
 
 		ChildServerInfo info = new ChildServerInfo(channel, stub);
 		childServerList.add(info);
@@ -158,11 +160,11 @@ public class ServerController {
 			String realURI = arr[0] + ":" + Integer.toString(Integer.parseInt(arr[1]) + 1000);
 
 			ManagedChannel channel = ManagedChannelBuilder.forTarget(realURI).usePlaintext().build();
-            ServerToServerServiceGrpc.ServerToServerServiceBlockingStub stub = ServerToServerServiceGrpc.newBlockingStub(channel);
+            ClientToServerServiceGrpc.ClientToServerServiceBlockingStub stub = ClientToServerServiceGrpc.newBlockingStub(channel);
             
-			ServerServer.PingRequest req = ServerServer.PingRequest.newBuilder()
+			ClientServer.HelloRequest req = ClientServer.HelloRequest.newBuilder()
 												.setName(realPath).build();
-			ServerServer.PingResponse res = stub.ping(req);
+			ClientServer.HelloResponse res = stub.greeting(req);
 
 			channel.shutdownNow();
 		}
@@ -173,9 +175,9 @@ public class ServerController {
 
 	class ChildServerInfo {
 		public ManagedChannel channel;
-		public ServerToServerServiceGrpc.ServerToServerServiceBlockingStub stub;
+		public ClientToServerServiceGrpc.ClientToServerServiceBlockingStub stub;
 
-		ChildServerInfo(ManagedChannel ch, ServerToServerServiceGrpc.ServerToServerServiceBlockingStub st) {
+		ChildServerInfo(ManagedChannel ch, ClientToServerServiceGrpc.ClientToServerServiceBlockingStub st) {
 			channel = ch;
 			stub = st;
 		}
