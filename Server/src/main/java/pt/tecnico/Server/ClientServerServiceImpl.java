@@ -36,7 +36,7 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		System.out.println("Received ping");
 
 		serverController.addChildServerToList(request.getName());
-		
+	
 		ClientServer.HelloResponse response = ClientServer.HelloResponse.getDefaultInstance();
 
 		responseObserver.onNext(response);
@@ -89,6 +89,9 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 
 		File file = new File(filePath + request.getFileName());
 		try {
+				
+
+
 			FileOutputStream writer = new FileOutputStream(file, false);
 			writer.write(request.getFile().toByteArray());
 

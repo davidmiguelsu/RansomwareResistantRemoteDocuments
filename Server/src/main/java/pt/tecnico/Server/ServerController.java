@@ -13,6 +13,7 @@ import io.grpc.ServerBuilder;
 import pt.tecnico.grpc.ClientServer;
 import pt.tecnico.grpc.ClientToServerServiceGrpc;
 import pt.tecnico.grpc.ServerServer;
+import pt.tecnico.Common.DatabaseImpl;
 import pt.tecnico.grpc.ServerToServerServiceGrpc;
 import pt.ulisboa.tecnico.sdis.zk.ZKNaming;
 import pt.ulisboa.tecnico.sdis.zk.ZKNamingException;
@@ -37,6 +38,7 @@ public class ServerController {
 
 	public static boolean isLeader;
 	public List<ChildServerInfo> childServerList = new ArrayList<ChildServerInfo>();
+	public DatabaseImpl db;
 
 
     public void main(String[] args) throws ZKNamingException {
@@ -111,7 +113,13 @@ public class ServerController {
                 betweenServer.start();
                 //We can use ZK watches here?
                 System.out.println("Server started and awaiting requests from clients on port " + portForClient + ", and pings from servers on port " + portForServer);
+               
+				db = new DatabaseImpl();
+				db.connect();
+				
+				System.out.println("Database ON");
 
+				
                 serverMain.awaitTermination();
                 betweenServer.awaitTermination();
             }

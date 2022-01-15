@@ -1,4 +1,4 @@
-package com.postgresqltutorial;
+package pt.tecnico.Common;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,11 +8,11 @@ import java.sql.SQLException;
  *
  * @author postgresqltutorial.com
  */
-public class App{
+public class DatabaseImpl{
 
     private final String url = "jdbc:postgresql://localhost:5432/Ransom";
     private final String user = "postgres";
-    private final String password = "<add your password>";
+    private final String password = "1234";
 
 
     /**
@@ -36,7 +36,7 @@ public class App{
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        App app = new App();
+        DatabaseImpl app = new DatabaseImpl();
         app.connect();
     }
 }
