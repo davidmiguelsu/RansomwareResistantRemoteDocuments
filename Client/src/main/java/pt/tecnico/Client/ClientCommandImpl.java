@@ -19,6 +19,8 @@ import pt.ulisboa.tecnico.sdis.zk.ZKNamingException;
 import pt.ulisboa.tecnico.sdis.zk.ZKRecord;
 
 public class ClientCommandImpl {
+    String username = null;
+
     String zooHost = "";
     String zooPort = "";
     String path = "";
@@ -26,6 +28,7 @@ public class ClientCommandImpl {
     ManagedChannel channel = null;
     ClientToServerServiceGrpc.ClientToServerServiceBlockingStub stub = null;
     String dirPath = "";
+
 
     ClientCommandImpl() {
         // stub = serverStub;
@@ -72,6 +75,18 @@ public class ClientCommandImpl {
                 listFiles();
                 break;
 
+            case "register":
+                register(args);
+                break;
+
+            case "login":
+                login(args);
+                break;
+
+            case "logout":
+                logout();
+                break;
+
             case "help":
             case "h":
                 System.out.println(" \n The commands available are: \n Create File - write arg / w arg \n Read File - download arg / d arg \n List Files - list / ls \n Delete file - delete arg / d arg \n Close the session -  exit \n \n");   
@@ -86,6 +101,11 @@ public class ClientCommandImpl {
     }
 
     void writeFile(String[] args) {
+        if(username == null) {
+            System.out.println("ERROR - Please login in first");
+            return;
+        }
+
         if(args.length == 1 || args.length > 3) {
             System.out.println("ERROR - Write format - You need to use this format ->  \" write arg / w arg \"  ");
             return;
@@ -120,6 +140,11 @@ public class ClientCommandImpl {
     }
     
     void readFile(String[] args) {
+        if(username == null) {
+            System.out.println("ERROR - Please login in first");
+            return;
+        }
+
         if(args.length < 1 || args.length > 2) {
             System.out.println("ERROR - Read format - You need to use this format -> \" download arg / d arg \"  \n ");
             return;
@@ -150,6 +175,11 @@ public class ClientCommandImpl {
     
 
     void listFiles(){
+        if(username == null) {
+            System.out.println("ERROR - Please login in first");
+            return;
+        }
+
         ClientServer.ListFileRequest request = ClientServer.ListFileRequest.newBuilder().build();
 
         ClientServer.ListFileResponse response = stub.listFiles(request);
@@ -159,6 +189,10 @@ public class ClientCommandImpl {
     }
 
     void deleteFile(String[] args){
+        if(username == null) {
+            System.out.println("ERROR - Please login in first");
+            return;
+        }
 
         if(args.length != 2) {
             System.out.println("ERROR - Delete - You need to use this format -> \" delete arg / del arg \"  \n");
@@ -173,6 +207,63 @@ public class ClientCommandImpl {
         System.out.println(response.getAck());
     }
 
+    void register(String[] args) {
+        if (username != null) {
+            System.err.println("ERROR - Register - Log out from the current user before a new user register.");
+            return;
+        }
+
+        if(args.length != 3) {
+            System.out.println("ERROR - Register - You need to use this format -> \" register username password \"  \n");
+            return;
+        } 
+
+        ClientServer.RegisterRequest request = ClientServer.RegisterRequest.newBuilder()
+            .setUserName(args[1])
+            .setCipheredPassword(args[2])
+            .build();
+        
+        ClientServer.RegisterResponse response = stub.register(request);
+
+        if(!response.getAck().equals("ERROR")) {
+            username = args[1];
+        }
+        else {
+            System.out.println("ERROR - Register - Username already exists");
+        }
+
+    }
+
+    void login(String[] args) {
+        if (username != null) {
+            System.err.println("ERROR - Login - Log out from the current user before a new user register.");
+            return;
+        }
+
+        if(args.length != 3) {
+            System.out.println("ERROR - Login - You need to use this format -> \" login username password \"  \n");
+            return;
+        } 
+
+        ClientServer.LoginRequest request = ClientServer.LoginRequest.newBuilder()
+            .setUserName(args[1])
+            .setCipheredPassword(args[2])
+            .build();
+
+        ClientServer.LoginResponse response = stub.login(request);
+
+        if(!response.getAck().equals("ERROR")) {
+            username = args[1];
+        }
+        else {
+            System.out.println("ERROR - Login - Authentication failed");
+        }
+    }
+
+    public void logout() {
+        username = null;
+        System.out.println("Successful logout");
+    }
 
     //------------
     public String connectToServer(String host, String port, String serverPath) {

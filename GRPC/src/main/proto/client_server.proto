@@ -2,6 +2,24 @@ syntax = "proto3";
 package pt.tecnico.grpc;
 
 
+message RegisterRequest {
+	string userName = 1;
+	string cipheredPassword = 2;
+}
+
+message RegisterResponse {
+	string ack = 1;
+}
+
+message LoginRequest {
+	string userName = 1;
+	string cipheredPassword = 2;
+}
+
+message LoginResponse {
+	string ack = 1;
+}
+
 message WriteFileRequest {
 	string fileName = 1;
 	bytes file = 2;
@@ -37,15 +55,22 @@ message ListFileResponse {
 
 }
 
+message GivePermissionsRequest {
+	string key = 1;
+	string userName = 2;
+	string fileName = 3;
+}
+
+message GivePermissionsResponse {
+	string ack = 1;
+}
+
 // Request payload
 message HelloRequest {
 	// Each message attribute is strongly typed.
 	// You also must assign a "tag" number.
 	// Each tag number is unique within the message.
 	string name = 1;
-
-	// This defines a strongly typed list of String
-	repeated string hobbies = 2;
 
 	// There are many more basics types, like Enum, Map
 	// See https://developers.google.com/protocol-buffers/docs/proto3
@@ -61,8 +86,11 @@ service ClientToServerService {
 	// Define a RPC operation
 	rpc greeting(HelloRequest) returns (HelloResponse);
 
+	rpc login(LoginRequest) returns (LoginResponse);
+	rpc register(RegisterRequest) returns (RegisterResponse);
 	rpc writeFile(WriteFileRequest) returns (WriteFileResponse);
 	rpc readFile(ReadFileRequest) returns (ReadFileResponse);
 	rpc deleteFile(DeleteFileRequest) returns (DeleteFileResponse);
 	rpc listFiles(ListFileRequest) returns (ListFileResponse);
+	rpc givePermission(GivePermissionsRequest) returns (GivePermissionsResponse);
 }

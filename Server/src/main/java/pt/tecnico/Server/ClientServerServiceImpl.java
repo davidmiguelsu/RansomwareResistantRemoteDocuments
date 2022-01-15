@@ -3,6 +3,7 @@ package pt.tecnico.Server;
 import pt.tecnico.Server.ServerController.ChildServerInfo;
 import pt.tecnico.grpc.ClientServer;
 import pt.tecnico.grpc.ClientToServerServiceGrpc;
+import pt.tecnico.grpc.ClientServer.RegisterResponse;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,7 +12,9 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.protobuf.ByteString;
 
@@ -20,6 +23,10 @@ import io.grpc.stub.StreamObserver;
 public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToServerServiceImplBase {
 	public static String filePath = "";
     private ServerController serverController;
+
+
+	//TODO: Temp dict while we don't have a DB for users
+	private Map<String, String> userDictionary = new HashMap<>();
 
 
 	@Override
@@ -33,6 +40,47 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		ClientServer.HelloResponse response = ClientServer.HelloResponse.getDefaultInstance();
 
 		responseObserver.onNext(response);
+		responseObserver.onCompleted();
+	}
+
+
+	@Override
+	public void register(ClientServer.RegisterRequest request, StreamObserver<ClientServer.RegisterResponse> responseObserver) {
+		ClientServer.RegisterResponse res;
+		if(userDictionary.containsKey(request.getUserName())) {
+			res = ClientServer.RegisterResponse.newBuilder()
+				.setAck("ERROR").build();
+		}
+		else {
+			userDictionary.put(request.getUserName(), request.getCipheredPassword());
+			res = ClientServer.RegisterResponse.newBuilder()
+			.setAck("OK").build();
+		}
+
+		responseObserver.onNext(res);
+		responseObserver.onCompleted();
+	}
+
+	@Override
+	public void login(ClientServer.LoginRequest request, StreamObserver<ClientServer.LoginResponse> responseObserver) {
+		ClientServer.LoginResponse res;
+		if(!userDictionary.containsKey(request.getUserName())) {
+			res = ClientServer.LoginResponse.newBuilder()
+				.setAck("ERROR").build();
+				System.out.println("Doesn't contain key");
+		}
+		else {
+			if(userDictionary.get(request.getUserName()).equals(request.getCipheredPassword())) {
+				res = ClientServer.LoginResponse.newBuilder()
+				.setAck("OK").build();				
+			}
+			else {
+				res = ClientServer.LoginResponse.newBuilder()
+				.setAck("ERROR").build();
+			}
+		}
+
+		responseObserver.onNext(res);
 		responseObserver.onCompleted();
 	}
 
@@ -182,7 +230,12 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 
 	}
 
-	
+	@Override
+	public void givePermission(ClientServer.GivePermissionsRequest request, StreamObserver<ClientServer.GivePermissionsResponse> responseObserver) {
+		if(serverController.isLeader) {
+			
+		}
+	}
 
 	//-------
 
