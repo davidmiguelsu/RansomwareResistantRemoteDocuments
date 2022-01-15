@@ -16,7 +16,7 @@ public class DatabaseImpl{
 
 
     /**
-     * Connect to the PostgreSQL database
+     * Connect to the PostgreSQL database-
      *
      * @return a Connection object
      */
