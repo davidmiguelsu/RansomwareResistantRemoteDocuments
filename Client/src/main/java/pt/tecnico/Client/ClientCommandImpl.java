@@ -12,6 +12,7 @@ import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
+import pt.tecnico.Common.CryptographyImpl;
 import pt.tecnico.grpc.ClientServer;
 import pt.tecnico.grpc.ClientToServerServiceGrpc;
 import pt.ulisboa.tecnico.sdis.zk.ZKNaming;
@@ -124,9 +125,17 @@ public class ClientCommandImpl {
         try {
             FileInputStream fis = new FileInputStream(file);
 
+            CryptographyImpl.generateAESKey(System.getProperty("user.home") + "/SIRS_KEYS/" + fileName + ".key");
+
+            
+            
+            byte[] encryptedFile = CryptographyImpl.encryptFileAES(fileName, fis.readAllBytes(), 
+                    CryptographyImpl.readAESKey(System.getProperty("user.home") + "/SIRS_KEYS/" + fileName + ".key"));
+
+
             ClientServer.WriteFileRequest request = ClientServer.WriteFileRequest.newBuilder()
                                                         .setFileName(fileName)
-                                                        .setFile(ByteString.copyFrom(fis.readAllBytes()))
+                                                        .setFile(ByteString.copyFrom(encryptedFile))
                                                         .setHash("1")
                                                         .build();
             
@@ -160,8 +169,10 @@ public class ClientCommandImpl {
             
             ClientServer.ReadFileResponse response = stub.readFile(request);
             // System.out.println(response.getFile().toStringUtf8());
+
             FileOutputStream writer = new FileOutputStream(dirPath + fileName);
-			writer.write(response.getFile().toByteArray());
+			writer.write(CryptographyImpl.decryptFileAES(fileName, response.getFile().toByteArray(), 
+                CryptographyImpl.readAESKey(System.getProperty("user.home") + "/SIRS_KEYS/" + fileName + ".key")));
 
 			writer.close();
 	
