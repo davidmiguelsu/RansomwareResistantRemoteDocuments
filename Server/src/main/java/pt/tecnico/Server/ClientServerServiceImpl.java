@@ -90,10 +90,14 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		File file = new File(filePath + request.getFileName());
 		try {
 				
-
-
 			FileOutputStream writer = new FileOutputStream(file, false);
 			writer.write(request.getFile().toByteArray());
+
+			//TODO: Temp hash file -> TO BE MOVED TO DB
+			File hashFile = new File(filePath + request.getFileName() + ".hash");
+			FileOutputStream hashWriter = new FileOutputStream(hashFile, false);
+			hashWriter.write(request.getHash().toByteArray());
+			hashWriter.close();
 
 			writer.close();
 			
@@ -141,12 +145,20 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		File file = new File(filePath + name);
 		try {
 			FileInputStream fis = new FileInputStream(file);
+			
+
+			//TODO: Temp hash file -> TO BE MOVED TO DB
+			File hashFile = new File(filePath + name + ".hash");
+			FileInputStream hashFIS = new FileInputStream(hashFile);
+
+			byte[] allBytes = hashFIS.readAllBytes();
 
 			ClientServer.ReadFileResponse response = ClientServer.ReadFileResponse.newBuilder()
 														.setFile(ByteString.copyFrom(fis.readAllBytes()))
+														.setHash(ByteString.copyFrom(hashFIS.readAllBytes()))
 														.build();
 			fis.close();
-			
+			hashFIS.close();
 			List<ClientServer.ReadFileResponse> responseList = new ArrayList<>();
 			responseList.add(response);
 
@@ -169,7 +181,6 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		} catch (Exception e) {
 			//TODO: handle exception
 		}
-
 	}
 
 

@@ -8,6 +8,7 @@ import java.security.Key;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 // import static javax.xml.bind.DatatypeConverter.printHexBinary;
 import javax.crypto.spec.SecretKeySpec;
@@ -30,6 +31,26 @@ public class CryptographyImpl {
         FileOutputStream fos = new FileOutputStream(keyPath);
         fos.write(encoded);
         fos.close();
+    }
+
+    public static SecretKey generateAESKey() throws GeneralSecurityException, IOException {
+        // get an AES private key
+        System.out.println("Generating AES key ..." );
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(256);
+        Key key = keyGen.generateKey();
+        System.out.println( "Finish generating AES key" );
+        byte[] encoded = key.getEncoded();
+        // System.out.println("Key:");
+        // System.out.println(printHexBinary(encoded));
+
+        return new SecretKeySpec(encoded, 0, 16, "AES");
+
+        // System.out.println("Writing key to '" + keyPath + "' ..." );
+
+        // FileOutputStream fos = new FileOutputStream(keyPath);
+        // fos.write(encoded);
+        // fos.close();
     }
 
     public static Key readAESKey(String keyPath) throws GeneralSecurityException, IOException {
@@ -90,5 +111,17 @@ public class CryptographyImpl {
         }
 
         return null;
+    }
+
+    public static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 }

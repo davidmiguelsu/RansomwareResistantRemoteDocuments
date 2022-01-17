@@ -2,10 +2,21 @@ package pt.tecnico.Client;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.Key;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Random;
+
+import javax.crypto.SecretKey;
 
 import com.google.protobuf.ByteString;
 
@@ -30,6 +41,10 @@ public class ClientCommandImpl {
     ClientToServerServiceGrpc.ClientToServerServiceBlockingStub stub = null;
     String dirPath = "";
 
+
+
+    KeyStore ks;
+    char[] pwdArray;
 
     ClientCommandImpl() {
         // stub = serverStub;
@@ -93,6 +108,7 @@ public class ClientCommandImpl {
                 System.out.println(" \n The commands available are: \n Create File - write arg / w arg \n Read File - download arg / d arg \n List Files - list / ls \n Delete file - delete arg / d arg \n Close the session -  exit \n \n");   
                 break;            
             case "exit":
+                UpdateKeyStore();
                 return false;
             default:
                 System.out.println("ERROR - Invalid Command");
@@ -125,18 +141,30 @@ public class ClientCommandImpl {
         try {
             FileInputStream fis = new FileInputStream(file);
 
-            CryptographyImpl.generateAESKey(System.getProperty("user.home") + "/SIRS_KEYS/" + fileName + ".key");
+            // CryptographyImpl.generateAESKey(System.getProperty("user.home") + "/SIRS_KEYS/" + fileName + ".key");
 
-            
-            
-            byte[] encryptedFile = CryptographyImpl.encryptFileAES(fileName, fis.readAllBytes(), 
-                    CryptographyImpl.readAESKey(System.getProperty("user.home") + "/SIRS_KEYS/" + fileName + ".key"));
+            SecretKey key = CryptographyImpl.generateAESKey();
+            KeyStore.SecretKeyEntry secret = new KeyStore.SecretKeyEntry(key);
+            KeyStore.ProtectionParameter password = new KeyStore.PasswordProtection(pwdArray);
+            ks.setEntry(fileName + "_key", secret, password);
+
+            UpdateKeyStore();
+
+            byte[] encryptedFile = CryptographyImpl.encryptFileAES(fileName, fis.readAllBytes(), key);
+            // byte[] encryptedFile = CryptographyImpl.encryptFileAES(fileName, fis.readAllBytes(), 
+            //         CryptographyImpl.readAESKey(System.getProperty("user.home") + "/SIRS_KEYS/" + fileName + ".key"));
+
+
+            MessageDigest digest = MessageDigest.getInstance("SHA3-256");
+            byte[] hashBytes = digest.digest(fis.readAllBytes());
+
+            // String sha3Hex = CryptographyImpl.bytesToHex(hashBytes);
 
 
             ClientServer.WriteFileRequest request = ClientServer.WriteFileRequest.newBuilder()
                                                         .setFileName(fileName)
                                                         .setFile(ByteString.copyFrom(encryptedFile))
-                                                        .setHash("1")
+                                                        .setHash(ByteString.copyFrom(hashBytes))
                                                         .build();
             
             ClientServer.WriteFileResponse response = stub.writeFile(request);
@@ -144,6 +172,7 @@ public class ClientCommandImpl {
             fis.close();
         } catch (Exception e) {
              System.out.println("ERROR - Write - (File not found) | Dont forget you need to use this format ->  \" write arg / w arg \"  \n ");
+             System.out.println(e.getMessage());
         }
 		
     }
@@ -170,9 +199,28 @@ public class ClientCommandImpl {
             ClientServer.ReadFileResponse response = stub.readFile(request);
             // System.out.println(response.getFile().toStringUtf8());
 
+            
+            Key key = ks.getKey(fileName + "_key", pwdArray);
+
+            byte[] decryptedFile = CryptographyImpl.decryptFileAES(fileName, response.getFile().toByteArray(), key);
+            MessageDigest digest = MessageDigest.getInstance("SHA3-256");
+            byte[] hashBytes = digest.digest(decryptedFile);
+            // String sha3Hex = CryptographyImpl.bytesToHex(hashBytes);
+            
+            // byte[] responseHash = Base64.getDecoder().decode(response.getHash());
+
+            //TODO: Readd this later!
+            // if(!hashBytes.equals(response.getHash().toByteArray())) {
+            //     System.out.println("ERROR - Read - Hash of the downloaded file differs from the hash received! File may be compromised.");
+            //     return;
+            // }
+            
+            
+            
             FileOutputStream writer = new FileOutputStream(dirPath + fileName);
-			writer.write(CryptographyImpl.decryptFileAES(fileName, response.getFile().toByteArray(), 
-                CryptographyImpl.readAESKey(System.getProperty("user.home") + "/SIRS_KEYS/" + fileName + ".key")));
+            writer.write(decryptedFile);
+			// writer.write(CryptographyImpl.decryptFileAES(fileName, response.getFile().toByteArray(), 
+            //     CryptographyImpl.readAESKey(System.getProperty("user.home") + "/SIRS_KEYS/" + fileName + ".key")));
 
 			writer.close();
 	
@@ -180,6 +228,7 @@ public class ClientCommandImpl {
 
         } catch (Exception e) {
             System.out.println("ERROR - Read - (File not found) | Dont forget you need to use this format -> \" download arg / d arg \" \n");
+            System.out.println(e.getMessage());
         }
     
     }
@@ -310,10 +359,67 @@ public class ClientCommandImpl {
             ClientToServerServiceGrpc.ClientToServerServiceBlockingStub newStub = ClientToServerServiceGrpc.newBlockingStub(channel);
             stub = newStub;
             System.out.println("Located server at " + target);
+
+            InitializeKeyStore();
             return "OK";
         } catch (ZKNamingException zkne) {
             System.err.println("ConnectToServer: Failed to lookup records" + zkne.getStackTrace());
             return "ERROR_LIST_RECORDS";
+        }
+    }
+
+
+    void InitializeKeyStore() {
+        try {
+            ks = KeyStore.getInstance("JCEKS");
+
+            pwdArray = "pwd".toCharArray();      //TODO: Change password depending on user login?
+            File jks = new File("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/Client/standard.jceks");
+            if(jks.exists()) {
+                System.out.println("Keystore exists, will load");
+                ks = KeyStore.getInstance("JCEKS");
+                ks.load(new FileInputStream(jks), pwdArray);
+            }
+            else {
+                System.out.println("Keystore doesn't exist, will create");
+                ks.load(null, pwdArray);
+
+                FileOutputStream fos = new FileOutputStream(jks);
+                ks.store(fos, pwdArray);
+            }
+
+
+        } catch (KeyStoreException kse) {
+            //TODO: handle exception
+        } catch (IOException ioe) {
+
+        } catch (NoSuchAlgorithmException nsae) {
+
+        } catch (CertificateException ce) {
+
+        }
+    }
+
+    void UpdateKeyStore() {
+        File jks = new File("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/Client/standard.jceks");
+        try {
+            if(jks.exists()) {
+                FileOutputStream fos = new FileOutputStream(jks);
+                ks.store(fos, pwdArray);
+            }
+            else {
+                System.out.println("ERROR - KeyStore file not found");
+            }
+        } catch (KeyStoreException kse) {
+            System.out.println("ERROR - KeyStore exception: " + kse.getMessage());
+        } catch (FileNotFoundException e) {
+            System.out.println("ERROR - KeyStore file not found");
+        } catch (NoSuchAlgorithmException nsae) {
+            
+        } catch (CertificateException ce) {
+            
+        } catch (IOException ioe) {
+
         }
     }
 
