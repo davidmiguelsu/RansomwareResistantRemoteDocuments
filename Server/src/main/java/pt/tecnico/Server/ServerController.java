@@ -71,6 +71,7 @@ public class ServerController {
 			int numberOfServers = records.size();
 			ArrayList<ZKRecord> recordList = new ArrayList<>(records);
 			if(recordList.size() == 0) {
+				//TODO: Change server name from /grpc/Ransom/1 to /grpc/Ransom/Leader
 				realPath += "/1";
 				System.out.println("Binding " + realPath + " to " + host + ":" + portForClient + "...");
 				zkNaming.rebind(realPath, host, Integer.toString(portForClient));

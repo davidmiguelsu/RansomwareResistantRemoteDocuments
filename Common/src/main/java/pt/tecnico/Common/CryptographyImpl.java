@@ -1,10 +1,23 @@
 package pt.tecnico.Common;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.Key;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.cert.CertificateException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -14,6 +27,72 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 public class CryptographyImpl {
+    
+    public static KeyStore InitializeKeyStore(char[] password, String path) {
+        try {
+            KeyStore ks = KeyStore.getInstance("JCEKS");
+
+            File jks = new File(path);
+            if(jks.exists()) {
+                System.out.println("Keystore exists, will load");
+                ks = KeyStore.getInstance("JCEKS");
+                ks.load(new FileInputStream(jks), password);
+                return ks;
+            }
+            else {
+                System.out.println("Keystore doesn't exist, will create");
+                ks.load(null, password);
+
+                FileOutputStream fos = new FileOutputStream(jks);
+                ks.store(fos, password);
+                return ks;
+            }
+
+
+        } catch (KeyStoreException kse) {
+            //TODO: handle exception
+        } catch (IOException ioe) {
+
+        } catch (NoSuchAlgorithmException nsae) {
+
+        } catch (CertificateException ce) {
+
+        }
+        return null;
+    }
+
+    public static void UpdateKeyStore(KeyStore ks, char[] password, String path) {
+        File jks = new File(path);
+        try {
+            if(jks.exists()) {
+                FileOutputStream fos = new FileOutputStream(jks);
+                ks.store(fos, password);
+            }
+            else {
+                System.out.println("ERROR - KeyStore file not found");
+            }
+        } catch (KeyStoreException kse) {
+            System.out.println("ERROR - KeyStore exception: " + kse.getMessage());
+        } catch (FileNotFoundException e) {
+            System.out.println("ERROR - KeyStore file not found");
+        } catch (NoSuchAlgorithmException nsae) {
+            
+        } catch (CertificateException ce) {
+            
+        } catch (IOException ioe) {
+
+        }
+    }
+
+    public static KeyPair generateRSAKeyPair() {
+        try {
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+            return keyGen.generateKeyPair();
+        } catch (NoSuchAlgorithmException nsae) {
+            System.out.println("ERROR - Failed to generate key pair");
+            return null;
+        }
+    }
 
     public static void generateAESKey(String keyPath) throws GeneralSecurityException, IOException {
         // get an AES private key
@@ -63,7 +142,7 @@ public class CryptographyImpl {
         return new SecretKeySpec(encoded, 0, 16, "AES");
     }
 
-    public static byte[] encryptFileAES(String ivString, byte[] plainBytes, Key secretKey) {
+    public static byte[] encryptAES(String ivString, byte[] plainBytes, Key secretKey) {
         try {
             //TODO: Make this not be always 0
             byte[] ivBytes = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -88,7 +167,7 @@ public class CryptographyImpl {
         return null;
     }
 
-    public static byte[] decryptFileAES(String ivString, byte[] cipheredBytes, Key secretKey) {
+    public static byte[] decryptAES(String ivString, byte[] cipheredBytes, Key secretKey) {
         try {
             //TODO: Make this not be always 0
             byte[] ivBytes = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -112,6 +191,95 @@ public class CryptographyImpl {
 
         return null;
     }
+
+    public static byte[] encryptRSA(byte[] data, Key key) {
+        try {
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            // PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(Base64.getDecoder().decode(Key.getBytes())));
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            return cipher.doFinal(data);
+            // return new String(Base64.getEncoder().encode(encryptedbytes));
+        } catch (Exception e) {
+            System.out.println("Error in RSA encryption");
+            //TODO: handle exception
+            return null;
+        }
+    }
+
+    public static byte[] decryptRSA(byte[] data, Key key) {
+        try {
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            // PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(Base64.getDecoder().decode(Key.getBytes())));
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            return cipher.doFinal(data);
+            // return new String(Base64.getEncoder().encode(encryptedbytes));
+        } catch (Exception e) {
+            System.out.println("Error in RSA decryption");
+            //TODO: handle exception
+            return null;
+        }
+    }
+
+    public static PrivateKey readPrivateKey(String path) {
+        try {
+            File file = new File(path);
+            FileInputStream fis = new FileInputStream(file); 
+            byte[] keyBytes = fis.readAllBytes();
+            
+            PKCS8EncodedKeySpec spec =
+              new PKCS8EncodedKeySpec(keyBytes);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            return kf.generatePrivate(spec);
+        } catch (IOException e) {
+            //TODO: handle exception
+        } catch (Exception e) {
+
+        }
+        return null;
+    }
+
+
+    // public static PrivateKey readPrivateKey(KeyStore ks, String keyName, String password) {
+    //     char[] pwdArray = password.toCharArray();
+    //     try {
+    //         ks.getKey(keyName, pwdArray);
+    //         // // File file = new File(path);
+    //         // FileInputStream fis = new FileInputStream(file); 
+    //         // byte[] keyBytes = fis.readAllBytes();
+            
+    //         PKCS8EncodedKeySpec spec =
+    //           new PKCS8EncodedKeySpec(keyBytes);
+    //         KeyFactory kf = KeyFactory.getInstance("RSA");
+    //         return kf.generatePrivate(spec);
+    //     } catch (IOException e) {
+    //         //TODO: handle exception
+    //     } catch (Exception e) {
+
+    //     }
+    //     return null;
+    // }
+    public static PublicKey readPublicKey(String path) {
+        try {
+            File file = new File(path);
+            FileInputStream fis = new FileInputStream(file); 
+            byte[] keyBytes = fis.readAllBytes();
+    
+            X509EncodedKeySpec spec =
+              new X509EncodedKeySpec(keyBytes);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            return kf.generatePublic(spec);
+        } catch (Exception e) {
+            //TODO: handle exception
+            return null;
+        }
+    }
+    // public static String getDecrypted(String data, String Key) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    //     Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+    //     PrivateKey pk = KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(Key.getBytes())));
+    //     cipher.init(Cipher.DECRYPT_MODE, pk);
+    //     byte[] encryptedbytes = cipher.doFinal(Base64.getDecoder().decode(data.getBytes()));
+    //     return new String(encryptedbytes);
+    // }
 
     public static String bytesToHex(byte[] hash) {
         StringBuilder hexString = new StringBuilder(2 * hash.length);

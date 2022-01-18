@@ -47,13 +47,16 @@ message DeleteFileResponse {
 	string ack = 1;
 }
 
+
 message ListFileRequest {
+	string userName = 1;
 }
+
 
 message ListFileResponse {
 	repeated string fileName = 1;
-
 }
+
 
 message GivePermissionsRequest {
 	string key = 1;
@@ -81,16 +84,35 @@ message HelloResponse {
 	string greeting = 1;
 }
 
+//Used to transmit each message between client - leader server or leader server - file servers, 
+// by encrypting with an ephemeral AES key the message, then encrypting said key with the target's public key, obtained from the CA
+message EncryptedMessageRequest {
+	bytes messageRequestBytes = 1;
+	bytes encryptionKey = 2;
+}
+message EncryptedMessageResponse {
+	bytes messageResponseBytes = 1;
+	bytes encryptionKey = 2;
+}
+
 // Defining a Service, a Service can have multiple RPC operations
 service ClientToServerService {
 	// Define a RPC operation
 	rpc greeting(HelloRequest) returns (HelloResponse);
 
-	rpc login(LoginRequest) returns (LoginResponse);
-	rpc register(RegisterRequest) returns (RegisterResponse);
-	rpc writeFile(WriteFileRequest) returns (WriteFileResponse);
-	rpc readFile(ReadFileRequest) returns (ReadFileResponse);
-	rpc deleteFile(DeleteFileRequest) returns (DeleteFileResponse);
-	rpc listFiles(ListFileRequest) returns (ListFileResponse);
-	rpc givePermission(GivePermissionsRequest) returns (GivePermissionsResponse);
+	// rpc login(LoginRequest) returns (LoginResponse);
+	// rpc register(RegisterRequest) returns (RegisterResponse);
+	// rpc writeFile(WriteFileRequest) returns (WriteFileResponse);
+	// rpc readFile(ReadFileRequest) returns (ReadFileResponse);
+	// rpc deleteFile(DeleteFileRequest) returns (DeleteFileResponse);
+	// rpc listFiles(ListFileRequest) returns (ListFileResponse);
+	// rpc givePermission(GivePermissionsRequest) returns (GivePermissionsResponse);
+
+	rpc login(EncryptedMessageRequest) returns (EncryptedMessageResponse);
+	rpc register(EncryptedMessageRequest) returns (EncryptedMessageResponse);
+	rpc writeFile(EncryptedMessageRequest) returns (EncryptedMessageResponse);
+	rpc readFile(EncryptedMessageRequest) returns (EncryptedMessageResponse);
+	rpc deleteFile(EncryptedMessageRequest) returns (EncryptedMessageResponse);
+	rpc listFiles(EncryptedMessageRequest) returns (EncryptedMessageResponse);
+	rpc givePermission(EncryptedMessageRequest) returns (EncryptedMessageResponse);
 }

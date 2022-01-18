@@ -19,6 +19,8 @@ import java.util.Random;
 import javax.crypto.SecretKey;
 
 import com.google.protobuf.ByteString;
+import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -44,7 +46,7 @@ public class ClientCommandImpl {
 
 
     KeyStore ks;
-    char[] pwdArray;
+    char[] pwdArray = "pwd".toCharArray();
 
     ClientCommandImpl() {
         // stub = serverStub;
@@ -81,8 +83,8 @@ public class ClientCommandImpl {
                 readFile(args);
                 break;
 
-            case "delete":
-            case "del":
+            case "remove":
+            case "rm":
                 deleteFile(args);
                 break;
 
@@ -92,10 +94,12 @@ public class ClientCommandImpl {
                 break;
 
             case "register":
+            case "reg":
                 register(args);
                 break;
 
             case "login":
+            case "log":
                 login(args);
                 break;
 
@@ -105,10 +109,10 @@ public class ClientCommandImpl {
 
             case "help":
             case "h":
-                System.out.println(" \n The commands available are: \n Create File - write arg / w arg \n Read File - download arg / d arg \n List Files - list / ls \n Delete file - delete arg / d arg \n Close the session -  exit \n \n");   
+                System.out.println(" \n The commands available are: \n Create File - write arg / w arg \n Read File - download arg / d arg \n List Files - list / ls \n Remove file - remove arg / rm arg \n Close the session -  exit \n \n");   
                 break;            
             case "exit":
-                UpdateKeyStore();
+                CryptographyImpl.UpdateKeyStore(ks, pwdArray, "/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/Client/standard.jceks");
                 return false;
             default:
                 System.out.println("ERROR - Invalid Command");
@@ -148,10 +152,10 @@ public class ClientCommandImpl {
             KeyStore.ProtectionParameter password = new KeyStore.PasswordProtection(pwdArray);
             ks.setEntry(fileName + "_key", secret, password);
 
-            UpdateKeyStore();
+            CryptographyImpl.UpdateKeyStore(ks, pwdArray, "/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/Client/standard.jceks");
 
-            byte[] encryptedFile = CryptographyImpl.encryptFileAES(fileName, fis.readAllBytes(), key);
-            // byte[] encryptedFile = CryptographyImpl.encryptFileAES(fileName, fis.readAllBytes(), 
+            byte[] encryptedFile = CryptographyImpl.encryptAES(fileName, fis.readAllBytes(), key);
+            // byte[] encryptedFile = CryptographyImpl.encryptAES(fileName, fis.readAllBytes(), 
             //         CryptographyImpl.readAESKey(System.getProperty("user.home") + "/SIRS_KEYS/" + fileName + ".key"));
 
 
@@ -167,8 +171,18 @@ public class ClientCommandImpl {
                                                         .setHash(ByteString.copyFrom(hashBytes))
                                                         .build();
             
-            ClientServer.WriteFileResponse response = stub.writeFile(request);
-            System.out.println(response.getAck());
+            ClientServer.EncryptedMessageRequest encryptedReq = EncryptMessage(request);
+
+                                     
+
+            ClientServer.EncryptedMessageResponse res = stub.writeFile(encryptedReq);
+            try {
+                ClientServer.WriteFileResponse response = ClientServer.WriteFileResponse.parseFrom(res.getMessageResponseBytes());
+
+                System.out.println(response.getAck());
+            } catch (InvalidProtocolBufferException ipbe) {
+                //TODO: handle exception
+            }
             fis.close();
         } catch (Exception e) {
              System.out.println("ERROR - Write - (File not found) | Dont forget you need to use this format ->  \" write arg / w arg \"  \n ");
@@ -196,13 +210,23 @@ public class ClientCommandImpl {
                                                         .setFileName(fileName)
                                                         .build();
             
-            ClientServer.ReadFileResponse response = stub.readFile(request);
+            ClientServer.EncryptedMessageRequest encryptedReq = EncryptMessage(request);
+
+            ClientServer.EncryptedMessageResponse res = stub.readFile(encryptedReq);
+            ClientServer.ReadFileResponse response = null;
+            try {
+                response = ClientServer.ReadFileResponse.parseFrom(res.getMessageResponseBytes());
+            } catch (InvalidProtocolBufferException ipbe) {
+                System.out.println("ERROR - Read - Failed to decrypt response");
+                return;
+            }
+
             // System.out.println(response.getFile().toStringUtf8());
 
             
             Key key = ks.getKey(fileName + "_key", pwdArray);
 
-            byte[] decryptedFile = CryptographyImpl.decryptFileAES(fileName, response.getFile().toByteArray(), key);
+            byte[] decryptedFile = CryptographyImpl.decryptAES(fileName, response.getFile().toByteArray(), key);
             MessageDigest digest = MessageDigest.getInstance("SHA3-256");
             byte[] hashBytes = digest.digest(decryptedFile);
             // String sha3Hex = CryptographyImpl.bytesToHex(hashBytes);
@@ -219,7 +243,7 @@ public class ClientCommandImpl {
             
             FileOutputStream writer = new FileOutputStream(dirPath + fileName);
             writer.write(decryptedFile);
-			// writer.write(CryptographyImpl.decryptFileAES(fileName, response.getFile().toByteArray(), 
+			// writer.write(CryptographyImpl.decryptAES(fileName, response.getFile().toByteArray(), 
             //     CryptographyImpl.readAESKey(System.getProperty("user.home") + "/SIRS_KEYS/" + fileName + ".key")));
 
 			writer.close();
@@ -240,11 +264,21 @@ public class ClientCommandImpl {
             return;
         }
 
-        ClientServer.ListFileRequest request = ClientServer.ListFileRequest.newBuilder().build();
+        ClientServer.ListFileRequest request = ClientServer.ListFileRequest.newBuilder().setUserName(username).build();
 
-        ClientServer.ListFileResponse response = stub.listFiles(request);
-        for (String fileName : response.getFileNameList()) {
-            System.out.println(fileName);
+        ClientServer.EncryptedMessageRequest encryptedReq = EncryptMessage(request);
+
+        ClientServer.EncryptedMessageResponse res = stub.listFiles(encryptedReq);
+
+        try {
+            ClientServer.ListFileResponse response = ClientServer.ListFileResponse.parseFrom(res.getMessageResponseBytes());
+    
+            for (String fileName : response.getFileNameList()) {
+                System.out.println(fileName);
+            }
+            
+        } catch (InvalidProtocolBufferException ipbe) {
+            System.out.println("ERROR - List Files - Response obtained is invalid!");
         }
     }
 
@@ -263,8 +297,17 @@ public class ClientCommandImpl {
             .setFileName(args[1])
             .build();
             
-        ClientServer.DeleteFileResponse response = stub.deleteFile(request);
-        System.out.println(response.getAck());
+        ClientServer.EncryptedMessageRequest encryptedReq = EncryptMessage(request);
+
+        ClientServer.EncryptedMessageResponse res = stub.deleteFile(encryptedReq);
+        try {
+            ClientServer.DeleteFileResponse response = ClientServer.DeleteFileResponse.parseFrom(res.getMessageResponseBytes());
+    
+            System.out.println(response.getAck());
+        } catch (InvalidProtocolBufferException ipbe) {
+            //TODO: handle exception
+            System.out.println("ERROR - Remove - Parsing response message error");
+        }
     }
 
     void register(String[] args) {
@@ -282,14 +325,21 @@ public class ClientCommandImpl {
             .setUserName(args[1])
             .setCipheredPassword(args[2])
             .build();
-        
-        ClientServer.RegisterResponse response = stub.register(request);
 
-        if(!response.getAck().equals("ERROR")) {
-            username = args[1];
-        }
-        else {
-            System.out.println("ERROR - Register - Username already exists");
+               ClientServer.EncryptedMessageRequest encryptedReq = EncryptMessage(request);
+
+        ClientServer.EncryptedMessageResponse res = stub.register(encryptedReq);
+        try {
+            ClientServer.RegisterResponse response = ClientServer.RegisterResponse.parseFrom(res.getMessageResponseBytes());
+    
+            if(!response.getAck().equals("ERROR")) {
+                username = args[1];
+            }
+            else {
+                System.out.println("ERROR - Register - Username already exists");
+            }
+        } catch (InvalidProtocolBufferException ipbe) {
+            //TODO: handle exception
         }
 
     }
@@ -310,13 +360,20 @@ public class ClientCommandImpl {
             .setCipheredPassword(args[2])
             .build();
 
-        ClientServer.LoginResponse response = stub.login(request);
+        ClientServer.EncryptedMessageRequest encryptedReq = EncryptMessage(request);
 
-        if(!response.getAck().equals("ERROR")) {
-            username = args[1];
-        }
-        else {
-            System.out.println("ERROR - Login - Authentication failed");
+        ClientServer.EncryptedMessageResponse res = stub.login(encryptedReq);
+        try {
+            ClientServer.LoginResponse response = ClientServer.LoginResponse.parseFrom(res.getMessageResponseBytes());
+    
+            if(!response.getAck().equals("ERROR")) {
+                username = args[1];
+            }
+            else {
+                System.out.println("ERROR - Login - Authentication failed");
+            }
+        } catch (InvalidProtocolBufferException ipbe) {
+            //TODO: handle exception
         }
     }
 
@@ -360,7 +417,8 @@ public class ClientCommandImpl {
             stub = newStub;
             System.out.println("Located server at " + target);
 
-            InitializeKeyStore();
+            //TODO: Change this
+            ks = CryptographyImpl.InitializeKeyStore(pwdArray, "/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/Client/standard.jceks");
             return "OK";
         } catch (ZKNamingException zkne) {
             System.err.println("ConnectToServer: Failed to lookup records" + zkne.getStackTrace());
@@ -368,58 +426,23 @@ public class ClientCommandImpl {
         }
     }
 
-
-    void InitializeKeyStore() {
+    ClientServer.EncryptedMessageRequest EncryptMessage(GeneratedMessageV3 request) {
+        //TODO: Check IV input
         try {
-            ks = KeyStore.getInstance("JCEKS");
-
-            pwdArray = "pwd".toCharArray();      //TODO: Change password depending on user login?
-            File jks = new File("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/Client/standard.jceks");
-            if(jks.exists()) {
-                System.out.println("Keystore exists, will load");
-                ks = KeyStore.getInstance("JCEKS");
-                ks.load(new FileInputStream(jks), pwdArray);
-            }
-            else {
-                System.out.println("Keystore doesn't exist, will create");
-                ks.load(null, pwdArray);
-
-                FileOutputStream fos = new FileOutputStream(jks);
-                ks.store(fos, pwdArray);
-            }
-
-
-        } catch (KeyStoreException kse) {
+            Key tempKey = CryptographyImpl.generateAESKey();
+            byte[] encryptedData = CryptographyImpl.encryptAES("", request.toByteArray(), tempKey);
+            byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), CryptographyImpl.readPublicKey("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/CAServer/LeadServerKeys/leadServer_public.der"));
+            
+            ClientServer.EncryptedMessageRequest encryptedReq = ClientServer.EncryptedMessageRequest.newBuilder()
+                                                    .setMessageRequestBytes(ByteString.copyFrom(encryptedData))
+                                                    .setEncryptionKey(ByteString.copyFrom(encryptedKey))
+                                                    .build();
+            
+            return encryptedReq;
+            
+        } catch (Exception e) {
             //TODO: handle exception
-        } catch (IOException ioe) {
-
-        } catch (NoSuchAlgorithmException nsae) {
-
-        } catch (CertificateException ce) {
-
-        }
-    }
-
-    void UpdateKeyStore() {
-        File jks = new File("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/Client/standard.jceks");
-        try {
-            if(jks.exists()) {
-                FileOutputStream fos = new FileOutputStream(jks);
-                ks.store(fos, pwdArray);
-            }
-            else {
-                System.out.println("ERROR - KeyStore file not found");
-            }
-        } catch (KeyStoreException kse) {
-            System.out.println("ERROR - KeyStore exception: " + kse.getMessage());
-        } catch (FileNotFoundException e) {
-            System.out.println("ERROR - KeyStore file not found");
-        } catch (NoSuchAlgorithmException nsae) {
-            
-        } catch (CertificateException ce) {
-            
-        } catch (IOException ioe) {
-
+            return null;
         }
     }
 
