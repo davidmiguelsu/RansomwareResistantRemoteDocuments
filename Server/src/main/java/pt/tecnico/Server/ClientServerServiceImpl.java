@@ -25,6 +25,8 @@ import io.grpc.stub.StreamObserver;
 
 public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToServerServiceImplBase {
 	public static String filePath = "";
+	//TODO: Don't have these in plain text
+	public static String keyPaths = "";
     private ServerController serverController;
 
 
@@ -368,7 +370,9 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 	byte[] DecryptRequest(ClientServer.EncryptedMessageRequest request) {
 
 		byte[] decryptedTempKeyBytes = CryptographyImpl.decryptRSA(request.getEncryptionKey().toByteArray(), 
-		CryptographyImpl.readPrivateKey("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/CAServer/LeadServerKeys/leadServer_private.der"));
+		CryptographyImpl.readPrivateKey(keyPaths + "LeadServerKeys/leadServer_private.der"));
+
+		// CryptographyImpl.readPrivateKey("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/CAServer/LeadServerKeys/leadServer_private.der"));
 		Key decryptTempKey = new SecretKeySpec(decryptedTempKeyBytes, 0, 16, "AES");
 
 		//TODO: Check IV later
@@ -385,7 +389,9 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		try {
 			Key tempKey = CryptographyImpl.generateAESKey();
 			byte[] encryptedData = CryptographyImpl.encryptAES("", response.toByteArray(), tempKey);
-			byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), CryptographyImpl.readPublicKey("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/CAServer/ClientKeys/client_public.der"));
+			byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), CryptographyImpl.readPublicKey(keyPaths + "ClientKeys/client_public.der"));
+
+			// byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), CryptographyImpl.readPublicKey("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/CAServer/ClientKeys/client_public.der"));
 			
 			ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
 													.setMessageResponseBytes(ByteString.copyFrom(encryptedData))
@@ -413,6 +419,7 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 	public void SetupStoragePath(String path) {
 		filePath = System.getProperty("user.home") + "/Documents/SIRS_Test/" + path.charAt(path.length() - 1) + "/"; //"RansomwareResistantRemoteDocuments/Server/Files/" + args[2];
 		File dir = new File(filePath);
+		keyPaths = System.getProperty("user.home") + "/Documents/SIRS_Stuff/Repo" + "/RansomwareResistantRemoteDocuments/CAServer/";
 		if(!dir.exists()) {
 			dir.mkdir();
 		}

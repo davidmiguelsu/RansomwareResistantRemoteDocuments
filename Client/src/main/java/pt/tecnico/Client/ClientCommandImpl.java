@@ -43,7 +43,8 @@ public class ClientCommandImpl {
     ManagedChannel channel = null;
     ClientToServerServiceGrpc.ClientToServerServiceBlockingStub stub = null;
     String dirPath = "";
-
+    String keyStorePath = "";
+    String keyPath = "";
 
 
     KeyStore ks;
@@ -52,6 +53,8 @@ public class ClientCommandImpl {
     ClientCommandImpl() {
         // stub = serverStub;
         dirPath = System.getProperty("user.home") + "/Downloads/";
+        keyStorePath = System.getProperty("user.home") + "/Documents/";
+        keyPath = System.getProperty("user.home") + "/Documents/SIRS_Stuff/Repo" + "/RansomwareResistantRemoteDocuments/CAServer/";
     }  
     
     public boolean ExecuteCommand(String input) throws ZKNamingException{
@@ -113,7 +116,7 @@ public class ClientCommandImpl {
                 System.out.println(" \n The commands available are: \n Create File - write arg / w arg \n Read File - download arg / d arg \n List Files - list / ls \n Remove file - remove arg / rm arg \n Close the session -  exit \n \n");   
                 break;            
             case "exit":
-                CryptographyImpl.UpdateKeyStore(ks, pwdArray, "/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/Client/standard.jceks");
+                CryptographyImpl.UpdateKeyStore(ks, pwdArray, keyStorePath + "standard.jceks");
                 return false;
             default:
                 System.out.println("ERROR - Invalid Command");
@@ -153,7 +156,7 @@ public class ClientCommandImpl {
             KeyStore.ProtectionParameter password = new KeyStore.PasswordProtection(pwdArray);
             ks.setEntry(fileName + "_key", secret, password);
 
-            CryptographyImpl.UpdateKeyStore(ks, pwdArray, "/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/Client/standard.jceks");
+            CryptographyImpl.UpdateKeyStore(ks, pwdArray, keyStorePath + "standard.jceks");
 
             byte[] encryptedFile = CryptographyImpl.encryptAES(fileName, fis.readAllBytes(), key);
             // byte[] encryptedFile = CryptographyImpl.encryptAES(fileName, fis.readAllBytes(), 
@@ -424,7 +427,7 @@ public class ClientCommandImpl {
             System.out.println("Located server at " + target);
 
             //TODO: Change this
-            ks = CryptographyImpl.InitializeKeyStore(pwdArray, "/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/Client/standard.jceks");
+            ks = CryptographyImpl.InitializeKeyStore(pwdArray, keyStorePath + "standard.jceks");
             return "OK";
         } catch (ZKNamingException zkne) {
             System.err.println("ConnectToServer: Failed to lookup records" + zkne.getStackTrace());
@@ -437,7 +440,7 @@ public class ClientCommandImpl {
         try {
             Key tempKey = CryptographyImpl.generateAESKey();
             byte[] encryptedData = CryptographyImpl.encryptAES("", request.toByteArray(), tempKey);
-            byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), CryptographyImpl.readPublicKey("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/CAServer/LeadServerKeys/leadServer_public.der"));
+            byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"));
             
             ClientServer.EncryptedMessageRequest encryptedReq = ClientServer.EncryptedMessageRequest.newBuilder()
                                                     .setMessageRequestBytes(ByteString.copyFrom(encryptedData))
@@ -455,7 +458,7 @@ public class ClientCommandImpl {
     byte[] DecryptResponse(ClientServer.EncryptedMessageResponse response) {
 
 		byte[] decryptedTempKeyBytes = CryptographyImpl.decryptRSA(response.getEncryptionKey().toByteArray(), 
-		CryptographyImpl.readPrivateKey("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/CAServer/ClientKeys/client_private.der"));
+		CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der"));
 		Key decryptTempKey = new SecretKeySpec(decryptedTempKeyBytes, 0, 16, "AES");
 
 		//TODO: Check IV later
@@ -470,5 +473,3 @@ public class ClientCommandImpl {
         stub = newStub;
     }
 }
-
-
