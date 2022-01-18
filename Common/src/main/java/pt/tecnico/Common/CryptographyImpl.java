@@ -16,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
@@ -87,6 +88,7 @@ public class CryptographyImpl {
     public static KeyPair generateRSAKeyPair() {
         try {
             KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+            keyGen.initialize(2048);
             return keyGen.generateKeyPair();
         } catch (NoSuchAlgorithmException nsae) {
             System.out.println("ERROR - Failed to generate key pair");

@@ -12,8 +12,13 @@ import java.sql.SQLException;
  * @author postgresqltutorial.com
  */
 public class DatabaseImpl{
-
+    
+    //Driver name and database URL
+    static final String JDBC_DRIVER = "org.postgresql.Driver";
     private final String url = "jdbc:postgresql://localhost:5432/Ransom";
+    
+    
+    //Credentials
     private final String user = "postgres";
     private final String password = "1234";
 

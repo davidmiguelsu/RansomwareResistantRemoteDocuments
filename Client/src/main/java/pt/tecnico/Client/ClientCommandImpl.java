@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Random;
 
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessageV3;
@@ -177,7 +178,8 @@ public class ClientCommandImpl {
 
             ClientServer.EncryptedMessageResponse res = stub.writeFile(encryptedReq);
             try {
-                ClientServer.WriteFileResponse response = ClientServer.WriteFileResponse.parseFrom(res.getMessageResponseBytes());
+                byte[] responseBytes = DecryptResponse(res);
+                ClientServer.WriteFileResponse response = ClientServer.WriteFileResponse.parseFrom(responseBytes);
 
                 System.out.println(response.getAck());
             } catch (InvalidProtocolBufferException ipbe) {
@@ -215,7 +217,8 @@ public class ClientCommandImpl {
             ClientServer.EncryptedMessageResponse res = stub.readFile(encryptedReq);
             ClientServer.ReadFileResponse response = null;
             try {
-                response = ClientServer.ReadFileResponse.parseFrom(res.getMessageResponseBytes());
+                byte[] responseBytes = DecryptResponse(res);
+                response = ClientServer.ReadFileResponse.parseFrom(responseBytes);
             } catch (InvalidProtocolBufferException ipbe) {
                 System.out.println("ERROR - Read - Failed to decrypt response");
                 return;
@@ -301,7 +304,8 @@ public class ClientCommandImpl {
 
         ClientServer.EncryptedMessageResponse res = stub.deleteFile(encryptedReq);
         try {
-            ClientServer.DeleteFileResponse response = ClientServer.DeleteFileResponse.parseFrom(res.getMessageResponseBytes());
+            byte[] responseBytes = DecryptResponse(res);
+            ClientServer.DeleteFileResponse response = ClientServer.DeleteFileResponse.parseFrom(responseBytes);
     
             System.out.println(response.getAck());
         } catch (InvalidProtocolBufferException ipbe) {
@@ -330,7 +334,8 @@ public class ClientCommandImpl {
 
         ClientServer.EncryptedMessageResponse res = stub.register(encryptedReq);
         try {
-            ClientServer.RegisterResponse response = ClientServer.RegisterResponse.parseFrom(res.getMessageResponseBytes());
+            byte[] responseBytes = DecryptResponse(res);
+            ClientServer.RegisterResponse response = ClientServer.RegisterResponse.parseFrom(responseBytes);
     
             if(!response.getAck().equals("ERROR")) {
                 username = args[1];
@@ -364,7 +369,8 @@ public class ClientCommandImpl {
 
         ClientServer.EncryptedMessageResponse res = stub.login(encryptedReq);
         try {
-            ClientServer.LoginResponse response = ClientServer.LoginResponse.parseFrom(res.getMessageResponseBytes());
+            byte[] responseBytes = DecryptResponse(res);
+            ClientServer.LoginResponse response = ClientServer.LoginResponse.parseFrom(responseBytes);
     
             if(!response.getAck().equals("ERROR")) {
                 username = args[1];
@@ -445,6 +451,17 @@ public class ClientCommandImpl {
             return null;
         }
     }
+
+    byte[] DecryptResponse(ClientServer.EncryptedMessageResponse response) {
+
+		byte[] decryptedTempKeyBytes = CryptographyImpl.decryptRSA(response.getEncryptionKey().toByteArray(), 
+		CryptographyImpl.readPrivateKey("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/CAServer/ClientKeys/client_private.der"));
+		Key decryptTempKey = new SecretKeySpec(decryptedTempKeyBytes, 0, 16, "AES");
+
+		//TODO: Check IV later
+		byte[] requestDecryptedBytes = CryptographyImpl.decryptAES("", response.getMessageResponseBytes().toByteArray(), decryptTempKey);
+		return requestDecryptedBytes;
+	}
 
     public void ShutdownChannel() {
         channel.shutdownNow();

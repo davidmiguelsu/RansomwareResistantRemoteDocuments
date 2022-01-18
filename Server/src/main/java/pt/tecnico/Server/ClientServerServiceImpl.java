@@ -18,6 +18,7 @@ import java.util.Map;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.google.protobuf.ByteString;
+import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import io.grpc.stub.StreamObserver;
@@ -72,10 +73,10 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		}
 
 		//TODO: Add the encryption
-		ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
-			.setMessageResponseBytes(res.toByteString()).build();
+		// ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
+		// 	.setMessageResponseBytes(res.toByteString()).build();
 
-		responseObserver.onNext(encryptedRes);
+		responseObserver.onNext(EncryptResponse(res));
 		responseObserver.onCompleted();
 	}
 
@@ -111,11 +112,10 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			}
 		}
 
-		//TODO: Add the encryption
-		ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
-			.setMessageResponseBytes(res.toByteString()).build();
+		// ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
+		// 	.setMessageResponseBytes(res.toByteString()).build();
 
-		responseObserver.onNext(encryptedRes);
+		responseObserver.onNext(EncryptResponse(res));
 		responseObserver.onCompleted();
 	}
 
@@ -169,11 +169,11 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			.setAck("Confirmed write of file " + decryptRequest.getFileName())
 			.build();
 
-			ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
-			.setMessageResponseBytes(response.toByteString()).build();
+			// ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
+			// .setMessageResponseBytes(response.toByteString()).build();
 	
 			// Use responseObserver to send a single response back
-			responseObserver.onNext(encryptedRes);
+			responseObserver.onNext(EncryptResponse(response));
 	
 			// When you are done, you must call onCompleted
 			responseObserver.onCompleted();
@@ -183,19 +183,17 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			.setAck("Failed to write file " + decryptRequest.getFileName())
 			.build();
 	
-			ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
-			.setMessageResponseBytes(response.toByteString()).build();
+			// ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
+			// .setMessageResponseBytes(response.toByteString()).build();
 
 			// Use responseObserver to send a single response back
-			responseObserver.onNext(encryptedRes);
+			responseObserver.onNext(EncryptResponse(response));
 	
 			// When you are done, you must call onCompleted
 			responseObserver.onCompleted();
 
 			System.out.println(e.getStackTrace().toString());
 		}
-		
-
 	}
 
 	@Override
@@ -234,12 +232,13 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 														.setHash(ByteString.copyFrom(hashFIS.readAllBytes()))
 														.build();
 
-			ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
-														.setMessageResponseBytes(response.toByteString()).build();
-												
+			// ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
+			// 											.setMessageResponseBytes(response.toByteString()).build();
+			ClientServer.EncryptedMessageResponse encryptedRes = EncryptResponse(response);	
 			fis.close();
 			hashFIS.close();
 			List<ClientServer.EncryptedMessageResponse> responseList = new ArrayList<>();
+
 			responseList.add(encryptedRes);
 
 			if(serverController.isLeader) {
@@ -344,8 +343,11 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			.setAck(ackStr)
 			.build();
 
-		ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
-		.setMessageResponseBytes(response.toByteString()).build();
+		// ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
+		// .setMessageResponseBytes(response.toByteString()).build();
+
+		ClientServer.EncryptedMessageResponse encryptedRes = EncryptResponse(response);	
+
 		// Use responseObserver to send a single response back
 		responseObserver.onNext(encryptedRes);
 
@@ -377,6 +379,26 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
     public void SetServerMain(ServerController main) {
         serverController = main;
     }
+
+	ClientServer.EncryptedMessageResponse EncryptResponse(GeneratedMessageV3 response) {
+		//TODO: Check IV input
+		try {
+			Key tempKey = CryptographyImpl.generateAESKey();
+			byte[] encryptedData = CryptographyImpl.encryptAES("", response.toByteArray(), tempKey);
+			byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), CryptographyImpl.readPublicKey("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/CAServer/ClientKeys/client_public.der"));
+			
+			ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
+													.setMessageResponseBytes(ByteString.copyFrom(encryptedData))
+													.setEncryptionKey(ByteString.copyFrom(encryptedKey))
+													.build();
+			
+			return encryptedRes;
+			
+		} catch (Exception e) {
+			//TODO: handle exception
+			return null;
+		}
+	}
 
 	public void SetupStoragePath() {
 		filePath = System.getProperty("user.home") + "/Documents/SIRS_Test/"; //"RansomwareResistantRemoteDocuments/Server/Files/" + args[2];
