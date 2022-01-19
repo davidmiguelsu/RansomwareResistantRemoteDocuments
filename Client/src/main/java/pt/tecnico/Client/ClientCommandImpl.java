@@ -54,7 +54,7 @@ public class ClientCommandImpl {
         // stub = serverStub;
         dirPath = System.getProperty("user.home") + "/Downloads/";
         keyStorePath = System.getProperty("user.home") + "/Documents/";
-        keyPath = System.getProperty("user.home") + "/Documents/SIRS_Stuff/Repo" + "/RansomwareResistantRemoteDocuments/CAServer/";
+        keyPath = System.getProperty("user.home") + "/Documents" + "/RansomwareResistantRemoteDocuments/CAServer/";
     }  
     
     public boolean ExecuteCommand(String input) throws ZKNamingException{

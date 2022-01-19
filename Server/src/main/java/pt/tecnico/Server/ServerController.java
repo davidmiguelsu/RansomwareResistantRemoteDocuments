@@ -1,6 +1,7 @@
 package pt.tecnico.Server;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,6 +40,7 @@ public class ServerController {
 	public static boolean isLeader;
 	public List<ChildServerInfo> childServerList = new ArrayList<ChildServerInfo>();
 	public DatabaseImpl db;
+	public Connection conn;
 
 
     public void main(String[] args) throws ZKNamingException {
@@ -116,9 +118,8 @@ public class ServerController {
                 System.out.println("Server started and awaiting requests from clients on port " + portForClient + ", and pings from servers on port " + portForServer);
                
 				db = new DatabaseImpl();
-				db.connect();
-				
-				System.out.println("Database ON");
+				conn = db.connect(); 
+				System.out.println("Database ON && conn updated");
 
 				
                 serverMain.awaitTermination();

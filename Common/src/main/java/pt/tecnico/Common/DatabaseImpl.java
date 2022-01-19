@@ -1,6 +1,6 @@
     package pt.tecnico.Common;
 
-import java.beans.Statement;
+import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -13,8 +13,7 @@ import java.sql.SQLException;
  */
 public class DatabaseImpl{
     
-    //Driver name and database URL
-    static final String JDBC_DRIVER = "org.postgresql.Driver";
+    //Database URL
     private final String url = "jdbc:postgresql://localhost:5432/Ransom";
     
     
@@ -24,6 +23,7 @@ public class DatabaseImpl{
 
     private final String addUserStatement ="INSERT INTO users (username, passwd) VALUES(?,?);"; // usar no register
     private final String addFileStatement ="INSERT INTO files ( file_name) VALUES(?);"; // usar no writefile
+    private final String addFileStatement1 ="INSERT INTO files ( file_name) VALUES('teste')";
     private final String giveReadPerms ="INSERT INTO user_files (user_id, file_id, read_perm, write_perm) VALUES(?,?,?,?);";
     private final String giveWritePerms ="wwww";
     private final String removeReadPerms ="UPDATE user_files SET read_perm = false WHERE user_id = 'smth';";
@@ -55,21 +55,25 @@ public class DatabaseImpl{
     }
 
     public void addFileDatabase (Connection con, String fileName){
-        
+        // Statement st = null;
         try{
+            // st = con.createStatement();
+            // st.executeUpdate(addFileStatement1);
+            // System.out.println("ficheiro added à BD");
+
             PreparedStatement ps = con.prepareStatement(addFileStatement);
-            
             ps.setString(1, fileName);
             ps.executeUpdate();
-            
-            con.commit();
+            con.commit();          
+         
 
         } catch (SQLException e){
+            System.out.println("CHEGOU AQUI AMIGOSSSS");
             e.printStackTrace();
-            try{
-                con.rollback();
-            } catch (SQLException ignore){              
-            }
+            // try{
+            //      con.rollback();
+            // } catch (SQLException ignore){              
+            // }
         }
     }  
     
@@ -127,6 +131,8 @@ public class DatabaseImpl{
         Connection conn = null;
         try {
             conn = DriverManager.getConnection(url, user, password);
+            conn.setAutoCommit(false);
+            System.out.println("AutoCommit has been set to false");
             System.out.println("Connected to the PostgreSQL server successfully.");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -140,6 +146,6 @@ public class DatabaseImpl{
      */
     public static void main(String[] args) {
         DatabaseImpl app = new DatabaseImpl();
-        app.connect();
+         app.connect();
     }
 }

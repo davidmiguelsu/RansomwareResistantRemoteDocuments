@@ -143,9 +143,9 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 
 		File file = new File(filePath + decryptRequest.getFileName());
 		try {
-				
 			FileOutputStream writer = new FileOutputStream(file, false);
 			writer.write(decryptRequest.getFile().toByteArray());
+			serverController.db.addFileDatabase(serverController.conn , decryptRequest.getFileName());
 
 			//TODO: Temp hash file -> TO BE MOVED TO DB
 			File hashFile = new File(filePath + decryptRequest.getFileName() + ".hash");
@@ -419,7 +419,14 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 	public void SetupStoragePath(String path) {
 		filePath = System.getProperty("user.home") + "/Documents/SIRS_Test/" + path.charAt(path.length() - 1) + "/"; //"RansomwareResistantRemoteDocuments/Server/Files/" + args[2];
 		File dir = new File(filePath);
-		keyPaths = System.getProperty("user.home") + "/Documents/SIRS_Stuff/Repo" + "/RansomwareResistantRemoteDocuments/CAServer/";
+		File dir1 = new File(System.getProperty("user.home") + "/Documents/SIRS_Test/");
+		keyPaths = System.getProperty("user.home") + "/Documents" + "/RansomwareResistantRemoteDocuments/CAServer/";
+		
+		System.out.println(dir1.exists());
+		if(!dir1.exists()){
+			System.out.println("folder created");
+			dir1.mkdir();
+		}
 		if(!dir.exists()) {
 			dir.mkdir();
 		}
