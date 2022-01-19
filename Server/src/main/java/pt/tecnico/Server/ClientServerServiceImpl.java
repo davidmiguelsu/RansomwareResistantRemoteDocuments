@@ -78,7 +78,7 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			.setAck("OK").build();
 
 			//TODO: Password needs to be encrypted
-			serverController.db.addUserDatabase(serverController.conn , decryptRequest.getUserName(), decryptRequest.getCipheredPassword());
+			// serverController.db.addUserDatabase(serverController.conn , decryptRequest.getUserName(), decryptRequest.getCipheredPassword());
 		}
 
 		//TODO: Add the encryption
@@ -152,9 +152,9 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		try {
 			FileOutputStream writer = new FileOutputStream(file, false);
 			writer.write(decryptRequest.getFile().toByteArray());
-			serverController.db.addFileDatabase(serverController.conn , decryptRequest.getFileName());
-			String tempName = serverController.db.getUserIDbyUsername(serverController.conn , decryptRequest.getUsername());
-			serverController.db.addUserFileDatabase(serverController.conn, tempName, decryptRequest.getFileName());
+			// serverController.db.addFileDatabase(serverController.conn , decryptRequest.getFileName());
+			// String tempName = serverController.db.getUserIDbyUsername(serverController.conn , decryptRequest.getUsername());
+			// serverController.db.addUserFileDatabase(serverController.conn, tempName, decryptRequest.getFileName());
 
 			//TODO: Temp hash file -> TO BE MOVED TO DB
 			File hashFile = new File(filePath + decryptRequest.getFileName() + ".hash");
@@ -387,11 +387,45 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 				//TODO: handle exception, but shouldn't occur?
 			} catch (IOException ioe) {
 				System.out.println("ERROR - Failed ");
+				ClientServer.GivePermissionsResponse response = ClientServer.GivePermissionsResponse.newBuilder()
+				.setAck("ERROR -Failed write of key for user: " + decryptRequest.getUserName())
+				.build();
+				responseObserver.onNext(EncryptResponse(response));
+				responseObserver.onCompleted();
+				return;
 			}
+
+			ClientServer.GivePermissionsResponse response = ClientServer.GivePermissionsResponse.newBuilder()
+				.setAck("Confirmed write of key for user: " + decryptRequest.getUserName())
+				.build();
+			
+			responseObserver.onNext(EncryptResponse(response));
+			responseObserver.onCompleted();
 
 		}
 	}
+	@Override
+	public void updatePermissions(ClientServer.EncryptedMessageRequest request, StreamObserver<ClientServer.EncryptedMessageResponse> responseObserver) {
+		if(serverController.isLeader) {
+			byte[] requestDecryptedBytes = DecryptRequest(request);
+			ClientServer.UpdatePermissionsRequest decryptRequest = null;
+			try {
+				decryptRequest = ClientServer.UpdatePermissionsRequest.parseFrom(requestDecryptedBytes);	
+			} catch (InvalidProtocolBufferException e) {
+				//TODO: handle exception
+			}
 
+			//For each key the user has access to
+
+			ClientServer.UpdatePermissionsResponse response = ClientServer.UpdatePermissionsResponse.getDefaultInstance();
+			// .newBuilder()
+			// .setAck("Confirmed write of key for user: " + decryptRequest.getUserName())
+			// .build();
+		
+		responseObserver.onNext(EncryptResponse(response));
+		responseObserver.onCompleted();
+		}
+	}
 	//-------
 
 	byte[] DecryptRequest(ClientServer.EncryptedMessageRequest request) {

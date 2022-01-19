@@ -11,6 +11,7 @@ import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -113,10 +114,16 @@ public class ClientCommandImpl {
                 logout();
                 break;
 
+            case "permission":
+            case "perm":
+                givePermissions(args);                  
+                break;
+  
             case "help":
             case "h":
                 System.out.println(" \n The commands available are: \n Create File - write arg / w arg \n Read File - download arg / d arg \n List Files - list / ls \n Remove file - remove arg / rm arg \n Close the session -  exit \n \n");   
-                break;            
+                break; 
+                
             case "exit":
                 CryptographyImpl.UpdateKeyStore(ks, pwdArray, keyStorePath + "standard.jceks");
                 return false;
@@ -391,6 +398,65 @@ public class ClientCommandImpl {
             }
         } catch (InvalidProtocolBufferException ipbe) {
             //TODO: handle exception
+        }
+    }
+
+    public void givePermissions(String[] args) {
+        if (username == null) {
+            System.err.println("ERROR - Permissions - Log out from the current user before a new user register.");
+            return;
+        }
+
+        if(args.length != 4) {
+            System.err.println("ERROR - Permissions - You need to use the format -> \" permission/perm fileName userName read/all");
+            return;
+        }
+        String filename = args[1];
+        String targetUsername = args[2];
+        String perm = args[3];
+
+        if(!perm.equals("read") && !perm.equals("all")) {
+            System.err.println("ERROR - Permissions - Invalid permission type");
+            return;
+        }
+        if(targetUsername.equals(username)) {
+            System.err.println("ERROR - Permissions - You can't send permissions to yourself");
+            return;
+        }
+        
+        
+        Key key = null;
+        try {
+            if(!ks.containsAlias(filename + "_key")) {
+                System.err.println("ERROR - Permissions - Invalid file name");
+                return;
+            }
+            key = ks.getKey(filename + "_key", pwdArray);
+        } catch (Exception e) {
+            System.err.println("ERROR - Permissions - Something occured fetching the key. You need to use the format -> \" permission/perm fileName userName read/all");
+            return;
+        }
+
+        byte[] encryptedKey = CryptographyImpl.encryptRSA(key.getEncoded(), CryptographyImpl.readPublicKey(keyPath + "/ClientKeys/client_public.der"));
+        ClientServer.GivePermissionsRequest request = ClientServer.GivePermissionsRequest.newBuilder()
+                                                        .setFileName(filename)
+                                                        .setUserName(targetUsername)
+                                                        .setKey(ByteString.copyFrom(encryptedKey))
+                                                        .setPermission(perm)
+                                                        .build();
+
+        ClientServer.EncryptedMessageRequest encryptedReq = EncryptMessage(request);
+        ClientServer.EncryptedMessageResponse res = stub.givePermission(encryptedReq);
+
+        ClientServer.GivePermissionsResponse response = null;
+        try {
+            byte[] responseBytes = DecryptResponse(res);
+            response = ClientServer.GivePermissionsResponse.parseFrom(responseBytes);
+
+            System.out.println(response.getAck());
+        } catch (InvalidProtocolBufferException ipbe) {
+            System.out.println("ERROR - Read - Failed to decrypt response");
+            return;
         }
     }
 

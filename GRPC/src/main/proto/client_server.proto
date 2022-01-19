@@ -64,11 +64,22 @@ message ListFileResponse {
 message GivePermissionsRequest {
 	bytes key = 1;
 	string userName = 2;
-	string fileName = 3;
+	string targetUserName = 3;
+	string fileName = 4;
+	string permission = 5;
 }
 
 message GivePermissionsResponse {
 	string ack = 1;
+}
+
+message UpdatePermissionsRequest {
+	string userName = 1;
+}
+
+message UpdatePermissionsResponse {
+	repeated bytes keys = 1;
+	repeated string fileName = 2;
 }
 
 // Request payload
@@ -122,4 +133,5 @@ service ClientToServerService {
 	rpc deleteFile(EncryptedMessageRequest) returns (EncryptedMessageResponse);
 	rpc listFiles(EncryptedMessageRequest) returns (EncryptedMessageResponse);
 	rpc givePermission(EncryptedMessageRequest) returns (EncryptedMessageResponse);
+	rpc updatePermissions(EncryptedMessageRequest) returns (EncryptedMessageResponse);
 }
