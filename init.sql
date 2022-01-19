@@ -1,3 +1,9 @@
+DROP TABLE IF EXISTS user_files;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS files;
+
+
+
 CREATE TABLE users (
 	u_id	 SERIAL,
 	username VARCHAR(512),
@@ -22,5 +28,5 @@ CREATE TABLE user_files (
 	file_owner   BOOL,
 	PRIMARY KEY(id),
 	FOREIGN KEY (user_id) REFERENCES users (u_id),
-	FOREIGN KEY (file_id) REFERENCES files (f_id),
+	FOREIGN KEY (file_id) REFERENCES files (f_id)
 );

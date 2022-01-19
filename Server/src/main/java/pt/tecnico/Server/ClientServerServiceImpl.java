@@ -152,9 +152,8 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		try {
 			FileOutputStream writer = new FileOutputStream(file, false);
 			writer.write(decryptRequest.getFile().toByteArray());
-			// serverController.db.addFileDatabase(serverController.conn , decryptRequest.getFileName());
-			// String tempName = serverController.db.getUserIDbyUsername(serverController.conn , decryptRequest.getUsername());
-			// serverController.db.addUserFileDatabase(serverController.conn, tempName, decryptRequest.getFileName());
+			serverController.db.addFileDatabase(serverController.conn , decryptRequest.getFileName());
+
 
 			//TODO: Temp hash file -> TO BE MOVED TO DB
 			File hashFile = new File(filePath + decryptRequest.getFileName() + ".hash");
@@ -165,7 +164,11 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			writer.close();
 			
 			System.out.println("Sucessfull write of file " + decryptRequest.getFileName());
-
+			
+			int tempNameID = serverController.db.getUserIDbyUsername(serverController.conn , decryptRequest.getUsername());
+			int tempFileID = serverController.db.getFileIDbyFileName(serverController.conn , decryptRequest.getFileName());
+			serverController.db.addUserFileDatabase(serverController.conn, tempNameID, tempFileID);
+			System.out.println("deu pa dar add à DB");
 			if(serverController.isLeader) {
 				for (ChildServerInfo info : serverController.childServerList) {
 					
