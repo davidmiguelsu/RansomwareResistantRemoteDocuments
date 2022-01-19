@@ -24,6 +24,7 @@ message WriteFileRequest {
 	string fileName = 1;
 	bytes file = 2;
 	bytes hash = 3;
+	string username = 4;
 }
 
 message WriteFileResponse {
@@ -32,6 +33,7 @@ message WriteFileResponse {
 
 message ReadFileRequest {
 	string fileName = 1;
+	string username = 2;
 }
 
 message ReadFileResponse {
@@ -41,6 +43,7 @@ message ReadFileResponse {
 
 message DeleteFileRequest {
 	string fileName = 1;
+	string username = 2;
 }
 
 message DeleteFileResponse {

@@ -153,8 +153,8 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			FileOutputStream writer = new FileOutputStream(file, false);
 			writer.write(decryptRequest.getFile().toByteArray());
 			serverController.db.addFileDatabase(serverController.conn , decryptRequest.getFileName());
-			// String tempName = serverController.db.getUserIDbyUsername(serverController.conn , decryptRequest.getUserName());
-			// serverController.db.addUserFileDatabase(serverController.conn, tempName, decryptRequest.getFileName());
+			String tempName = serverController.db.getUserIDbyUsername(serverController.conn , decryptRequest.getUsername());
+			serverController.db.addUserFileDatabase(serverController.conn, tempName, decryptRequest.getFileName());
 
 			//TODO: Temp hash file -> TO BE MOVED TO DB
 			File hashFile = new File(filePath + decryptRequest.getFileName() + ".hash");

@@ -173,6 +173,7 @@ public class ClientCommandImpl {
                                                         .setFileName(fileName)
                                                         .setFile(ByteString.copyFrom(encryptedFile))
                                                         .setHash(ByteString.copyFrom(hashBytes))
+                                                        .setUsername(username)
                                                         .build();
             
             ClientServer.EncryptedMessageRequest encryptedReq = EncryptMessage(request);
@@ -215,6 +216,7 @@ public class ClientCommandImpl {
 
             ClientServer.ReadFileRequest request =  ClientServer.ReadFileRequest.newBuilder()
                                                         .setFileName(fileName)
+                                                        .setUsername(username)
                                                         .build();
             
             ClientServer.EncryptedMessageRequest encryptedReq = EncryptMessage(request);
@@ -306,6 +308,7 @@ public class ClientCommandImpl {
 
         ClientServer.DeleteFileRequest request = ClientServer.DeleteFileRequest.newBuilder()
             .setFileName(args[1])
+            .setUsername(username)
             .build();
             
         ClientServer.EncryptedMessageRequest encryptedReq = EncryptMessage(request);
