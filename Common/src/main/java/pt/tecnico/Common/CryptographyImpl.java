@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -15,6 +16,8 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -275,13 +278,41 @@ public class CryptographyImpl {
             return null;
         }
     }
-    // public static String getDecrypted(String data, String Key) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-    //     Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-    //     PrivateKey pk = KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(Key.getBytes())));
-    //     cipher.init(Cipher.DECRYPT_MODE, pk);
-    //     byte[] encryptedbytes = cipher.doFinal(Base64.getDecoder().decode(data.getBytes()));
-    //     return new String(encryptedbytes);
-    // }
+
+    public static byte[] generateDigitalSignature(byte[] data, PrivateKey privateKey) {
+        try {
+            Signature signature = Signature.getInstance("SHA256withRSA");
+            signature.initSign(privateKey);
+            signature.update(data);
+            return signature.sign();
+            
+        } catch (InvalidKeyException ike) {
+            System.out.println("InvalidKeyException error in generateDigitalSignature" + ike.getLocalizedMessage());
+        } catch (NoSuchAlgorithmException nsae) {
+            System.out.println("NoSuchAlgorithmException error in generateDigitalSignature" + nsae.getLocalizedMessage());
+        } catch (SignatureException se) {
+            System.out.println("SignatureException error in generateDigitalSignature" + se.getLocalizedMessage());
+        }
+        return null;
+    }
+
+    public static boolean verifyDigitalSignature(byte[] message, byte[] signature, PublicKey publicKey) {
+        try {
+            Signature sign = Signature.getInstance("SHA256withRSA");
+    
+            sign.initVerify(publicKey);
+            sign.update(message);
+    
+            return sign.verify(signature);
+        } catch (InvalidKeyException ike) {
+            System.out.println("InvalidKeyException error in verifyDigitalSignature" + ike.getLocalizedMessage());
+        } catch (NoSuchAlgorithmException nsae) {
+            System.out.println("NoSuchAlgorithmException error in verifyDigitalSignature" + nsae.getLocalizedMessage());
+        } catch (SignatureException se) {
+            System.out.println("SignatureException error in verifyDigitalSignature" + se.getLocalizedMessage());
+        }
+        return false;
+    }
 
     public static String bytesToHex(byte[] hash) {
         StringBuilder hexString = new StringBuilder(2 * hash.length);

@@ -7,8 +7,11 @@ import pt.tecnico.grpc.ClientToServerServiceGrpc;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.security.Key;
+import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,6 +23,7 @@ import javax.crypto.spec.SecretKeySpec;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Timestamp;
 
 import io.grpc.stub.StreamObserver;
 
@@ -145,7 +149,7 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		try {
 			FileOutputStream writer = new FileOutputStream(file, false);
 			writer.write(decryptRequest.getFile().toByteArray());
-			serverController.db.addFileDatabase(serverController.conn , decryptRequest.getFileName());
+			// serverController.db.addFileDatabase(serverController.conn , decryptRequest.getFileName());
 
 			//TODO: Temp hash file -> TO BE MOVED TO DB
 			File hashFile = new File(filePath + decryptRequest.getFileName() + ".hash");
@@ -282,9 +286,9 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 				.addAllFileName(fileList)
 				.build();
 				
-				ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
-				.setMessageResponseBytes(response.toByteString()).build();
-				responseObserver.onNext(encryptedRes);
+				// ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
+				// .setMessageResponseBytes(response.toByteString()).build();
+				responseObserver.onNext(EncryptResponse(response));
 				responseObserver.onCompleted();
 			} catch (Exception e) {
 				//TODO: handle exception
@@ -361,7 +365,25 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 	@Override
 	public void givePermission(ClientServer.EncryptedMessageRequest request, StreamObserver<ClientServer.EncryptedMessageResponse> responseObserver) {
 		if(serverController.isLeader) {
-			
+			byte[] requestDecryptedBytes = DecryptRequest(request);
+			ClientServer.GivePermissionsRequest decryptRequest = null;
+			try {
+				decryptRequest = ClientServer.GivePermissionsRequest.parseFrom(requestDecryptedBytes);	
+			} catch (InvalidProtocolBufferException e) {
+				//TODO: handle exception
+			}
+
+			File file = new File(filePath + decryptRequest.getFileName() + "_" + decryptRequest.getUserName());
+
+			try {
+				FileOutputStream writer = new FileOutputStream(file, false);
+				writer.write(decryptRequest.getKey().toByteArray());
+			} catch (FileNotFoundException fnfe) {
+				//TODO: handle exception, but shouldn't occur?
+			} catch (IOException ioe) {
+				System.out.println("ERROR - Failed ");
+			}
+
 		}
 	}
 
@@ -369,14 +391,39 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 
 	byte[] DecryptRequest(ClientServer.EncryptedMessageRequest request) {
 
-		byte[] decryptedTempKeyBytes = CryptographyImpl.decryptRSA(request.getEncryptionKey().toByteArray(), 
-		CryptographyImpl.readPrivateKey(keyPaths + "LeadServerKeys/leadServer_private.der"));
+		PrivateKey privKey = CryptographyImpl.readPrivateKey(keyPaths + "LeadServerKeys/leadServer_private.der");
+		byte[] decryptedTimestamp = CryptographyImpl.decryptRSA(request.getTimestamp().toByteArray(), privKey);
 
+		Timestamp timestamp = null;
+		try {
+			timestamp = Timestamp.parseFrom(decryptedTimestamp);
+
+			System.out.println("Received message with timestamp: " + timestamp.getSeconds() + "; Current time: " + System.currentTimeMillis() / 1000);
+			if(System.currentTimeMillis() / 1000 + 300 < timestamp.getSeconds()
+			|| System.currentTimeMillis() / 1000 - 300 > timestamp.getSeconds()) {
+				System.out.println("ERROR - Message received too out of expected times");
+				return null;
+			}
+		}
+		catch (InvalidProtocolBufferException ipbe) {
+			System.out.println("ERROR - Failed to parse timestamp");
+			return null;
+		}
+
+		byte[] decryptedTempKeyBytes = CryptographyImpl.decryptRSA(request.getEncryptionKey().toByteArray(), privKey);
+		// byte[] decryptedTempKeyBytes = CryptographyImpl.decryptRSA(request.getEncryptionKey().toByteArray(), 
+		//     CryptographyImpl.readPublicKey(keyPaths + "ClientKeys/client_public.der"));
 		// CryptographyImpl.readPrivateKey("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/CAServer/LeadServerKeys/leadServer_private.der"));
 		Key decryptTempKey = new SecretKeySpec(decryptedTempKeyBytes, 0, 16, "AES");
 
 		//TODO: Check IV later
 		byte[] requestDecryptedBytes = CryptographyImpl.decryptAES("", request.getMessageRequestBytes().toByteArray(), decryptTempKey);
+
+		if(!CryptographyImpl.verifyDigitalSignature(requestDecryptedBytes, request.getDigitalSignature().toByteArray(), CryptographyImpl.readPublicKey(keyPaths + "ClientKeys/client_public.der"))) {
+            System.out.println("ERROR - Received message doesn't match with the digital signature!");
+            return null;
+        }
+
 		return requestDecryptedBytes;
 	}
 
@@ -390,12 +437,19 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			Key tempKey = CryptographyImpl.generateAESKey();
 			byte[] encryptedData = CryptographyImpl.encryptAES("", response.toByteArray(), tempKey);
 			byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), CryptographyImpl.readPublicKey(keyPaths + "ClientKeys/client_public.der"));
+            byte[] digitalSignature = CryptographyImpl.generateDigitalSignature(response.toByteArray(), CryptographyImpl.readPrivateKey(keyPaths + "LeadServerKeys/leadServer_private.der"));
+
+			Timestamp timestamp = Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+			byte[] encryptedTimestamp = CryptographyImpl.encryptRSA(timestamp.toByteArray(), CryptographyImpl.readPublicKey(keyPaths + "ClientKeys/client_public.der"));
+			// byte[] encryptedKey = CryptographyImpl.encryptRSA(noSignatureEncryptedKey, CryptographyImpl.readPrivateKey(keyPaths + "LeadServerKeys/leadServer_private.der"));
 
 			// byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), CryptographyImpl.readPublicKey("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/CAServer/ClientKeys/client_public.der"));
 			
 			ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
 													.setMessageResponseBytes(ByteString.copyFrom(encryptedData))
 													.setEncryptionKey(ByteString.copyFrom(encryptedKey))
+													.setDigitalSignature(ByteString.copyFrom(digitalSignature))
+													.setTimestamp(ByteString.copyFrom(encryptedTimestamp))
 													.build();
 			
 			return encryptedRes;

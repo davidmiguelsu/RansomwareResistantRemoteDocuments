@@ -10,6 +10,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -22,6 +23,7 @@ import javax.crypto.spec.SecretKeySpec;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Timestamp;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -159,8 +161,6 @@ public class ClientCommandImpl {
             CryptographyImpl.UpdateKeyStore(ks, pwdArray, keyStorePath + "standard.jceks");
 
             byte[] encryptedFile = CryptographyImpl.encryptAES(fileName, fis.readAllBytes(), key);
-            // byte[] encryptedFile = CryptographyImpl.encryptAES(fileName, fis.readAllBytes(), 
-            //         CryptographyImpl.readAESKey(System.getProperty("user.home") + "/SIRS_KEYS/" + fileName + ".key"));
 
 
             MessageDigest digest = MessageDigest.getInstance("SHA3-256");
@@ -183,6 +183,8 @@ public class ClientCommandImpl {
             try {
                 byte[] responseBytes = DecryptResponse(res);
                 ClientServer.WriteFileResponse response = ClientServer.WriteFileResponse.parseFrom(responseBytes);
+                // if(CryptographyImpl.verifyDigitalSignature(response., signature, publicKey))
+
 
                 System.out.println(response.getAck());
             } catch (InvalidProtocolBufferException ipbe) {
@@ -277,7 +279,10 @@ public class ClientCommandImpl {
         ClientServer.EncryptedMessageResponse res = stub.listFiles(encryptedReq);
 
         try {
-            ClientServer.ListFileResponse response = ClientServer.ListFileResponse.parseFrom(res.getMessageResponseBytes());
+            byte[] responseBytes = DecryptResponse(res);
+            ClientServer.ListFileResponse response = ClientServer.ListFileResponse.parseFrom(responseBytes);
+    
+            // ClientServer.ListFileResponse response = ClientServer.ListFileResponse.parseFrom(res.getMessageResponseBytes());
     
             for (String fileName : response.getFileNameList()) {
                 System.out.println(fileName);
@@ -333,7 +338,7 @@ public class ClientCommandImpl {
             .setCipheredPassword(args[2])
             .build();
 
-               ClientServer.EncryptedMessageRequest encryptedReq = EncryptMessage(request);
+        ClientServer.EncryptedMessageRequest encryptedReq = EncryptMessage(request);
 
         ClientServer.EncryptedMessageResponse res = stub.register(encryptedReq);
         try {
@@ -441,10 +446,18 @@ public class ClientCommandImpl {
             Key tempKey = CryptographyImpl.generateAESKey();
             byte[] encryptedData = CryptographyImpl.encryptAES("", request.toByteArray(), tempKey);
             byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"));
+            byte[] digitalSignature = CryptographyImpl.generateDigitalSignature(request.toByteArray(), CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der"));
+            
+            Timestamp timestamp = Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+			byte[] encryptedTimestamp = CryptographyImpl.encryptRSA(timestamp.toByteArray(), CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"));
+
+            // byte[] encryptedKey = CryptographyImpl.encryptRSA(noSignatureEncryptedKey, CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der"));
             
             ClientServer.EncryptedMessageRequest encryptedReq = ClientServer.EncryptedMessageRequest.newBuilder()
                                                     .setMessageRequestBytes(ByteString.copyFrom(encryptedData))
                                                     .setEncryptionKey(ByteString.copyFrom(encryptedKey))
+                                                    .setDigitalSignature(ByteString.copyFrom(digitalSignature))
+                                                    .setTimestamp(ByteString.copyFrom(encryptedTimestamp))
                                                     .build();
             
             return encryptedReq;
@@ -456,14 +469,40 @@ public class ClientCommandImpl {
     }
 
     byte[] DecryptResponse(ClientServer.EncryptedMessageResponse response) {
+        PrivateKey privKey = CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der");
+        byte[] decryptedTimestamp = CryptographyImpl.decryptRSA(response.getTimestamp().toByteArray(), privKey);
 
-		byte[] decryptedTempKeyBytes = CryptographyImpl.decryptRSA(response.getEncryptionKey().toByteArray(), 
-		CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der"));
+		Timestamp timestamp = null;
+		try {
+			timestamp = Timestamp.parseFrom(decryptedTimestamp);
+
+			System.out.println("Received message with timestamp: " + timestamp.getSeconds() + "; Current time: " + System.currentTimeMillis() / 1000);
+			if(System.currentTimeMillis() / 1000 + 300 < timestamp.getSeconds()
+			|| System.currentTimeMillis() / 1000 - 300 > timestamp.getSeconds()) {
+				System.out.println("ERROR - Message received too out of expected times");
+				return null;
+			}
+		}
+        catch (InvalidProtocolBufferException ipbe) {
+			System.out.println("ERROR - Failed to parse timestamp");
+			return null;
+		}
+
+        byte[] decryptedTempKeyBytes = CryptographyImpl.decryptRSA(response.getEncryptionKey().toByteArray(), privKey);
+        // byte[] decryptedTempKeyBytes = CryptographyImpl.decryptRSA(partiallyDecryptedTempKeyBytes, 
+		//     CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"));
 		Key decryptTempKey = new SecretKeySpec(decryptedTempKeyBytes, 0, 16, "AES");
-
+        
 		//TODO: Check IV later
-		byte[] requestDecryptedBytes = CryptographyImpl.decryptAES("", response.getMessageResponseBytes().toByteArray(), decryptTempKey);
-		return requestDecryptedBytes;
+		byte[] responseDecryptedBytes = CryptographyImpl.decryptAES("", response.getMessageResponseBytes().toByteArray(), decryptTempKey);
+		
+        if(!CryptographyImpl.verifyDigitalSignature(responseDecryptedBytes, response.getDigitalSignature().toByteArray(), CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"))) {
+            System.out.println("ERROR - Received message doesn't match with the digital signature!");
+            return null;
+        }
+
+
+        return responseDecryptedBytes;
 	}
 
     public void ShutdownChannel() {

@@ -59,7 +59,7 @@ message ListFileResponse {
 
 
 message GivePermissionsRequest {
-	string key = 1;
+	bytes key = 1;
 	string userName = 2;
 	string fileName = 3;
 }
@@ -89,10 +89,14 @@ message HelloResponse {
 message EncryptedMessageRequest {
 	bytes messageRequestBytes = 1;
 	bytes encryptionKey = 2;
+	bytes digitalSignature = 3;
+	bytes timestamp = 4;
 }
 message EncryptedMessageResponse {
 	bytes messageResponseBytes = 1;
 	bytes encryptionKey = 2;
+	bytes digitalSignature = 3;
+	bytes timestamp = 4;
 }
 
 // Defining a Service, a Service can have multiple RPC operations
