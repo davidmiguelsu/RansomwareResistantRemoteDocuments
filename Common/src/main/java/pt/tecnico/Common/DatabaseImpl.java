@@ -22,7 +22,7 @@ public class DatabaseImpl{
     private final String password = "1234";
 
     private final String addUserStatement ="INSERT INTO users (username, passwd) VALUES(?,?);"; // usar no register
-    private final String addFileStatement ="INSERT INTO files ( file_name) VALUES(?);"; // usar no writefile
+    private final String addFileStatement ="INSERT INTO files (filename) VALUES(?);"; // usar no writefile
     private final String addUserFileStatement ="INSERT INTO user_files (user_id, file_id, read_perm, write_perm) VALUES(?,?,?,?);";
 
     private final String giveReadPerms ="INSERT INTO user_files (user_id, file_id, read_perm, write_perm) VALUES(?,?,?,?);";
@@ -33,8 +33,8 @@ public class DatabaseImpl{
     private final String checkReadPerms ="SELECT read_perm FROM user_files WHERE user_id = 'smth';";
     private final String checkWritePerms ="SELECT write_perm FROM user_files WHERE user_id = 'smth';";
 
-    private final String getUserIDbyName ="SELECT u_id FROM user WHERE username = ?";
-    private final String getFileIDbyName ="SELECT f_id FROM files WHERE file_name = ?";
+    private final String getUserIDbyName ="SELECT u_id FROM users WHERE username = ?";
+    private final String getFileIDbyName ="SELECT f_id FROM files WHERE filename = ?";
 
 
 
@@ -78,12 +78,12 @@ public class DatabaseImpl{
         }
     }  
 
-    public void addUserFileDatabase (Connection con, String username, String fileName){
+    public void addUserFileDatabase (Connection con, int userID, int fileID){
 
         try{
             PreparedStatement ps = con.prepareStatement(addUserFileStatement);
-            ps.setString(1, username);
-            ps.setString(2, fileName);
+            ps.setInt(1, userID);
+            ps.setInt(2, fileID);
             ps.setBoolean(3, true);
             ps.setBoolean(4, true);
             ps.executeUpdate();
@@ -103,9 +103,9 @@ public class DatabaseImpl{
     
 
 
-    public String getUserIDbyUsername (Connection con, String userName){
-        String erro = "FOI MAL VIU user ID não foi retornado";
-        String result= null;
+    public int getUserIDbyUsername (Connection con, String userName){
+        int erro = 404;
+        int result= 0;
         try{
             PreparedStatement ps = con.prepareStatement(getUserIDbyName);
             ps.setString(1, userName);
@@ -113,7 +113,7 @@ public class DatabaseImpl{
 
             while(rs.next()){
                 System.out.println("Column 1 returned");
-                result = rs.getString(1);
+                result = rs.getInt(1);
                 System.out.println(result);
             }
             rs.close();
@@ -133,9 +133,9 @@ public class DatabaseImpl{
         }
     }  
 
-    public String getFileIDbyUserame (Connection con, String fileName){
-        String erro = "FOI MAL VIU fileId não foi retornado";
-        String result= null;
+    public int getFileIDbyFileName (Connection con, String fileName){
+        int erro = 404;
+        int result= 0;
         try{
             PreparedStatement ps = con.prepareStatement(getFileIDbyName);
             ps.setString(1, fileName);
@@ -143,7 +143,7 @@ public class DatabaseImpl{
 
             while(rs.next()){
                 System.out.println("Column 1 returned");
-                result = rs.getString(1);
+                result = rs.getInt(1);
                 System.out.println(result);
             }
             rs.close();
