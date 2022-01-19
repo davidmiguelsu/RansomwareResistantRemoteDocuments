@@ -76,6 +76,9 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			userDictionary.put(decryptRequest.getUserName(), decryptRequest.getCipheredPassword());
 			res = ClientServer.RegisterResponse.newBuilder()
 			.setAck("OK").build();
+
+			//TODO: Password needs to be encrypted
+			serverController.db.addUserDatabase(serverController.conn , decryptRequest.getUserName(), decryptRequest.getCipheredPassword());
 		}
 
 		//TODO: Add the encryption
@@ -149,7 +152,9 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		try {
 			FileOutputStream writer = new FileOutputStream(file, false);
 			writer.write(decryptRequest.getFile().toByteArray());
-			// serverController.db.addFileDatabase(serverController.conn , decryptRequest.getFileName());
+			serverController.db.addFileDatabase(serverController.conn , decryptRequest.getFileName());
+			// String tempName = serverController.db.getUserIDbyUsername(serverController.conn , decryptRequest.getUserName());
+			// serverController.db.addUserFileDatabase(serverController.conn, tempName, decryptRequest.getFileName());
 
 			//TODO: Temp hash file -> TO BE MOVED TO DB
 			File hashFile = new File(filePath + decryptRequest.getFileName() + ".hash");
