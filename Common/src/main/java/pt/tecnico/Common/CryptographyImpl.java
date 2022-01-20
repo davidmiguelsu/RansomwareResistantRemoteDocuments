@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -22,6 +23,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Date;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -29,6 +31,9 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 // import static javax.xml.bind.DatatypeConverter.printHexBinary;
 import javax.crypto.spec.SecretKeySpec;
+
+import org.bouncycastle.jce.X509Principal;
+import org.bouncycastle.x509.X509V3CertificateGenerator;
 
 public class CryptographyImpl {
     
@@ -230,7 +235,8 @@ public class CryptographyImpl {
             File file = new File(path);
             FileInputStream fis = new FileInputStream(file); 
             byte[] keyBytes = fis.readAllBytes();
-            
+            fis.close();
+
             PKCS8EncodedKeySpec spec =
               new PKCS8EncodedKeySpec(keyBytes);
             KeyFactory kf = KeyFactory.getInstance("RSA");
@@ -269,6 +275,7 @@ public class CryptographyImpl {
             FileInputStream fis = new FileInputStream(file); 
             byte[] keyBytes = fis.readAllBytes();
     
+            fis.close();
             X509EncodedKeySpec spec =
               new X509EncodedKeySpec(keyBytes);
             KeyFactory kf = KeyFactory.getInstance("RSA");
@@ -313,6 +320,39 @@ public class CryptographyImpl {
         }
         return false;
     }
+
+    @SuppressWarnings("deprecation")
+    public static X509Certificate generateSelfSignedCertificate(KeyPair keyPair, String certificateDN, String certificateName)  {
+        X509Certificate cert = null;
+
+        
+        X509V3CertificateGenerator v3CertGen =  new X509V3CertificateGenerator();
+        v3CertGen.setSerialNumber(BigInteger.valueOf(System.currentTimeMillis()));
+        v3CertGen.setIssuerDN(new X509Principal(certificateDN));
+        v3CertGen.setNotBefore(new Date(System.currentTimeMillis() - 1000L * 60 * 60 * 24));
+        v3CertGen.setNotAfter(new Date(System.currentTimeMillis() + (1000L * 60 * 60 * 24 * 365*10)));
+        v3CertGen.setSubjectDN(new X509Principal(certificateDN));
+        v3CertGen.setPublicKey(keyPair.getPublic());
+        v3CertGen.setSignatureAlgorithm("SHA256WithRSAEncryption");
+        try {
+            cert = v3CertGen.generate(keyPair.getPrivate());
+            // saveCert(cert, keyPair.getPrivate());
+            return cert;
+        } catch (Exception e) {
+            System.out.println("Unable to generate X509 certificate!");
+            return null;
+        }
+    }
+
+    // private static void saveCert(X509Certificate cert, PrivateKey key) throws Exception {
+    //     KeyStore keyStore = KeyStore.getInstance("PKCS12");
+    //     //change key store password if considered necessary
+    //     keyStore.load(new FileInputStream("src/assets/keyStores/trustCertsServerKeyStore.p12"), "123456".toCharArray());
+    //     keyStore.setKeyEntry(CERTIFICATE_ALIAS, key, "".toCharArray(), new java.security.cert.Certificate[]{cert});
+    //     //File file = new File(".", CERTIFICATE_NAME);
+    //     //change key store password if considered necessary
+    //     keyStore.store(new FileOutputStream("src/assets/keyStores/trustCertsServerKeyStore.p12"), "123456".toCharArray());
+    // }
 
     public static String bytesToHex(byte[] hash) {
         StringBuilder hexString = new StringBuilder(2 * hash.length);

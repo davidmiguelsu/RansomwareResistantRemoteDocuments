@@ -1,0 +1,42 @@
+syntax = "proto3";
+package pt.tecnico.grpc;
+
+message GenerateKeyPairRequest {
+    string userName = 1;
+}
+
+message GenerateKeyPairResponse {
+    string ack = 1;
+    bytes privateKey = 2;
+    bytes publicKey = 3;
+}
+
+message PublicKeyRequest {
+    string userName = 1;
+    string target = 2;
+}
+
+message PublicKeyResponse {
+    string ack = 1;
+    bytes publicKey = 2;
+}
+
+//Used to transmit each message between client - leader server or leader server - file servers, 
+// by encrypting with an ephemeral AES key the message, then encrypting said key with the target's public key, obtained from the CA
+message EncryptedCAMessageRequest {
+	bytes messageRequestBytes = 1;
+	bytes encryptionKey = 2;
+	bytes digitalSignature = 3;
+	bytes timestamp = 4;
+}
+message EncryptedCAMessageResponse {
+	bytes messageResponseBytes = 1;
+	bytes encryptionKey = 2;
+	bytes digitalSignature = 3;
+	bytes timestamp = 4;
+}
+
+service CAServerService {
+    rpc generateKeyPair(EncryptedCAMessageRequest) returns (EncryptedCAMessageResponse);
+    rpc requestPublicKey(EncryptedCAMessageRequest) returns (EncryptedCAMessageResponse);
+}
