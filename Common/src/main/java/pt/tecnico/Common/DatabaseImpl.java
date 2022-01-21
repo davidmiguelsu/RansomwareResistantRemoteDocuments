@@ -1,6 +1,8 @@
     package pt.tecnico.Common;
 
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -22,19 +24,22 @@ public class DatabaseImpl{
     private final String password = "1234";
 
     private final String addUserStatement ="INSERT INTO users (username, passwd) VALUES(?,?);"; // usar no register
-    private final String addFileStatement ="INSERT INTO files (filename) VALUES(?);"; // usar no writefile
-    private final String addUserFileStatement ="INSERT INTO user_files (user_id, file_id, read_perm, write_perm) VALUES(?,?,?,?);";
+    private final String addFileStatement ="INSERT INTO files (filename,filehash) VALUES(?,?);"; // usar no writefile
+    private final String addUserFileStatement ="INSERT INTO user_files (user_id, file_id, read_perm, write_perm, file_owner ) VALUES(?,?,?,?,?);";
 
     private final String giveReadPerms ="INSERT INTO user_files (user_id, file_id, read_perm, write_perm) VALUES(?,?,?,?);";
     private final String giveWritePerms ="INSERT INTO user_files (user_id, file_id, read_perm, write_perm) VALUES(?,?,?,?);";
     private final String removeReadPerms ="UPDATE user_files SET read_perm = false WHERE user_id = 'smth';";
     private final String removeWritePerms ="UPDATE user_files SET write_perm = false WHERE user_id = 'smth';";
 
-    private final String checkReadPerms ="SELECT read_perm FROM user_files WHERE user_id = 'smth';";
-    private final String checkWritePerms ="SELECT write_perm FROM user_files WHERE user_id = 'smth';";
+    private final String checkReadPerms ="SELECT read_perm FROM user_files WHERE user_id = ?";
+    private final String checkWritePerms ="SELECT write_perm FROM user_files WHERE user_id = ?";
 
+    private final String deleteFileDB ="DELETE FROM user_files where file_id = ?";
     private final String getUserIDbyName ="SELECT u_id FROM users WHERE username = ?";
     private final String getFileIDbyName ="SELECT f_id FROM files WHERE filename = ?";
+    private final String checkIsOwnerByID ="SELECT file_owner FROM user_files WHERE file_id = ? AND user_id = ? ";
+    private final String getFileList ="SELECT * FROM user_files WHERE user_id = ? AND read_perm = ? ";
 
 
 
@@ -59,17 +64,18 @@ public class DatabaseImpl{
         }
     }
 
-    public void addFileDatabase (Connection con, String fileName){
+    public void addFileDatabase (Connection con, String fileName, byte [] filehash){
         try{
             PreparedStatement ps = con.prepareStatement(addFileStatement);
             ps.setString(1, fileName);
+            ps.setBytes(2, filehash);
             ps.executeUpdate();
             con.commit();          
-            System.out.println("File added !!");
+            System.out.println("File added !! with hash");
          
 
         } catch (SQLException e){
-            System.out.println("CHEGOU AQUI AMIGOSSSS");
+            System.out.println("CHEGOU AQUI AMIGOSSSS ADDFILEDATABASE");
             e.printStackTrace();
             try{
                  con.rollback();
@@ -86,13 +92,14 @@ public class DatabaseImpl{
             ps.setInt(2, fileID);
             ps.setBoolean(3, true);
             ps.setBoolean(4, true);
+            ps.setBoolean(5, true);
             ps.executeUpdate();
             con.commit();          
-            System.out.println("user_files added !!");
+            System.out.println("user_files added  !!");
          
 
         } catch (SQLException e){
-            System.out.println("CHEGOU AQUI AMIGOSSSS");
+            System.out.println("CHEGOU AQUI AMIGOSSSS ADD USERFILE DATABASE");
             e.printStackTrace();
             try{
                  con.rollback();
@@ -101,7 +108,97 @@ public class DatabaseImpl{
         }
     }  
     
+    public List<String> getFileList (Connection con, int userID ){
+        
+        List<String> erro = new ArrayList<String>();
+        List<String> result = new ArrayList<String>();
+        erro.add(0, "DEU MAL VIU");
+        try{
+            PreparedStatement ps = con.prepareStatement(getFileList);
+            ps.setInt(1, userID);
+            ps.setBoolean(2, true);
+            ResultSet rs = ps.executeQuery();
+            int i = 0;
 
+            while(rs.next()){
+                result.add(i,rs.getString(i+1));
+                System.out.println(result);
+                i++;
+            }
+
+            rs.close();
+            con.commit();    
+            
+            for (int j =0; j< result.size(); j++){
+                System.out.println(result.get(j));
+            }  
+            return result;
+
+        } catch (SQLException e){
+            System.out.println("CHEGOU AQUI AMIGOSSSS");
+            e.printStackTrace();
+            try{
+                 con.rollback();
+        
+            } catch (SQLException ignore){              
+            }
+        return erro;
+        }
+        
+    }
+
+    public boolean checkIsUserOwner (Connection con, int userID, int fileID){
+        boolean erro = false;
+        boolean result= false;
+        try{
+            PreparedStatement ps = con.prepareStatement(checkIsOwnerByID);
+            ps.setInt(1, userID);
+            ps.setInt(2, fileID);
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+                result = rs.getBoolean(1);
+            }
+            rs.close();
+            con.commit();    
+            System.out.println("It is " + result + " that the user is the owner of the file");      
+           
+            return result;
+
+        } catch (SQLException e){
+            System.out.println("CHEGOU checkIsUserOwner");
+            e.printStackTrace();
+            try{
+                 con.rollback();
+        
+            } catch (SQLException ignore){              
+            }
+        return erro;
+        }
+    } 
+    
+
+    public void deleteFileDatabase (Connection con, int fileID){
+        
+
+        try{
+            PreparedStatement ps = con.prepareStatement(deleteFileDB);
+            
+            ps.setInt(1, fileID);
+            ps.executeUpdate();
+            
+            con.commit();
+            System.out.println("File has been deleted sucessfully !!");
+
+        } catch (SQLException e){
+            e.printStackTrace();
+            System.out.println("Error deleting file DB !!");
+            try{
+                con.rollback();
+            } catch (SQLException ignore){              
+            }
+        }
+    }
 
     public int getUserIDbyUsername (Connection con, String userName){
         int erro = 404;
@@ -165,50 +262,53 @@ public class DatabaseImpl{
 
 
 
-    // // give another user read perms to the file
-    // public void giveReadPermission (Connection con, String userName, String fileName){
+    // give another user read perms to the file
+    public void giveReadPermission (Connection con, int userID, int fileID){
         
-    //     try{
-    //         PreparedStatement ps = con.prepareStatement(giveReadPerms);
+        try{
+            PreparedStatement ps = con.prepareStatement(giveReadPerms);
             
-    //         ps.setString(1, userName);
-    //         ps.setString(2,fileName);
-    //         ps.setBoolean(3, true);
-    //         ps.setBoolean(4, false);
-    //         ps.executeUpdate();
-    //         con.commit();
+            ps.setInt(1, userID);
+            ps.setInt(2, fileID);
+            ps.setBoolean(3, true);
+            ps.setBoolean(4, false);
+            ps.setBoolean(5, false);
+            ps.executeUpdate();
 
-    //     } catch (SQLException e){
-    //         e.printStackTrace();
-    //         try{
-    //             con.rollback();
-    //         } catch (SQLException ignore){              
-    //         }
-    //     }
-    // }    
+            con.commit();
+
+        } catch (SQLException e){
+            e.printStackTrace();
+            try{
+                con.rollback();
+            } catch (SQLException ignore){              
+            }
+        }
+    }    
     
-    // // give another user read/write perms to the file
-    // public void giveWritePermission (Connection con, String userName, String fileName){
+    // give another user read/write perms to the file
+    public void giveAllPermission (Connection con, int userID, int fileID){
         
-    //     try{
-    //         PreparedStatement ps = con.prepareStatement(giveWritePerms);
+        try{
+            PreparedStatement ps = con.prepareStatement(giveWritePerms);
             
-    //         ps.setString(1, userName);
-    //         ps.setString(2,fileName);
-    //         ps.setBoolean(3, false);
-    //         ps.setBoolean(4, true);
-    //         ps.executeUpdate();
+            ps.setInt(1, userID);
+            ps.setInt(2, fileID);
+            ps.setBoolean(3, true);
+            ps.setBoolean(4, true);
+            ps.setBoolean(5, false);
+            ps.executeUpdate();
             
-    //         con.commit();
+            con.commit();
 
-    //     } catch (SQLException e){
-    //         e.printStackTrace();
-    //         try{
-    //             con.rollback();
-    //         } catch (SQLException ignore){              
-    //         }
-    //     }
-    // }
+        } catch (SQLException e){
+            e.printStackTrace();
+            try{
+                con.rollback();
+            } catch (SQLException ignore){              
+            }
+        }
+    }
 
 
     /**

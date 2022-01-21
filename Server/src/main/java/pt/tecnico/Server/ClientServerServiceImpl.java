@@ -152,14 +152,14 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		try {
 			FileOutputStream writer = new FileOutputStream(file, false);
 			writer.write(decryptRequest.getFile().toByteArray());
-			serverController.db.addFileDatabase(serverController.conn , decryptRequest.getFileName());
+			serverController.db.addFileDatabase(serverController.conn , decryptRequest.getFileName(), decryptRequest.getHash().toByteArray());
 
 
 			//TODO: Temp hash file -> TO BE MOVED TO DB
-			File hashFile = new File(filePath + decryptRequest.getFileName() + ".hash");
-			FileOutputStream hashWriter = new FileOutputStream(hashFile, false);
-			hashWriter.write(decryptRequest.getHash().toByteArray());
-			hashWriter.close();
+			// File hashFile = new File(filePath + decryptRequest.getFileName() + ".hash");
+			// FileOutputStream hashWriter = new FileOutputStream(hashFile, false);
+			// hashWriter.write(decryptRequest.getHash().toByteArray());
+			// hashWriter.close();
 
 			writer.close();
 			
@@ -320,6 +320,9 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			//TODO: handle exception
 		}
 
+
+		int tempFileID = serverController.db.getFileIDbyFileName(serverController.conn , decryptRequest.getFileName());	
+		serverController.db.deleteFileDatabase(serverController.conn, tempFileID);
 
 		String filename = decryptRequest.getFileName();
 		File toDelete = new File(filePath + filename); 
