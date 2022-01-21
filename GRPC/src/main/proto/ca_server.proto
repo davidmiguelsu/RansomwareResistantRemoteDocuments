@@ -8,7 +8,8 @@ message GenerateKeyPairRequest {
 message GenerateKeyPairResponse {
     string ack = 1;
     bytes privateKey = 2;
-    bytes publicKey = 3;
+    bytes certificate = 3;
+    repeated bytes certificateChain = 4;
 }
 
 message PublicKeyRequest {

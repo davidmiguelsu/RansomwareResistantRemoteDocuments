@@ -7,6 +7,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -85,18 +86,23 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
             ks.setCertificateEntry(decryptedRequest.getUserName() + "_certificate", clientCert);
 
             CryptographyImpl.UpdateKeyStore(ks, pwdArray, keyStorePath);
+
+            CaServer.GenerateKeyPairResponse.Builder resBuilder = CaServer.GenerateKeyPairResponse.newBuilder()
+                                                        .setAck("OK")
+                                                        .setCertificate(ByteString.copyFrom(clientCert.getEncoded()))
+                                                        .setPrivateKey(ByteString.copyFrom(keyPair.getPrivate().getEncoded()));
+
+            for (X509Certificate x509Certificate : certificateChain) {
+                resBuilder.addCertificateChain(ByteString.copyFrom(x509Certificate.getEncoded()));
+            }
+    
+            responseObserver.onNext(EncryptResponse(resBuilder.build(), decryptedRequest.getUserName()));
+            responseObserver.onCompleted();
+        } catch (CertificateEncodingException cee) {
+            //TODO: handle exception
         } catch (KeyStoreException kse) {
             //TODO: handle exception
         }
-
-        CaServer.GenerateKeyPairResponse res = CaServer.GenerateKeyPairResponse.newBuilder()
-                                                    .setAck("OK")
-                                                    .setPublicKey(ByteString.copyFrom(keyPair.getPublic().getEncoded()))
-                                                    .setPrivateKey(ByteString.copyFrom(keyPair.getPrivate().getEncoded()))
-                                                    .build();
-
-        responseObserver.onNext(EncryptResponse(res, decryptedRequest.getUserName()));
-        responseObserver.onCompleted();
         
     }
 

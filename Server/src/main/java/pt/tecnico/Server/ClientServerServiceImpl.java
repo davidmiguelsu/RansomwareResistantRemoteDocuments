@@ -78,7 +78,7 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			.setAck("OK").build();
 
 			//TODO: Password needs to be encrypted
-			// serverController.db.addUserDatabase(serverController.conn , decryptRequest.getUserName(), decryptRequest.getCipheredPassword());
+			serverController.db.addUserDatabase(serverController.conn , decryptRequest.getUserName(), decryptRequest.getCipheredPassword());
 		}
 
 		//TODO: Add the encryption
