@@ -3,6 +3,7 @@ package pt.tecnico.grpc;
 
 message GenerateKeyPairRequest {
     string userName = 1;
+    bytes tempPublicKey = 2;
 }
 
 message GenerateKeyPairResponse {
@@ -15,6 +16,7 @@ message GenerateKeyPairResponse {
 message PublicKeyRequest {
     string userName = 1;
     string target = 2;
+    bytes tempPublicKey = 3;
 }
 
 message PublicKeyResponse {

@@ -2,8 +2,11 @@ package pt.tecnico.Common;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Key;
 import java.security.KeyFactory;
+import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -15,6 +18,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -39,6 +43,7 @@ public class CAServerCommandsImpl {
     CAServerServiceGrpc.CAServerServiceBlockingStub stub = null;
     // Since every machine needs to have access to the CA, this is stored in Common/resources
     PublicKey caPublicKey = null;
+
     public CAServerCommandsImpl(ZKNaming zkNaming, KeyStore keyStore) {
         String uri = "";
         try {
@@ -50,12 +55,18 @@ public class CAServerCommandsImpl {
         channel = ManagedChannelBuilder.forTarget(uri).usePlaintext().build();
         stub = CAServerServiceGrpc.newBlockingStub(channel);
 
-        caPublicKey = CryptographyImpl.readPublicKey("src/test/resources/CAserver_public.der");
+        Path caPublicKeyPath = Paths.get("Common", "src", "main", "resources", "CAserver_public.der");
+        caPublicKey = CryptographyImpl.readPublicKey(caPublicKeyPath.toAbsolutePath().toString());
         ks = keyStore;
     }
 
-    public void requestKeyPair(String username) {
-        CaServer.GenerateKeyPairRequest req = CaServer.GenerateKeyPairRequest.newBuilder().setUserName(username).build();
+    public boolean requestKeyPair() {
+        KeyPair tempKeyPair = CryptographyImpl.generateRSAKeyPair();
+
+        CaServer.GenerateKeyPairRequest req = CaServer.GenerateKeyPairRequest.newBuilder()
+                                                .setUserName(username)
+                                                .setTempPublicKey(ByteString.copyFrom(tempKeyPair.getPublic().getEncoded()))
+                                                .build();
 
         CaServer.EncryptedCAMessageRequest request = EncryptMessage(req, false);
         CaServer.EncryptedCAMessageResponse res = stub.generateKeyPair(request);
@@ -63,10 +74,9 @@ public class CAServerCommandsImpl {
 
         CaServer.GenerateKeyPairResponse response = null;
         try {
-            byte[] responseBytes = DecryptResponse(res);
+            byte[] responseBytes = DecryptResponse(res, tempKeyPair);
             response = CaServer.GenerateKeyPairResponse.parseFrom(responseBytes);
         
-
             CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
             InputStream in = new ByteArrayInputStream(response.getCertificate().toByteArray());
             X509Certificate cert = (X509Certificate)certFactory.generateCertificate(in);
@@ -75,28 +85,95 @@ public class CAServerCommandsImpl {
             KeyFactory kf = KeyFactory.getInstance("RSA");
             PrivateKey privKeyDecoded = kf.generatePrivate(new PKCS8EncodedKeySpec(response.getPrivateKey().toByteArray()));
 
+            int i = 0;
+            for (ByteString certificateBytes : response.getCertificateChainList()) {
+                in = new ByteArrayInputStream(certificateBytes.toByteArray());
+
+                certChain[i++] = (X509Certificate)certFactory.generateCertificate(in);
+            }
+
             if(response.getAck().equals("OK")) {
                 ks.setCertificateEntry(username + "_certificate", cert);
                 ks.setKeyEntry(username + "_private_key", privKeyDecoded, keyStorePassword.toCharArray(), certChain);
+                System.out.println("Key pair registered for user " + username);
+                return true;
             }
-            System.out.println("Key pair registered for user " + username);
-
+            else {
+                System.out.println("Failed to register keypair for user" + username);
+                return false;
+            }
         } catch (InvalidProtocolBufferException ipbe) {
             System.out.println("ERROR - Failed to parse response");
+            return false;
         } catch (CertificateException ce) {
             System.out.println("ERROR - Certificate-related error");
+            return false;
         } catch (NoSuchAlgorithmException nsae) {
             System.out.println("ERROR - Failed to parse response");
+            return false;
         } catch (InvalidKeySpecException ike) {
             System.out.println("ERROR - Invalid key");
+            return false;
         } catch (KeyStoreException kse) {
             System.out.println("ERROR - KeyStore-related error");
+            return false;
         }
+    }
+
+    public PublicKey requestPublicKeyOf(String target, boolean withDigitalSignature, boolean withTempKeys) {
+        KeyPair tempKeyPair = CryptographyImpl.generateRSAKeyPair();
+
+        CaServer.PublicKeyRequest.Builder reqBuilder = CaServer.PublicKeyRequest.newBuilder()
+                                            .setUserName(username)
+                                            .setTarget(target);
+
+        if(withTempKeys) {
+            reqBuilder.setTempPublicKey(ByteString.copyFrom(tempKeyPair.getPublic().getEncoded()));
+        }
+
+        CaServer.EncryptedCAMessageRequest request = EncryptMessage(reqBuilder.build(), withDigitalSignature);
+        CaServer.EncryptedCAMessageResponse res = stub.requestPublicKey(request);
+        // CaServer.PublicKeyResponse res = stub.requestPublicKey(req);
+
+        CaServer.PublicKeyResponse response = null;
+        try {
+            byte[] responseBytes = null;
+            if(withTempKeys) {
+                responseBytes = DecryptResponse(res, tempKeyPair);
+            }
+            else {
+                responseBytes = DecryptResponse(res, null);
+
+            }
+            response = CaServer.PublicKeyResponse.parseFrom(responseBytes);
+            
+            if(response.getAck().equals("OK")) {
+                KeyFactory kf = KeyFactory.getInstance("RSA");
+                return kf.generatePublic(new X509EncodedKeySpec(response.getPublicKey().toByteArray()));
+            }
+            else {
+                System.out.println("ERROR - Failed to retrieve public key");
+                return null;
+            }
+        } catch (InvalidProtocolBufferException ipbe) {
+            System.out.println("ERROR - Failed to parse response");
+            return null;
+        } catch (NoSuchAlgorithmException nsae) {
+            System.out.println("ERROR - Failed to parse response");
+            return null;
+        } catch (InvalidKeySpecException ike) {
+            System.out.println("ERROR - Invalid key");
+            return null;
+        } 
     }
 
     public void SetUser(String name, String password) {
         username = name;
         keyStorePassword = password;
+    }
+
+    public void SetKeyStore(KeyStore keyStore) {
+        ks = keyStore;
     }
 
 
@@ -112,7 +189,7 @@ public class CAServerCommandsImpl {
 			byte[] encryptedTimestamp = CryptographyImpl.encryptRSA(timestamp.toByteArray(), caPublicKey);
             
             // byte[] encryptedKey = CryptographyImpl.encryptRSA(noSignatureEncryptedKey, CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der"));
-            byte[] digitalSignature = null;
+            byte[] digitalSignature = {};
             if(withDigitalSignature) {
                 Key privKey = ks.getKey(username + "_private_key", keyStorePassword.toCharArray());
                 digitalSignature = CryptographyImpl.generateDigitalSignature(request.toByteArray(), (PrivateKey) privKey);
@@ -132,10 +209,15 @@ public class CAServerCommandsImpl {
         }
     }
 
-    byte[] DecryptResponse(CaServer.EncryptedCAMessageResponse response) {
+    byte[] DecryptResponse(CaServer.EncryptedCAMessageResponse response, KeyPair tempKeys) {
         Key privKey = null;
         try {
-            privKey = ks.getKey("ca_private_key", keyStorePassword.toCharArray());
+            if(tempKeys != null) {
+                privKey = tempKeys.getPrivate();
+            }
+            else {
+                privKey = ks.getKey(username + "_private_key", keyStorePassword.toCharArray());
+            }
         } catch (Exception e) {
             //TODO: handle exception
         }
@@ -175,4 +257,16 @@ public class CAServerCommandsImpl {
 
         return responseDecryptedBytes;
 	}
+
+    public Key FetchPrivateKey() {
+        try {
+            return ks.getKey(username + "_private_key", keyStorePassword.toCharArray());
+        } catch (Exception e) {
+            System.out.println("ERROR - Unable to fetch private key");
+            return null;
+            //TODO: handle exception
+        }
+    }
+
+
 }

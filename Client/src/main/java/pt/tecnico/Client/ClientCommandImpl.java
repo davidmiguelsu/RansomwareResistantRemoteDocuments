@@ -2,21 +2,14 @@ package pt.tecnico.Client;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.security.Key;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
+import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collection;
-import java.util.Random;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -29,6 +22,7 @@ import com.google.protobuf.Timestamp;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
+import pt.tecnico.Common.CAServerCommandsImpl;
 import pt.tecnico.Common.CryptographyImpl;
 import pt.tecnico.grpc.ClientServer;
 import pt.tecnico.grpc.ClientToServerServiceGrpc;
@@ -53,11 +47,15 @@ public class ClientCommandImpl {
     KeyStore ks;
     char[] pwdArray = "pwd".toCharArray();
 
+    CAServerCommandsImpl caServer = null;
+    Key leadServerPublicKey = null;
+
     ClientCommandImpl() {
         // stub = serverStub;
         dirPath = System.getProperty("user.home") + "/Downloads/";
         keyStorePath = System.getProperty("user.home") + "/Documents/";
         keyPath = System.getProperty("user.home") + "/Documents" + "/RansomwareResistantRemoteDocuments/CAServer/";
+
     }  
     
     public boolean ExecuteCommand(String input) throws ZKNamingException{
@@ -125,7 +123,7 @@ public class ClientCommandImpl {
                 break; 
                 
             case "exit":
-                CryptographyImpl.UpdateKeyStore(ks, pwdArray, keyStorePath + "standard.jceks");
+                CryptographyImpl.UpdateKeyStore(ks, pwdArray, keyStorePath + "standard_" + username + ".jceks");
                 return false;
             default:
                 System.out.println("ERROR - Invalid Command");
@@ -165,7 +163,7 @@ public class ClientCommandImpl {
             KeyStore.ProtectionParameter password = new KeyStore.PasswordProtection(pwdArray);
             ks.setEntry(fileName + "_key", secret, password);
 
-            CryptographyImpl.UpdateKeyStore(ks, pwdArray, keyStorePath + "standard.jceks");
+            CryptographyImpl.UpdateKeyStore(ks, pwdArray, keyStorePath + "standard_" + username + ".jceks");
 
             byte[] encryptedFile = CryptographyImpl.encryptAES(fileName, fis.readAllBytes(), key);
 
@@ -343,6 +341,16 @@ public class ClientCommandImpl {
             return;
         } 
 
+        username = args[1];
+        pwdArray = args[2].toCharArray();
+
+
+        ks = CryptographyImpl.InitializeKeyStore(pwdArray, keyStorePath + "standard_" + username + ".jceks");
+
+        caServer.SetUser(args[1], args[2]);
+        caServer.SetKeyStore(ks);
+        caServer.requestKeyPair();
+
         ClientServer.RegisterRequest request = ClientServer.RegisterRequest.newBuilder()
             .setUserName(args[1])
             .setCipheredPassword(args[2])
@@ -357,9 +365,17 @@ public class ClientCommandImpl {
     
             if(!response.getAck().equals("ERROR")) {
                 username = args[1];
+
+                CryptographyImpl.CreateNewKeyStore(ks, pwdArray, keyStorePath + "standard_" + username + ".jceks");
+                // CryptographyImpl.UpdateKeyStore(ks, pwdArray, keyStorePath + "standard_" + username + ".jceks");
             }
             else {
                 System.out.println("ERROR - Register - Username already exists");
+                username = "";
+                pwdArray = "pwd".toCharArray();
+                caServer.SetUser("", "");
+                ks = null;
+                caServer.SetKeyStore(null);
             }
         } catch (InvalidProtocolBufferException ipbe) {
             //TODO: handle exception
@@ -378,6 +394,15 @@ public class ClientCommandImpl {
             return;
         } 
 
+        username = args[1];
+        pwdArray = args[2].toCharArray();
+
+        ks = CryptographyImpl.InitializeKeyStore(pwdArray, keyStorePath + "standard_" + username + ".jceks");
+
+
+        caServer.SetUser(args[1], args[2]);
+        caServer.SetKeyStore(ks);
+
         ClientServer.LoginRequest request = ClientServer.LoginRequest.newBuilder()
             .setUserName(args[1])
             .setCipheredPassword(args[2])
@@ -392,9 +417,17 @@ public class ClientCommandImpl {
     
             if(!response.getAck().equals("ERROR")) {
                 username = args[1];
+                pwdArray = args[2].toCharArray();
+
+                ks = CryptographyImpl.InitializeKeyStore(pwdArray, keyStorePath + "standard_" + username + ".jceks");
             }
             else {
                 System.out.println("ERROR - Login - Authentication failed");
+                username = "";
+                pwdArray = "pwd".toCharArray();
+                caServer.SetUser("", "");
+                ks = null;
+                caServer.SetKeyStore(null);
             }
         } catch (InvalidProtocolBufferException ipbe) {
             //TODO: handle exception
@@ -462,6 +495,7 @@ public class ClientCommandImpl {
 
     public void logout() {
         username = null;
+        ks = null;
         System.out.println("Successful logout");
     }
 
@@ -501,7 +535,11 @@ public class ClientCommandImpl {
             System.out.println("Located server at " + target);
 
             //TODO: Change this
-            ks = CryptographyImpl.InitializeKeyStore(pwdArray, keyStorePath + "standard.jceks");
+            // ks = CryptographyImpl.InitializeKeyStore(pwdArray, keyStorePath + "standard_" + username + ".jceks");
+
+            caServer = new CAServerCommandsImpl(zkNaming, null);
+            leadServerPublicKey = caServer.requestPublicKeyOf("LeadServer", false, true);
+
             return "OK";
         } catch (ZKNamingException zkne) {
             System.err.println("ConnectToServer: Failed to lookup records" + zkne.getStackTrace());
@@ -509,16 +547,26 @@ public class ClientCommandImpl {
         }
     }
 
+    // void checkForKeys() {
+    //     return ks.containsAlias(username + "")
+    // }
+
     ClientServer.EncryptedMessageRequest EncryptMessage(GeneratedMessageV3 request) {
         //TODO: Check IV input
         try {
             Key tempKey = CryptographyImpl.generateAESKey();
             byte[] encryptedData = CryptographyImpl.encryptAES("", request.toByteArray(), tempKey);
-            byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"));
-            byte[] digitalSignature = CryptographyImpl.generateDigitalSignature(request.toByteArray(), CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der"));
+
+            byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), leadServerPublicKey);
+            // byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"));
+        
+            byte[] digitalSignature = CryptographyImpl.generateDigitalSignature(request.toByteArray(), (PrivateKey) ks.getKey(username + "_private_key", pwdArray));
+            // byte[] digitalSignature = CryptographyImpl.generateDigitalSignature(request.toByteArray(), CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der"));
             
             Timestamp timestamp = Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
-			byte[] encryptedTimestamp = CryptographyImpl.encryptRSA(timestamp.toByteArray(), CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"));
+
+            byte[] encryptedTimestamp = CryptographyImpl.encryptRSA(timestamp.toByteArray(), leadServerPublicKey);
+			// byte[] encryptedTimestamp = CryptographyImpl.encryptRSA(timestamp.toByteArray(), CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"));
 
             // byte[] encryptedKey = CryptographyImpl.encryptRSA(noSignatureEncryptedKey, CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der"));
             
@@ -527,6 +575,7 @@ public class ClientCommandImpl {
                                                     .setEncryptionKey(ByteString.copyFrom(encryptedKey))
                                                     .setDigitalSignature(ByteString.copyFrom(digitalSignature))
                                                     .setTimestamp(ByteString.copyFrom(encryptedTimestamp))
+                                                    .setUserName(username)
                                                     .build();
             
             return encryptedReq;
@@ -538,7 +587,15 @@ public class ClientCommandImpl {
     }
 
     byte[] DecryptResponse(ClientServer.EncryptedMessageResponse response) {
-        PrivateKey privKey = CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der");
+        PrivateKey privKey = null;
+        try {
+            privKey = (PrivateKey) ks.getKey(username + "_private_key", pwdArray);
+        } catch (Exception e) {
+            //TODO: handle exception
+            System.out.println("Error fetching key");
+            return null;
+        }
+        // PrivateKey privKey = CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der");
         byte[] decryptedTimestamp = CryptographyImpl.decryptRSA(response.getTimestamp().toByteArray(), privKey);
 
 		Timestamp timestamp = null;
@@ -565,7 +622,8 @@ public class ClientCommandImpl {
 		//TODO: Check IV later
 		byte[] responseDecryptedBytes = CryptographyImpl.decryptAES("", response.getMessageResponseBytes().toByteArray(), decryptTempKey);
 		
-        if(!CryptographyImpl.verifyDigitalSignature(responseDecryptedBytes, response.getDigitalSignature().toByteArray(), CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"))) {
+        // if(!CryptographyImpl.verifyDigitalSignature(responseDecryptedBytes, response.getDigitalSignature().toByteArray(), CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"))) {
+        if(!CryptographyImpl.verifyDigitalSignature(responseDecryptedBytes, response.getDigitalSignature().toByteArray(), (PublicKey) leadServerPublicKey)) {
             System.out.println("ERROR - Received message doesn't match with the digital signature!");
             return null;
         }

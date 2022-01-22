@@ -1,6 +1,7 @@
 package pt.tecnico.Server;
 
 import java.io.IOException;
+import java.security.KeyStore;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,6 +15,8 @@ import io.grpc.ServerBuilder;
 import pt.tecnico.grpc.ClientServer;
 import pt.tecnico.grpc.ClientToServerServiceGrpc;
 import pt.tecnico.grpc.ServerServer;
+import pt.tecnico.Common.CAServerCommandsImpl;
+import pt.tecnico.Common.CryptographyImpl;
 import pt.tecnico.Common.DatabaseImpl;
 import pt.tecnico.grpc.ServerToServerServiceGrpc;
 import pt.ulisboa.tecnico.sdis.zk.ZKNaming;
@@ -31,6 +34,7 @@ public class ServerController {
 	/** ZooKeeper path where information about the server will be published. */
 	private static String path;
 	private static String realPath;
+	private static String serverName;
 	/** Server host name. */
 	private static String host;
 	/** Server host port. */
@@ -41,6 +45,11 @@ public class ServerController {
 	public List<ChildServerInfo> childServerList = new ArrayList<ChildServerInfo>();
 	public DatabaseImpl db;
 	public Connection conn;
+
+	public KeyStore ks;
+	private String keyStorePath = System.getProperty("user.home") + "/Documents/";
+	private String keyStorePassword = "pwd";
+	public CAServerCommandsImpl caServer = null;
 
 
     public void main(String[] args) throws ZKNamingException {
@@ -75,12 +84,15 @@ public class ServerController {
 			if(recordList.size() == 0) {
 				//TODO: Change server name from /grpc/Ransom/1 to /grpc/Ransom/Leader
 				realPath += "/1";
+				serverName = "LeadServer";
+				
 				System.out.println("Binding " + realPath + " to " + host + ":" + portForClient + "...");
 				zkNaming.rebind(realPath, host, Integer.toString(portForClient));
 				isLeader = true;
 
 				clientServerImpl.SetServerMain(this);
 				serverServerImpl.SetServerMain(this);
+
 			}
 			else {
 				String[] nameList = recordList.get(recordList.size() - 1).getPath().split("/");
@@ -88,10 +100,14 @@ public class ServerController {
 				// System.out.println(lastToken);
 				System.out.println("NUMBER: " + numberOfServers);
 				portForServer += lastToken;
+				
 				realPath += "/" + Integer.toString(lastToken + 1);
+				serverName =  Integer.toString(lastToken + 1);
+
 				System.out.println("Binding " + realPath + " to " + host + ":" + portForServer + "...");
 				zkNaming.rebind(realPath, host, Integer.toString(portForServer));
 				isLeader = false;
+
 			}
 			
 		} catch (ZKNamingException e) {
@@ -105,7 +121,12 @@ public class ServerController {
 		clientServerImpl.SetupStoragePath(realPath);
 		Runtime.getRuntime().addShutdownHook(new Unbind());
 
-        try {
+		ks = CryptographyImpl.InitializeKeyStore(keyStorePassword.toCharArray(), keyStorePath + "standard_" + serverName + ".jceks");
+		caServer = new CAServerCommandsImpl(zkNaming, ks);
+		caServer.SetUser(serverName, "pwd");
+		loadKeys();
+        
+		try {
             if (isLeader) {
                 // Create a new server to listen on port. This will listen to client requests
                 Server serverMain = ServerBuilder.forPort(portForClient).addService(impl).build();
@@ -120,7 +141,6 @@ public class ServerController {
 				db = new DatabaseImpl();
 				conn = db.connect(); 
 				System.out.println("Database ON && conn updated");
-
 				
                 serverMain.awaitTermination();
                 betweenServer.awaitTermination();
@@ -180,6 +200,19 @@ public class ServerController {
 		}
 		catch (ZKNamingException zkne) {
 			System.err.println("Unable to notify leader server");
+		}
+	}
+
+	void loadKeys() {
+
+		try {
+			if(ks.size() == 0) {	//Brand new KeyStore
+				caServer.requestKeyPair();
+	
+				CryptographyImpl.UpdateKeyStore(ks, keyStorePassword.toCharArray(), keyStorePath + "standard_" + serverName + ".jceks");
+			}
+		} catch (Exception e) {
+			//TODO: handle exception
 		}
 	}
 

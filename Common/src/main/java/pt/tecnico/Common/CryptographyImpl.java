@@ -45,7 +45,9 @@ public class CryptographyImpl {
             if(jks.exists()) {
                 System.out.println("Keystore exists, will load");
                 ks = KeyStore.getInstance("JCEKS");
-                ks.load(new FileInputStream(jks), password);
+                FileInputStream fis = new FileInputStream(jks);
+                ks.load(fis , password);
+                fis.close();
                 return ks;
             }
             else {
@@ -54,18 +56,26 @@ public class CryptographyImpl {
 
                 FileOutputStream fos = new FileOutputStream(jks);
                 ks.store(fos, password);
+                fos.close();
                 return ks;
             }
 
 
         } catch (KeyStoreException kse) {
             //TODO: handle exception
+            System.out.println("KeyStore error: " + kse.getLocalizedMessage());
         } catch (IOException ioe) {
-
+            try {
+                FileInputStream fiss = new FileInputStream( new File(path));
+                System.out.println(fiss.readAllBytes());
+            } catch (Exception e) {
+                System.out.println("IO error 2: " + e.getMessage());
+            }
+            System.out.println("IO error: " + ioe.getMessage());
         } catch (NoSuchAlgorithmException nsae) {
-
+            System.out.println("No algorithmn JCEKS, somehow: " + nsae.getLocalizedMessage());
         } catch (CertificateException ce) {
-
+            System.out.println("Certificate error: " + ce.getLocalizedMessage());
         }
         return null;
     }
@@ -76,20 +86,44 @@ public class CryptographyImpl {
             if(jks.exists()) {
                 FileOutputStream fos = new FileOutputStream(jks);
                 ks.store(fos, password);
+                fos.close();
             }
             else {
                 System.out.println("ERROR - KeyStore file not found");
             }
         } catch (KeyStoreException kse) {
             System.out.println("ERROR - KeyStore exception: " + kse.getMessage());
-        } catch (FileNotFoundException e) {
-            System.out.println("ERROR - KeyStore file not found");
+        } catch (FileNotFoundException fnfe) {
+            System.out.println("ERROR - File not found: " + fnfe.getMessage());
         } catch (NoSuchAlgorithmException nsae) {
-            
+            System.out.println("ERROR - No such algorithm: " + nsae.getMessage());
         } catch (CertificateException ce) {
-            
+            System.out.println("ERROR - Certificate exception:" + ce.getMessage());
         } catch (IOException ioe) {
+            System.out.println("ERROR - IO: " + ioe.getMessage());
+        } catch (Exception e) {
+            System.out.println("ERROR - IO: " + e.getMessage());
+        }
+    }
 
+    public static void CreateNewKeyStore(KeyStore ks, char[] password, String path) {
+        File jks = new File(path);
+        try {
+            FileOutputStream fos = new FileOutputStream(jks);
+            ks.store(fos, password);
+            fos.close();
+        } catch (KeyStoreException kse) {
+            System.out.println("ERROR - KeyStore exception: " + kse.getMessage());
+        } catch (FileNotFoundException fnfe) {
+            System.out.println("ERROR - File not found: " + fnfe.getMessage());
+        } catch (NoSuchAlgorithmException nsae) {
+            System.out.println("ERROR - No such algorithm: " + nsae.getMessage());
+        } catch (CertificateException ce) {
+            System.out.println("ERROR - Certificate exception:" + ce.getMessage());
+        } catch (IOException ioe) {
+            System.out.println("ERROR - IO: " + ioe.getMessage());
+        } catch (Exception e) {
+            System.out.println("ERROR - IO: " + e.getMessage());
         }
     }
 
@@ -194,6 +228,9 @@ public class CryptographyImpl {
 
             return cipher.doFinal(cipheredBytes);
 
+        } catch (InvalidKeyException ike) {
+            // Pokemon exception handling!
+            System.out.println("No key/wrong key associated: " + ike.getMessage());
         } catch (Exception e) {
             // Pokemon exception handling!
             e.printStackTrace();
@@ -210,7 +247,7 @@ public class CryptographyImpl {
             return cipher.doFinal(data);
             // return new String(Base64.getEncoder().encode(encryptedbytes));
         } catch (Exception e) {
-            System.out.println("Error in RSA encryption");
+            System.out.println("Error in RSA encryption. " + e.getLocalizedMessage());
             //TODO: handle exception
             return null;
         }
@@ -224,7 +261,7 @@ public class CryptographyImpl {
             return cipher.doFinal(data);
             // return new String(Base64.getEncoder().encode(encryptedbytes));
         } catch (Exception e) {
-            System.out.println("Error in RSA decryption");
+            System.out.println("Error in RSA decryption. " + e.getLocalizedMessage());
             //TODO: handle exception
             return null;
         }
@@ -333,7 +370,7 @@ public class CryptographyImpl {
         v3CertGen.setNotAfter(new Date(System.currentTimeMillis() + (1000L * 60 * 60 * 24 * 365*10)));
         v3CertGen.setSubjectDN(new X509Principal(certificateDN));
         v3CertGen.setPublicKey(keyPair.getPublic());
-        v3CertGen.setSignatureAlgorithm("SHA256WithRSAEncryption");
+        v3CertGen.setSignatureAlgorithm("SHA256WithRSA");
         try {
             cert = v3CertGen.generate(keyPair.getPrivate());
             // saveCert(cert, keyPair.getPrivate());
