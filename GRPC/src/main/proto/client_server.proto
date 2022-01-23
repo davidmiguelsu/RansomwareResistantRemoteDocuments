@@ -105,6 +105,7 @@ message EncryptedMessageRequest {
 	bytes encryptionKey = 2;
 	bytes digitalSignature = 3;
 	bytes timestamp = 4;
+	string userName = 5;
 }
 message EncryptedMessageResponse {
 	bytes messageResponseBytes = 1;
