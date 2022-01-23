@@ -272,7 +272,7 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		if(!serverController.db.doesUserHaveReadPerms(serverController.conn, userID, fileID)){
 			ClientServer.ReadFileResponse response =  ClientServer.ReadFileResponse.getDefaultInstance();
 			
-			responseObserver.onNext(EncryptResponse(response));
+			responseObserver.onNext(EncryptResponse(response, targetPubKey));
 
 			responseObserver.onCompleted();
 
