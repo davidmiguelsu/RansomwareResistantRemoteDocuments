@@ -155,7 +155,7 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		} 
 
 		if (serverController.db.doesFileExist(serverController.conn, decryptRequest.getFileName())){
-			System.out.println("File with that name already exists, consider changing the name!");	
+			System.out.println("File with that name already exists, consider changing the name!!");	
 			return;
 		}
 

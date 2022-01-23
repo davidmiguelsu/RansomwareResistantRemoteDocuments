@@ -394,7 +394,7 @@ public class DatabaseImpl{
             return result;
 
         } catch (SQLException e){
-            System.out.println("CHEGOU AQUI AMIGOSSSS");
+            System.out.println("CHEGOU AQUI AMIGOSSSS getFileNamebyFileID");
             e.printStackTrace();
             try{
                  con.rollback();
