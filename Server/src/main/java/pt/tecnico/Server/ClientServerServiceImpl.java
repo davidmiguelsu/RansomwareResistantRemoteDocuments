@@ -78,6 +78,7 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		} 
 
 		ClientServer.RegisterResponse res;
+		//TODO: Remove the dictionary + add DB query
 		if(userDictionary.containsKey(decryptRequest.getUserName())) {
 			res = ClientServer.RegisterResponse.newBuilder()
 				.setAck("ERROR").build();
@@ -183,9 +184,10 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			
 
 			int tempNameID = serverController.db.getUserIDbyUsername(serverController.conn , decryptRequest.getUsername());
+			serverController.db.addFileDatabase(serverController.conn , decryptRequest.getFileName(), decryptRequest.getHash().toByteArray());
+			
 			int tempFileID = serverController.db.getFileIDbyFileName(serverController.conn , decryptRequest.getFileName());
 			serverController.db.addUserFileDatabase(serverController.conn, tempNameID, tempFileID);
-			serverController.db.addFileDatabase(serverController.conn , decryptRequest.getFileName(), decryptRequest.getHash().toByteArray());
 			//TODO: Temp hash file -> TO BE MOVED TO DB
 			// File hashFile = new File(filePath + decryptRequest.getFileName() + ".hash");
 			// FileOutputStream hashWriter = new FileOutputStream(hashFile, false);
@@ -285,8 +287,8 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			
 
 			//TODO: Temp hash file -> TO BE MOVED TO DB
-			File hashFile = new File(filePath + fileName + ".hash");
-			FileInputStream hashFIS = new FileInputStream(hashFile);
+			// File hashFile = new File(filePath + fileName + ".hash");
+			// FileInputStream hashFIS = new FileInputStream(hashFile);
 
 			// byte[] allBytes = hashFIS.readAllBytes();
 

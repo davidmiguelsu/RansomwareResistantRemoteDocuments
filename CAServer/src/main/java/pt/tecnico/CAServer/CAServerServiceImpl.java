@@ -247,7 +247,8 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
         else {
             try {
                 // Path privKeyFile = Paths.get("/home/fenix/Documents/RansomwareResistantRemoteDocuments/CAServer/CAKeys/CAserver_private.der");
-                Path privKeyFile = Paths.get("CAServer", "CAKeys", "CAserver_private.der");
+                Path privKeyFile = Paths.get("CAKeys", "CAserver_private.der");
+                System.out.println(privKeyFile.toAbsolutePath().toString());
                 // Path pubKeyFile = Paths.get("CAServer", "CAKeys", "CAserver_public.der");
                 
                 byte[] privKeyBytes = Files.readAllBytes(privKeyFile);
@@ -262,7 +263,7 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
                 // caPublicKey = keyFactory.generatePublic(pubKeySpec);
 
                 CertificateFactory fac = CertificateFactory.getInstance("X509");
-                FileInputStream is = new FileInputStream(Paths.get("CAServer", "CAKeys", "CAserver.crt").toAbsolutePath().toString());
+                FileInputStream is = new FileInputStream(Paths.get("CAKeys", "CAserver.crt").toAbsolutePath().toString());
                 // FileInputStream is = new FileInputStream(Paths.get("/home/fenix/Documents/RansomwareResistantRemoteDocuments/CAServer/CAKeys/CAserver.crt").toString());
                 cert = (X509Certificate) fac.generateCertificate(is);
                 

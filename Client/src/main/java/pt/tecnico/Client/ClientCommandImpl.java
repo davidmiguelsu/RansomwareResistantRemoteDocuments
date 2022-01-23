@@ -124,6 +124,7 @@ public class ClientCommandImpl {
                 
             case "exit":
                 CryptographyImpl.UpdateKeyStore(ks, pwdArray, keyStorePath + "standard_" + username + ".jceks");
+                caServer.Shutdown();
                 return false;
             default:
                 System.out.println("ERROR - Invalid Command");

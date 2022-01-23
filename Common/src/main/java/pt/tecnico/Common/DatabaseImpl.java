@@ -43,7 +43,7 @@ public class DatabaseImpl{
     private final String checkIsOwnerByID ="SELECT file_owner FROM user_files WHERE file_id = ? AND user_id = ? ";
     private final String getFileList ="SELECT file_id FROM user_files WHERE user_id = ? AND read_perm = ? ";
     private final String getUserPWbyName ="SELECT passwd FROM users WHERE username = ? ";
-    private final String fileExists ="SELECT f_id FROM files WHERE file_name = ? ";
+    private final String fileExists ="SELECT f_id FROM files WHERE filename = ? ";
 
 
 
