@@ -105,21 +105,27 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 				
 
 		ClientServer.LoginResponse res;
-		if(!userDictionary.containsKey(decryptRequest.getUserName())) {
+
+		
+		// if(!userDictionary.containsKey(decryptRequest.getUserName())) {
+		// 	res = ClientServer.LoginResponse.newBuilder()
+		// 		.setAck("ERROR").build();
+		// 		System.out.println("Doesn't contain key");
+		// }	
+			//userDictionary.get(decryptRequest.getUserName()).equals(decryptRequest.getCipheredPassword())
+		
+			//query to retrieve password for authentication purposes
+		String tempPW = serverController.db.getUserPWbyUsername(serverController.conn, decryptRequest.getUserName());
+
+		if(decryptRequest.getCipheredPassword().equals(tempPW)) {
 			res = ClientServer.LoginResponse.newBuilder()
-				.setAck("ERROR").build();
-				System.out.println("Doesn't contain key");
+			.setAck("OK").build();				
 		}
 		else {
-			if(userDictionary.get(decryptRequest.getUserName()).equals(decryptRequest.getCipheredPassword())) {
-				res = ClientServer.LoginResponse.newBuilder()
-				.setAck("OK").build();				
-			}
-			else {
-				res = ClientServer.LoginResponse.newBuilder()
-				.setAck("ERROR").build();
-			}
+			res = ClientServer.LoginResponse.newBuilder()
+			.setAck("ERROR").build();
 		}
+		
 
 		// ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
 		// 	.setMessageResponseBytes(res.toByteString()).build();
@@ -148,13 +154,22 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			//TODO: handle exception
 		} 
 
+		if (serverController.db.doesFileExist(serverController.conn, decryptRequest.getFileName())){
+			System.out.println("File with that name already exists, consider changing the name!");	
+			return;
+		}
+
 		File file = new File(filePath + decryptRequest.getFileName());
 		try {
 			FileOutputStream writer = new FileOutputStream(file, false);
 			writer.write(decryptRequest.getFile().toByteArray());
+
+			
+
+			int tempNameID = serverController.db.getUserIDbyUsername(serverController.conn , decryptRequest.getUsername());
+			int tempFileID = serverController.db.getFileIDbyFileName(serverController.conn , decryptRequest.getFileName());
+			serverController.db.addUserFileDatabase(serverController.conn, tempNameID, tempFileID);
 			serverController.db.addFileDatabase(serverController.conn , decryptRequest.getFileName(), decryptRequest.getHash().toByteArray());
-
-
 			//TODO: Temp hash file -> TO BE MOVED TO DB
 			// File hashFile = new File(filePath + decryptRequest.getFileName() + ".hash");
 			// FileOutputStream hashWriter = new FileOutputStream(hashFile, false);
@@ -165,10 +180,6 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			
 			System.out.println("Sucessfull write of file " + decryptRequest.getFileName());
 			
-			int tempNameID = serverController.db.getUserIDbyUsername(serverController.conn , decryptRequest.getUsername());
-			int tempFileID = serverController.db.getFileIDbyFileName(serverController.conn , decryptRequest.getFileName());
-			serverController.db.addUserFileDatabase(serverController.conn, tempNameID, tempFileID);
-			System.out.println("deu pa dar add à DB");
 			if(serverController.isLeader) {
 				for (ChildServerInfo info : serverController.childServerList) {
 					
@@ -228,15 +239,31 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		} 
 		
 
-		String name = decryptRequest.getFileName();
+		String fileName = decryptRequest.getFileName();
+		String userName = decryptRequest.getUsername();
 
-		File file = new File(filePath + name);
+		int fileID = serverController.db.getFileIDbyFileName(serverController.conn, fileName);
+		int userID = serverController.db.getUserIDbyUsername(serverController.conn, userName);
+		//verificar se existe entry em user_files com file_id e user_id
+				
+		//TODO: esta verificaçao should be enough -> if true = tem read perms otherwise não tem e é suposto printar que u user n tem perms para ler.
+		if(!serverController.db.doesUserHaveReadPerms(serverController.conn, userID, fileID)){
+			ClientServer.ReadFileResponse response =  ClientServer.ReadFileResponse.getDefaultInstance();
+			
+			responseObserver.onNext(EncryptResponse(response));
+
+			responseObserver.onCompleted();
+
+			return;
+		}
+
+		File file = new File(filePath + fileName);
 		try {
 			FileInputStream fis = new FileInputStream(file);
 			
 
 			//TODO: Temp hash file -> TO BE MOVED TO DB
-			File hashFile = new File(filePath + name + ".hash");
+			File hashFile = new File(filePath + fileName + ".hash");
 			FileInputStream hashFIS = new FileInputStream(hashFile);
 
 			byte[] allBytes = hashFIS.readAllBytes();
@@ -288,6 +315,10 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			try {
 				ClientServer.ListFileRequest decryptRequest = ClientServer.ListFileRequest.parseFrom(requestDecryptedBytes);
 				
+				int tempID = serverController.db.getUserIDbyUsername(serverController.conn, decryptRequest.getUserName());
+				
+				//TODO: falta ver como dar print nisto.
+				List<String> listaFiles = (serverController.db.getListFile(serverController.conn, tempID));
 				List<String> fileList = Arrays.asList(new File(filePath).list());
 				
 				ClientServer.ListFileResponse response = ClientServer.ListFileResponse.newBuilder()
@@ -320,8 +351,9 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			//TODO: handle exception
 		}
 
-
+		int tempUserID = serverController.db.getUserIDbyUsername(serverController.conn, decryptRequest.getUsername());
 		int tempFileID = serverController.db.getFileIDbyFileName(serverController.conn , decryptRequest.getFileName());	
+		serverController.db.deleteFileUserDatabase(serverController.conn, tempUserID, tempFileID);
 		serverController.db.deleteFileDatabase(serverController.conn, tempFileID);
 
 		String filename = decryptRequest.getFileName();
@@ -383,6 +415,20 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			} catch (InvalidProtocolBufferException e) {
 				//TODO: handle exception
 			}
+			int tempUserID = serverController.db.getUserIDbyUsername(serverController.conn, decryptRequest.getUserName());
+			int tempFileID = serverController.db.getFileIDbyFileName(serverController.conn, decryptRequest.getFileName());
+
+
+
+			//TODO: verificar este if for sure aint 100% done
+			if (decryptRequest.getPermission().equals("all")) {	
+				serverController.db.giveAllPermission(serverController.conn, tempUserID, tempFileID);
+			} 
+			else{
+				serverController.db.giveReadPermission(serverController.conn, tempUserID, tempFileID);
+			}
+
+
 
 			File file = new File(filePath + decryptRequest.getFileName() + "_" + decryptRequest.getUserName());
 

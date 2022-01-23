@@ -16,6 +16,7 @@ CREATE TABLE files (
 	f_id	 SERIAL,
 	filename VARCHAR(512),
 	filehash VARCHAR(512),
+	UNIQUE(filename),
 	PRIMARY KEY(f_id)
 );
 

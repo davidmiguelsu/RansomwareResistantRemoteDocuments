@@ -1,0 +1,6 @@
+pt\tecnico\Server\ServerController.class
+pt\tecnico\Server\ServerController$ChildServerInfo.class
+pt\tecnico\Server\ServerMain.class
+pt\tecnico\Server\ServerServerServiceImpl.class
+pt\tecnico\Server\ClientServerServiceImpl.class
+pt\tecnico\Server\ServerController$Unbind.class
