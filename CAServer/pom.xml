@@ -12,8 +12,8 @@
     <artifactId>CAServer</artifactId>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>${version.java}</maven.compiler.source>
+        <maven.compiler.target>${version.java}</maven.compiler.target>
 
         <mainclass>pt.tecnico.CAServer.CAServerMain</mainclass>
         <zoo.host>localhost</zoo.host>
