@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.security.Key;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -171,8 +172,15 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			//TODO: handle exception
 		} 
 
-		if (serverController.db.doesFileExist(serverController.conn, decryptRequest.getFileName())){
+		if (serverController.isLeader && serverController.db.doesFileExist(serverController.conn, decryptRequest.getFileName())){
 			System.out.println("File with that name already exists, consider changing the name!!");	
+
+			ClientServer.WriteFileResponse response = ClientServer.WriteFileResponse.newBuilder()
+				.setAck("ERROR - Confirmed write of file " + decryptRequest.getFileName())
+				.build();
+			responseObserver.onNext(EncryptResponse(response, targetPubKey));
+	
+			responseObserver.onCompleted();
 			return;
 		}
 
@@ -182,12 +190,13 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			writer.write(decryptRequest.getFile().toByteArray());
 
 			
-
-			int tempNameID = serverController.db.getUserIDbyUsername(serverController.conn , decryptRequest.getUsername());
-			serverController.db.addFileDatabase(serverController.conn , decryptRequest.getFileName(), decryptRequest.getHash().toByteArray());
-			
-			int tempFileID = serverController.db.getFileIDbyFileName(serverController.conn , decryptRequest.getFileName());
-			serverController.db.addUserFileDatabase(serverController.conn, tempNameID, tempFileID);
+			if(serverController.isLeader) {
+				int tempNameID = serverController.db.getUserIDbyUsername(serverController.conn , decryptRequest.getUsername());
+				serverController.db.addFileDatabase(serverController.conn , decryptRequest.getFileName(), decryptRequest.getHash().toByteArray());
+				
+				int tempFileID = serverController.db.getFileIDbyFileName(serverController.conn , decryptRequest.getFileName());
+				serverController.db.addUserFileDatabase(serverController.conn, tempNameID, tempFileID);
+			}
 			//TODO: Temp hash file -> TO BE MOVED TO DB
 			// File hashFile = new File(filePath + decryptRequest.getFileName() + ".hash");
 			// FileOutputStream hashWriter = new FileOutputStream(hashFile, false);
@@ -199,17 +208,62 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			System.out.println("Sucessfull write of file " + decryptRequest.getFileName());
 			
 			if(serverController.isLeader) {
-				for (ChildServerInfo info : serverController.childServerList) {
-					
-					ClientServer.EncryptedMessageResponse childRes = info.stub.writeFile(request);
+				List<ClientServer.WriteFileResponse> responseList = new ArrayList<>();
 
+				HashMap<String, String> responseMap = new HashMap<>();
+				int i = 2;
+
+				for (ChildServerInfo info : serverController.childServerList) {
+					PublicKey targetServerPublicKey = serverController.caServer.requestPublicKeyOf(String.valueOf(i), true, false);
+											// ClientServer.WriteFileRequest recreatedRequest = ClientServer.WriteFileRequest.newBuilder()
+					// 													.setFileName(decryptRequest.getFileName())
+					// 													.setFile(ByteString.copyFrom(decry))
+					// 													.setHash(ByteString.copyFrom(hashBytes))
+					// 													.setUsername(username)
+					// 													.build();
+
+
+					PublicKey targetPublicKey = serverController.caServer.requestPublicKeyOf(String.valueOf(i), true, false);
+
+					ClientServer.EncryptedMessageResponse childRes = info.stub.writeFile(EncryptRequest(decryptRequest, targetServerPublicKey));
+					i++;
+					try {
+						ClientServer.WriteFileResponse decryptedChildRes = ClientServer.WriteFileResponse.parseFrom(DecryptResponse(childRes, targetServerPublicKey));
+						responseList.add(decryptedChildRes);
+					} catch (InvalidProtocolBufferException e) {
+						System.out.println("ERROR - Failed to decrypt response from server" + i + " -- "+ e.getMessage());
+						// responseObserver.onNext(ClientServer.EncryptedMessageResponse.getDefaultInstance());
+						
+						// responseObserver.onCompleted();
+						// return;
+					} 
 					//TODO: CHeck if response is an OK or ERROR
 				}
+				int resOK = 0;
+				int resNOK = 0;
+				for (ClientServer.WriteFileResponse res : responseList) {
+					if(res.getAck().startsWith("OK")) {
+						resOK++;
+					}
+					else
+						resNOK++;
+				}
+
+				if(resOK < serverController.childServerList.size() / 2 + 1) {
+					ClientServer.WriteFileResponse response = ClientServer.WriteFileResponse.newBuilder()
+						.setAck("ERROR - Failed to write correctly to sufficient servers" + decryptRequest.getFileName())
+						.build();
+
+						responseObserver.onNext(EncryptResponse(response, targetPubKey));
+						responseObserver.onCompleted();
+						return;
+				}
+
 			}
 
 			
 			ClientServer.WriteFileResponse response = ClientServer.WriteFileResponse.newBuilder()
-			.setAck("Confirmed write of file " + decryptRequest.getFileName())
+			.setAck("OK - Confirmed write of file " + decryptRequest.getFileName())
 			.build();
 
 			// ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
@@ -223,7 +277,7 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		} catch (Exception e) {
 			//TODO: handle exception
 			ClientServer.WriteFileResponse response = ClientServer.WriteFileResponse.newBuilder()
-			.setAck("Failed to write file " + decryptRequest.getFileName())
+			.setAck("ERROR - Failed to write file " + decryptRequest.getFileName())
 			.build();
 	
 			// ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
@@ -260,25 +314,28 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			responseObserver.onNext(ClientServer.EncryptedMessageResponse.getDefaultInstance());
 
 			responseObserver.onCompleted();
+			return;
 		} 
 		
 
 		String fileName = decryptRequest.getFileName();
 		String userName = decryptRequest.getUsername();
 
-		int fileID = serverController.db.getFileIDbyFileName(serverController.conn, fileName);
-		int userID = serverController.db.getUserIDbyUsername(serverController.conn, userName);
-		//verificar se existe entry em user_files com file_id e user_id
+		if(serverController.isLeader) {
+			int fileID = serverController.db.getFileIDbyFileName(serverController.conn, fileName);
+			int userID = serverController.db.getUserIDbyUsername(serverController.conn, userName);
+			//verificar se existe entry em user_files com file_id e user_id
+					
+			//TODO: esta verificaçao should be enough -> if true = tem read perms otherwise não tem e é suposto printar que u user n tem perms para ler.
+			if(!serverController.db.doesUserHaveReadPerms(serverController.conn, userID, fileID)){
+				ClientServer.ReadFileResponse response =  ClientServer.ReadFileResponse.getDefaultInstance();
 				
-		//TODO: esta verificaçao should be enough -> if true = tem read perms otherwise não tem e é suposto printar que u user n tem perms para ler.
-		if(!serverController.db.doesUserHaveReadPerms(serverController.conn, userID, fileID)){
-			ClientServer.ReadFileResponse response =  ClientServer.ReadFileResponse.getDefaultInstance();
-			
-			responseObserver.onNext(EncryptResponse(response, targetPubKey));
-
-			responseObserver.onCompleted();
-
-			return;
+				responseObserver.onNext(EncryptResponse(response, targetPubKey));
+	
+				responseObserver.onCompleted();
+	
+				return;
+			}
 		}
 
 		File file = new File(filePath + fileName);
@@ -302,20 +359,52 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			ClientServer.EncryptedMessageResponse encryptedRes = EncryptResponse(response, targetPubKey);	
 			fis.close();
 			// hashFIS.close();
-			List<ClientServer.EncryptedMessageResponse> responseList = new ArrayList<>();
+			List<ClientServer.ReadFileResponse> responseList = new ArrayList<>();
 
-			responseList.add(encryptedRes);
+			responseList.add(response);
 
 			if(serverController.isLeader) {
+				int i = 2;
+				HashMap<ByteBuffer, MessageOccurence> messageDigests = new HashMap<>();
+
 				for (ChildServerInfo info : serverController.childServerList) {
-					responseList.add(info.stub.readFile(request));
 					
-					//TODO: CHeck if response is an OK or ERROR & check if file matches
+					PublicKey targetServerPublicKey = serverController.caServer.requestPublicKeyOf(String.valueOf(i), true, false);
+					
+					ClientServer.EncryptedMessageResponse childRes = info.stub.readFile(EncryptRequest(decryptRequest, targetServerPublicKey));
+					byte[] decryptedChildResBytes = DecryptResponse(childRes, targetServerPublicKey);
+
+					ClientServer.ReadFileResponse decryptedChildRes = null;
+					try {
+						decryptedChildRes = ClientServer.ReadFileResponse.parseFrom(decryptedChildResBytes);
+						responseList.add(decryptedChildRes);
+					} catch (InvalidProtocolBufferException e) {
+						System.out.println("ERROR - Failed to decrypt response from server" + i + " -- "+ e.getMessage());
+						// responseObserver.onNext(ClientServer.EncryptedMessageResponse.getDefaultInstance());
+						
+						// responseObserver.onCompleted();
+						// return;
+					} 
+					i++;
+
 				}
 				
-				// for (ClientServer.ReadFileResponse res : responseList) {
-					
-				// }
+				for (ClientServer.ReadFileResponse res : responseList) {
+					byte[] digest = CryptographyImpl.GenerateSHA3Digest(res.toByteArray());
+
+					if(messageDigests.containsKey(ByteBuffer.wrap(digest))){
+						messageDigests.get(ByteBuffer.wrap(digest)).AddElement(res);
+					}
+					else {
+						messageDigests.put(ByteBuffer.wrap(digest), new MessageOccurence(res));
+					}
+				}
+
+				for (var entry : messageDigests.entrySet()) {
+					if(entry.getValue().GetLength() >= (serverController.childServerList.size() / 2) + 1) {
+						encryptedRes = EncryptResponse(entry.getValue().GetElement(), targetPubKey);
+					}
+				}
 			}
 			
 
@@ -385,10 +474,12 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			//TODO: handle exception
 		}
 
-		int tempUserID = serverController.db.getUserIDbyUsername(serverController.conn, decryptRequest.getUsername());
-		int tempFileID = serverController.db.getFileIDbyFileName(serverController.conn , decryptRequest.getFileName());	
-		serverController.db.deleteFileUserDatabase(serverController.conn, tempUserID, tempFileID);
-		serverController.db.deleteFileDatabase(serverController.conn, tempFileID);
+		if(serverController.isLeader) {
+			int tempUserID = serverController.db.getUserIDbyUsername(serverController.conn, decryptRequest.getUsername());
+			int tempFileID = serverController.db.getFileIDbyFileName(serverController.conn , decryptRequest.getFileName());	
+			serverController.db.deleteFileUserDatabase(serverController.conn, tempUserID, tempFileID);
+			serverController.db.deleteFileDatabase(serverController.conn, tempFileID);
+		}
 
 		String filename = decryptRequest.getFileName();
 		File toDelete = new File(filePath + filename); 
@@ -451,17 +542,20 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			} catch (InvalidProtocolBufferException e) {
 				//TODO: handle exception
 			}
-			int tempUserID = serverController.db.getUserIDbyUsername(serverController.conn, decryptRequest.getUserName());
-			int tempFileID = serverController.db.getFileIDbyFileName(serverController.conn, decryptRequest.getFileName());
 
-
-
-			//TODO: verificar este if for sure aint 100% done
-			if (decryptRequest.getPermission().equals("all")) {	
-				serverController.db.giveAllPermission(serverController.conn, tempUserID, tempFileID);
-			} 
-			else{
-				serverController.db.giveReadPermission(serverController.conn, tempUserID, tempFileID);
+			if(serverController.isLeader) {
+				int tempUserID = serverController.db.getUserIDbyUsername(serverController.conn, decryptRequest.getUserName());
+				int tempFileID = serverController.db.getFileIDbyFileName(serverController.conn, decryptRequest.getFileName());
+	
+	
+	
+				//TODO: verificar este if for sure aint 100% done
+				if (decryptRequest.getPermission().equals("all")) {	
+					serverController.db.giveAllPermission(serverController.conn, tempUserID, tempFileID);
+				} 
+				else{
+					serverController.db.giveReadPermission(serverController.conn, tempUserID, tempFileID);
+				}
 			}
 
 
@@ -558,6 +652,46 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		return requestDecryptedBytes;
 	}
 
+	byte[] DecryptResponse(ClientServer.EncryptedMessageResponse response, PublicKey targetPubKey) {
+		PrivateKey privKey = (PrivateKey) serverController.caServer.FetchPrivateKey();
+
+        // PrivateKey privKey = CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der");
+        byte[] decryptedTimestamp = CryptographyImpl.decryptRSA(response.getTimestamp().toByteArray(), privKey);
+
+		Timestamp timestamp = null;
+		try {
+			timestamp = Timestamp.parseFrom(decryptedTimestamp);
+
+			System.out.println("Received message with timestamp: " + timestamp.getSeconds() + "; Current time: " + System.currentTimeMillis() / 1000);
+			if(System.currentTimeMillis() / 1000 + 300 < timestamp.getSeconds()
+			|| System.currentTimeMillis() / 1000 - 300 > timestamp.getSeconds()) {
+				System.out.println("ERROR - Message received too out of expected times");
+				return null;
+			}
+		}
+        catch (InvalidProtocolBufferException ipbe) {
+			System.out.println("ERROR - Failed to parse timestamp");
+			return null;
+		}
+
+        byte[] decryptedTempKeyBytes = CryptographyImpl.decryptRSA(response.getEncryptionKey().toByteArray(), privKey);
+        // byte[] decryptedTempKeyBytes = CryptographyImpl.decryptRSA(partiallyDecryptedTempKeyBytes, 
+		//     CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"));
+		Key decryptTempKey = new SecretKeySpec(decryptedTempKeyBytes, 0, 16, "AES");
+        
+		//TODO: Check IV later
+		byte[] responseDecryptedBytes = CryptographyImpl.decryptAES("", response.getMessageResponseBytes().toByteArray(), decryptTempKey);
+		
+        // if(!CryptographyImpl.verifyDigitalSignature(responseDecryptedBytes, response.getDigitalSignature().toByteArray(), CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"))) {
+        if(!CryptographyImpl.verifyDigitalSignature(responseDecryptedBytes, response.getDigitalSignature().toByteArray(), targetPubKey)) {
+            System.out.println("ERROR - Received message doesn't match with the digital signature!");
+            return null;
+        }
+
+
+        return responseDecryptedBytes;
+	}
+
     public void SetServerMain(ServerController main) {
         serverController = main;
     }
@@ -593,6 +727,43 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		}
 	}
 
+	ClientServer.EncryptedMessageRequest EncryptRequest(GeneratedMessageV3 request, PublicKey targetPublicKey) {
+        //TODO: Check IV input
+        try {
+			PrivateKey privKey = (PrivateKey) serverController.caServer.FetchPrivateKey();
+
+            Key tempKey = CryptographyImpl.generateAESKey();
+            byte[] encryptedData = CryptographyImpl.encryptAES("", request.toByteArray(), tempKey);
+
+            byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), targetPublicKey);
+            // byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"));
+        
+            byte[] digitalSignature = CryptographyImpl.generateDigitalSignature(request.toByteArray(), privKey);
+            // byte[] digitalSignature = CryptographyImpl.generateDigitalSignature(request.toByteArray(), CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der"));
+            
+            Timestamp timestamp = Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+
+            byte[] encryptedTimestamp = CryptographyImpl.encryptRSA(timestamp.toByteArray(), targetPublicKey);
+			// byte[] encryptedTimestamp = CryptographyImpl.encryptRSA(timestamp.toByteArray(), CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"));
+
+            // byte[] encryptedKey = CryptographyImpl.encryptRSA(noSignatureEncryptedKey, CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der"));
+            
+            ClientServer.EncryptedMessageRequest encryptedReq = ClientServer.EncryptedMessageRequest.newBuilder()
+                                                    .setMessageRequestBytes(ByteString.copyFrom(encryptedData))
+                                                    .setEncryptionKey(ByteString.copyFrom(encryptedKey))
+                                                    .setDigitalSignature(ByteString.copyFrom(digitalSignature))
+                                                    .setTimestamp(ByteString.copyFrom(encryptedTimestamp))
+                                                    .setUserName("LeadServer")
+                                                    .build();
+            
+            return encryptedReq;
+            
+        } catch (Exception e) {
+            //TODO: handle exception
+            return null;
+        }
+    }
+
 	public void SetupStoragePath() {
 		filePath = System.getProperty("user.home") + "/Documents/SIRS_Test/"; //"RansomwareResistantRemoteDocuments/Server/Files/" + args[2];
 		File dir = new File(filePath);
@@ -619,6 +790,26 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		}
 	}
 
+	//Helper class for checking whether or not 
+	public class MessageOccurence {
+		List<ClientServer.ReadFileResponse> resList = new ArrayList<>();
+
+		public MessageOccurence(ClientServer.ReadFileResponse res) {
+			AddElement(res);
+		}
+
+		public void AddElement(ClientServer.ReadFileResponse res) {
+			resList.add(res);
+		}
+
+		public ClientServer.ReadFileResponse GetElement() {
+			return resList.get(0);
+		}
+
+		public int GetLength() {
+			return resList.size();
+		}
+	}
 
 }
 

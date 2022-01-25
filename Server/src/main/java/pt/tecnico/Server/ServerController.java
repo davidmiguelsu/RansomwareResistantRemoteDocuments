@@ -41,13 +41,13 @@ public class ServerController {
 	private static int portForClient;
 	private static int portForServer;
 
-	public static boolean isLeader;
+	public boolean isLeader;
 	public List<ChildServerInfo> childServerList = new ArrayList<ChildServerInfo>();
 	public DatabaseImpl db;
 	public Connection conn;
 
 	public KeyStore ks;
-	private String keyStorePath = System.getProperty("user.home") + "/Documents/";
+	private String keyStorePath = System.getProperty("user.home") + "/Documents/SIRS_KeyStores/";
 	private String keyStorePassword = "pwd";
 	public CAServerCommandsImpl caServer = null;
 
@@ -108,6 +108,7 @@ public class ServerController {
 				zkNaming.rebind(realPath, host, Integer.toString(portForServer));
 				isLeader = false;
 
+				clientServerImpl.SetServerMain(this);
 			}
 			
 		} catch (ZKNamingException e) {

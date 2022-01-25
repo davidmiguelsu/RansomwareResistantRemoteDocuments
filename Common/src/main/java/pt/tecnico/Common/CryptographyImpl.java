@@ -14,6 +14,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -391,6 +392,15 @@ public class CryptographyImpl {
     //     keyStore.store(new FileOutputStream("src/assets/keyStores/trustCertsServerKeyStore.p12"), "123456".toCharArray());
     // }
 
+    public static byte[] GenerateSHA3Digest(byte[] message) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA3-256");
+            return digest.digest(message);
+        } catch (NoSuchAlgorithmException nsae) {
+            System.out.println("Failed to create digest");
+            return null;
+        }
+    }
     public static String bytesToHex(byte[] hash) {
         StringBuilder hexString = new StringBuilder(2 * hash.length);
         for (int i = 0; i < hash.length; i++) {

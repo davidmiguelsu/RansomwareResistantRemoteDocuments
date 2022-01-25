@@ -246,8 +246,8 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
         }
         else {
             try {
-                // Path privKeyFile = Paths.get("/home/fenix/Documents/RansomwareResistantRemoteDocuments/CAServer/CAKeys/CAserver_private.der");
-                Path privKeyFile = Paths.get("CAKeys", "CAserver_private.der");
+                Path privKeyFile = Paths.get("/home/fenix/Documents/RansomwareResistantRemoteDocuments/CAServer/CAKeys/CAserver_private.der");
+                // Path privKeyFile = Paths.get("CAKeys", "CAserver_private.der");
                 System.out.println(privKeyFile.toAbsolutePath().toString());
                 // Path pubKeyFile = Paths.get("CAServer", "CAKeys", "CAserver_public.der");
                 
@@ -263,8 +263,8 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
                 // caPublicKey = keyFactory.generatePublic(pubKeySpec);
 
                 CertificateFactory fac = CertificateFactory.getInstance("X509");
-                FileInputStream is = new FileInputStream(Paths.get("CAKeys", "CAserver.crt").toAbsolutePath().toString());
-                // FileInputStream is = new FileInputStream(Paths.get("/home/fenix/Documents/RansomwareResistantRemoteDocuments/CAServer/CAKeys/CAserver.crt").toString());
+                // FileInputStream is = new FileInputStream(Paths.get("CAKeys", "CAserver.crt").toAbsolutePath().toString());
+                FileInputStream is = new FileInputStream(Paths.get("/home/fenix/Documents/RansomwareResistantRemoteDocuments/CAServer/CAKeys/CAserver.crt").toString());
                 cert = (X509Certificate) fac.generateCertificate(is);
                 
                 X509Certificate[] certificateChain = new X509Certificate[1];
@@ -338,6 +338,8 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
 			Key tempKey = CryptographyImpl.generateAESKey();
 			byte[] encryptedData = CryptographyImpl.encryptAES("", response.toByteArray(), tempKey);
 
+
+            System.out.println("Will use public key of" + targetName);
             Key targetPublicKey = ks.getCertificate(targetName + "_certificate").getPublicKey();
 			byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), targetPublicKey);
 

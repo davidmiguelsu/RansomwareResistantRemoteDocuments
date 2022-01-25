@@ -3,3 +3,4 @@
 Server/Files/*
 .vscode/settings.json
 Client/standard.jceks
+quickReset.sh

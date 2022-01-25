@@ -55,7 +55,8 @@ public class CAServerCommandsImpl {
         channel = ManagedChannelBuilder.forTarget(uri).usePlaintext().build();
         stub = CAServerServiceGrpc.newBlockingStub(channel);
 
-        Path caPublicKeyPath = Paths.get("..", "Common", "src", "main", "resources", "CAserver_public.der");
+        Path caPublicKeyPath = Paths.get("/home/fenix/Documents/TempFolder/RansomwareResistantRemoteDocuments/Common/src/main/resources/CAserver_public.der");
+        // Path caPublicKeyPath = Paths.get("..", "Common", "src", "main", "resources", "CAserver_public.der");
         caPublicKey = CryptographyImpl.readPublicKey(caPublicKeyPath.toAbsolutePath().toString());
         ks = keyStore;
     }

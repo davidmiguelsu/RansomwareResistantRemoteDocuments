@@ -53,7 +53,7 @@ public class ClientCommandImpl {
     ClientCommandImpl() {
         // stub = serverStub;
         dirPath = System.getProperty("user.home") + "/Downloads/";
-        keyStorePath = System.getProperty("user.home") + "/Documents/";
+        keyStorePath = System.getProperty("user.home") + "/Documents/SIRS_KeyStores/";
         keyPath = System.getProperty("user.home") + "/Documents" + "/RansomwareResistantRemoteDocuments/CAServer/";
 
     }  
@@ -167,10 +167,12 @@ public class ClientCommandImpl {
             CryptographyImpl.UpdateKeyStore(ks, pwdArray, keyStorePath + "standard_" + username + ".jceks");
 
             byte[] encryptedFile = CryptographyImpl.encryptAES(fileName, fis.readAllBytes(), key);
+            fis.close();
 
+            fis = new FileInputStream(file);
+            byte[] hashBytes = CryptographyImpl.GenerateSHA3Digest(fis.readAllBytes());
 
-            MessageDigest digest = MessageDigest.getInstance("SHA3-256");
-            byte[] hashBytes = digest.digest(fis.readAllBytes());
+            fis.close();
 
             // String sha3Hex = CryptographyImpl.bytesToHex(hashBytes);
 
@@ -197,7 +199,6 @@ public class ClientCommandImpl {
             } catch (InvalidProtocolBufferException ipbe) {
                 //TODO: handle exception
             }
-            fis.close();
         } catch (Exception e) {
              System.out.println("ERROR - Write - (File not found) | Dont forget you need to use this format ->  \" write arg / w arg \"  \n ");
              System.out.println(e.getMessage());
