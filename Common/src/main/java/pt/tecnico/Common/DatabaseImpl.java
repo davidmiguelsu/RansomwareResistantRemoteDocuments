@@ -35,16 +35,16 @@ public class DatabaseImpl{
     private final String checkReadPerms ="SELECT read_perm FROM user_files WHERE user_id = ? AND file_id = ? ";
     private final String checkWritePerms ="SELECT write_perm FROM user_files WHERE user_id = ? AND file_id = ?";
 
-    private final String deleteFileUserDB ="DELETE FROM user_files where file_id = ? AND user_id = ?";
+    private final String deleteFileUserDB ="DELETE FROM user_files where user_id = ? AND file_id = ?";
     private final String deleteFileDB ="DELETE FROM files where f_id = ?";
     private final String getUserIDbyName ="SELECT u_id FROM users WHERE username = ?";
     private final String getFileIDbyName ="SELECT f_id FROM files WHERE filename = ?";
     private final String getFilenamebyID ="SELECT filename FROM files WHERE f_id = ?";
-    private final String checkIsOwnerByID ="SELECT file_owner FROM user_files WHERE file_id = ? AND user_id = ? ";
+    private final String checkIsOwnerByID ="SELECT file_owner FROM user_files WHERE user_id = ? AND file_id = ? ";
     private final String getFileList ="SELECT file_id FROM user_files WHERE user_id = ? AND read_perm = ? ";
     private final String getUserPWbyName ="SELECT passwd FROM users WHERE username = ? ";
     private final String fileExists ="SELECT f_id FROM files WHERE filename = ? ";
-
+    private final String getFileHashbyName ="SELECT filehash FROM files WHERE filename = ?";
 
 
     public void addUserDatabase (Connection con, String name, String passwdKey){
@@ -126,7 +126,7 @@ public class DatabaseImpl{
             int i = 0;
 
             while(rs.next()){
-                result.add(i,rs.getInt(i+1));
+                result.add(i,rs.getInt(1)); // get int dá a column
                 i++;
             }
             rs.close();
@@ -138,7 +138,7 @@ public class DatabaseImpl{
             return resultado;
 
         } catch (SQLException e){
-            System.out.println("CHEGOU AQUI AMIGOSSSS");
+            System.out.println("CHEGOU AQUI AMIGOSSSS getListFile");
             e.printStackTrace();
             try{
                  con.rollback();
@@ -434,6 +434,32 @@ public class DatabaseImpl{
         }
     }  
 
+    public String getFileHashbyFilename (Connection con, String fileName){
+        String erro = "404";
+        String result= null;
+        try{
+            PreparedStatement ps = con.prepareStatement(getFileHashbyName);
+            ps.setString(1, fileName);
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+                result = rs.getString(1);
+            }
+            rs.close();
+            con.commit();    
+            return result;
+
+        } catch (SQLException e){
+            System.out.println("CHEGOU AQUI AMIGOSSSS getFileNamebyFileID");
+            e.printStackTrace();
+            try{
+                 con.rollback();
+        
+            } catch (SQLException ignore){              
+            }
+        return erro;
+        }
+    }  
 
     // give another user read perms to the file
     public void giveReadPermission (Connection con, int userID, int fileID){
