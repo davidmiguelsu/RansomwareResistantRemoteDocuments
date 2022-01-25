@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.security.Key;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -423,6 +424,8 @@ public class ClientCommandImpl {
                 pwdArray = args[2].toCharArray();
 
                 ks = CryptographyImpl.InitializeKeyStore(pwdArray, keyStorePath + "standard_" + username + ".jceks");
+
+                updatePendingKeys();
             }
             else {
                 System.out.println("ERROR - Login - Authentication failed");
@@ -473,10 +476,12 @@ public class ClientCommandImpl {
             return;
         }
 
-        byte[] encryptedKey = CryptographyImpl.encryptRSA(key.getEncoded(), CryptographyImpl.readPublicKey(keyPath + "/ClientKeys/client_public.der"));
+        PublicKey targetPubKey = caServer.requestPublicKeyOf(targetUsername, true, false);
+        byte[] encryptedKey = CryptographyImpl.encryptRSA(key.getEncoded(), targetPubKey);
         ClientServer.GivePermissionsRequest request = ClientServer.GivePermissionsRequest.newBuilder()
                                                         .setFileName(filename)
-                                                        .setUserName(targetUsername)
+                                                        .setUserName(username)
+                                                        .setTargetUserName(targetUsername)
                                                         .setKey(ByteString.copyFrom(encryptedKey))
                                                         .setPermission(perm)
                                                         .build();
@@ -500,6 +505,42 @@ public class ClientCommandImpl {
         username = null;
         ks = null;
         System.out.println("Successful logout");
+    }
+
+    void updatePendingKeys() {
+
+        ClientServer.UpdatePermissionsRequest request = ClientServer.UpdatePermissionsRequest.newBuilder()
+            .setUserName(username)
+            .build();
+
+        ClientServer.EncryptedMessageRequest encryptedReq = EncryptMessage(request);
+
+        ClientServer.EncryptedMessageResponse res = stub.updatePermissions(encryptedReq);
+
+        ClientServer.UpdatePermissionsResponse response = null;
+        try {
+            byte[] responseBytes = DecryptResponse(res);
+            response = ClientServer.UpdatePermissionsResponse.parseFrom(responseBytes);
+        } catch (InvalidProtocolBufferException ipbe) {
+            //TODO: handle exception
+        }
+
+        int i = 0;
+        try {
+            for(String fileName : response.getFileNameList()){
+                PrivateKey privKey = (PrivateKey) caServer.FetchPrivateKey();
+                byte[] decryptedSecret = CryptographyImpl.decryptRSA(response.getKeys(i).toByteArray(), privKey);
+
+                SecretKey newKey = new SecretKeySpec(decryptedSecret, 0, 16, "AES");
+    
+                KeyStore.SecretKeyEntry secret = new KeyStore.SecretKeyEntry(newKey);
+                KeyStore.ProtectionParameter password = new KeyStore.PasswordProtection(pwdArray);
+                ks.setEntry(fileName + "_key", secret, password);
+            }
+        } catch (KeyStoreException kse) {
+            //TODO: handle exception
+        }
+        CryptographyImpl.UpdateKeyStore(ks, pwdArray, keyStorePath + "standard_" + username + ".jceks");
     }
 
     //------------

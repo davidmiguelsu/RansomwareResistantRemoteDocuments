@@ -27,8 +27,10 @@ public class DatabaseImpl{
     private final String addFileStatement ="INSERT INTO files (filename,filehash) VALUES(?,?);"; // usar no writefile
     private final String addUserFileStatement ="INSERT INTO user_files (user_id, file_id, read_perm, write_perm, file_owner ) VALUES(?,?,?,?,?);";
 
-    private final String giveReadPerms ="INSERT INTO user_files (user_id, file_id, read_perm, write_perm) VALUES(?,?,?,?);";
-    private final String giveWritePerms ="INSERT INTO user_files (user_id, file_id, read_perm, write_perm) VALUES(?,?,?,?);";
+    private final String updateFileStatement = "UPDATE files SET filehash = ? WHERE f_id = ?";
+
+    private final String giveReadPerms ="INSERT INTO user_files (user_id, file_id, read_perm, write_perm, file_owner) VALUES(?,?,?,?,?);";
+    private final String giveWritePerms ="INSERT INTO user_files (user_id, file_id, read_perm, write_perm, file_owner) VALUES(?,?,?,?,?);";
     private final String removeReadPerms ="UPDATE user_files SET read_perm = false WHERE user_id = 'smth';";
     private final String removeWritePerms ="UPDATE user_files SET write_perm = false WHERE user_id = 'smth';";
 
@@ -87,6 +89,25 @@ public class DatabaseImpl{
             }
         }
     }  
+
+    public void updateFileDatabase(Connection con, int fileID, byte[] filehash) {
+        try{
+            PreparedStatement ps = con.prepareStatement(updateFileStatement);
+            ps.setBytes(1, filehash);
+            ps.setInt(2, fileID);
+            ps.executeUpdate();
+            con.commit();          
+            System.out.println("File updated with new hash");
+         
+
+        } catch (SQLException e){
+            e.printStackTrace();
+            try{
+                 con.rollback();
+            } catch (SQLException ignore){              
+            }
+        }
+    }
 
     public void addUserFileDatabase (Connection con, int userID, int fileID){
 
