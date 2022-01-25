@@ -119,7 +119,8 @@ public class ClientCommandImpl {
   
             case "help":
             case "h":
-                System.out.println(" \n The commands available are: \n Create File - write arg / w arg \n Read File - download arg / d arg \n List Files - list / ls \n Remove file - remove arg / rm arg \n Close the session -  exit \n \n");   
+                System.out.println(" \n The commands available are: \n Create File - write filePath // w filePath \n Read File - download fileName // d fileName \n List Files - list // ls" +
+                "\n Remove file - remove fileName // rm fileName \n Share a file  - permission fileName userName read/all // perm fileName userName read/all \n  Close the session -  exit \n \n");   
                 break; 
                 
             case "exit":
@@ -168,9 +169,11 @@ public class ClientCommandImpl {
 
             byte[] encryptedFile = CryptographyImpl.encryptAES(fileName, fis.readAllBytes(), key);
 
-
+            fis.close();
+            fis = new FileInputStream(file);
             MessageDigest digest = MessageDigest.getInstance("SHA3-256");
             byte[] hashBytes = digest.digest(fis.readAllBytes());
+            fis.close();
 
             // String sha3Hex = CryptographyImpl.bytesToHex(hashBytes);
 
@@ -197,7 +200,6 @@ public class ClientCommandImpl {
             } catch (InvalidProtocolBufferException ipbe) {
                 //TODO: handle exception
             }
-            fis.close();
         } catch (Exception e) {
              System.out.println("ERROR - Write - (File not found) | Dont forget you need to use this format ->  \" write arg / w arg \"  \n ");
              System.out.println(e.getMessage());

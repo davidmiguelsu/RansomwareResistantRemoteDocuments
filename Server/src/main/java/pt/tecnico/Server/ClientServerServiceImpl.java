@@ -350,10 +350,10 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 				
 				//TODO: falta ver como dar print nisto.
 				List<String> listaFiles = (serverController.db.getListFile(serverController.conn, tempID));
-				List<String> fileList = Arrays.asList(new File(filePath).list());
+			//	List<String> fileList = Arrays.asList(new File(filePath).list());
 				
 				ClientServer.ListFileResponse response = ClientServer.ListFileResponse.newBuilder()
-				.addAllFileName(fileList)
+				.addAllFileName(listaFiles)
 				.build();
 				
 				// ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
@@ -385,10 +385,18 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			//TODO: handle exception
 		}
 
+
+		
+
 		int tempUserID = serverController.db.getUserIDbyUsername(serverController.conn, decryptRequest.getUsername());
 		int tempFileID = serverController.db.getFileIDbyFileName(serverController.conn , decryptRequest.getFileName());	
-		serverController.db.deleteFileUserDatabase(serverController.conn, tempUserID, tempFileID);
-		serverController.db.deleteFileDatabase(serverController.conn, tempFileID);
+
+		if (serverController.db.checkIsUserOwner(serverController.conn, tempUserID, tempFileID)){
+			
+			serverController.db.deleteFileUserDatabase(serverController.conn, tempUserID, tempFileID);
+			serverController.db.deleteFileDatabase(serverController.conn, tempFileID);
+
+		}
 
 		String filename = decryptRequest.getFileName();
 		File toDelete = new File(filePath + filename); 
