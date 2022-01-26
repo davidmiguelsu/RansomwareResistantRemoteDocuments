@@ -2,6 +2,7 @@
 
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -74,7 +75,9 @@ public class DatabaseImpl{
         try{
             PreparedStatement ps = con.prepareStatement(addFileStatement);
             ps.setString(1, fileName);
-            ps.setBytes(2, filehash);
+
+            String encodedBytes = Base64.getEncoder().encodeToString(filehash);
+            ps.setString(2, encodedBytes);
             ps.executeUpdate();
             con.commit();          
             System.out.println("File added !! with hash");
@@ -93,7 +96,9 @@ public class DatabaseImpl{
     public void updateFileDatabase(Connection con, int fileID, byte[] filehash) {
         try{
             PreparedStatement ps = con.prepareStatement(updateFileStatement);
-            ps.setBytes(1, filehash);
+
+            String encodedBytes = Base64.getEncoder().encodeToString(filehash);
+            ps.setString(1, encodedBytes);
             ps.setInt(2, fileID);
             ps.executeUpdate();
             con.commit();          
@@ -455,7 +460,7 @@ public class DatabaseImpl{
         }
     }  
 
-    public String getFileHashbyFilename (Connection con, String fileName){
+    public byte[] getFileHashbyFilename (Connection con, String fileName){
         String erro = "404";
         String result= null;
         try{
@@ -466,9 +471,12 @@ public class DatabaseImpl{
             while(rs.next()){
                 result = rs.getString(1);
             }
+
+            byte[] decodedHash = Base64.getDecoder().decode(result);
+
             rs.close();
             con.commit();    
-            return result;
+            return decodedHash;
 
         } catch (SQLException e){
             System.out.println("CHEGOU AQUI AMIGOSSSS getFileNamebyFileID");
@@ -478,7 +486,7 @@ public class DatabaseImpl{
         
             } catch (SQLException ignore){              
             }
-        return erro;
+        return null;
         }
     }  
 

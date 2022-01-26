@@ -3,6 +3,7 @@ package pt.tecnico.Client;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.nio.ByteBuffer;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -253,10 +254,11 @@ public class ClientCommandImpl {
             // byte[] responseHash = Base64.getDecoder().decode(response.getHash());
 
             //TODO: Readd this later!
-            // if(!hashBytes.equals(response.getHash().toByteArray())) {
-            //     System.out.println("ERROR - Read - Hash of the downloaded file differs from the hash received! File may be compromised.");
-            //     return;
-            // }
+            
+            if(ByteBuffer.wrap(hashBytes).compareTo(ByteBuffer.wrap(response.getHash().toByteArray())) != 0) {
+                System.out.println("ERROR - Read - Hash of the downloaded file differs from the hash received! File may be compromised.");
+                return;
+            }
             
             
             
@@ -266,7 +268,8 @@ public class ClientCommandImpl {
             //     CryptographyImpl.readAESKey(System.getProperty("user.home") + "/SIRS_KEYS/" + fileName + ".key")));
 
 			writer.close();
-	
+            System.out.println("Download complete, file stored in the Download folder");
+
 
 
         } catch (Exception e) {
