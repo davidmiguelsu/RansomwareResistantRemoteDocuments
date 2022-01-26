@@ -47,71 +47,18 @@ public class ClientMain {
 		ClientCommandImpl commands = new ClientCommandImpl();
 
 		final String target = commands.connectToServer(zooHost, zooPort, path);
-		// Lookup server location on ZooKeeper.
-		// System.out.println("Contacting ZooKeeper at " + zooHost + ":" + zooPort + "...");
-		// ZKNaming zkNaming = new ZKNaming(zooHost, zooPort);
-		// System.out.println("Looking up " + path + "...");
-		// // final String target = zkNaming.lookup(path).getURI();
-		// // Collection<ZKRecord> records = zkNaming.listRecords(path);
 
-		// Collection<ZKRecord> records = zkNaming.listRecords(path);
-		// int numberOfServers = records.size();
-		// ArrayList<ZKRecord> recordList = new ArrayList<>(records);
-		// Random rand = new Random();
-		// int chosenServerIndex = rand.nextInt(numberOfServers);
-		
-		// final String target = recordList.get(chosenServerIndex).getURI();
-		
-		// System.out.println("Located server at " + target);
-
-		// Channel is the abstraction to connect to a service endpoint
-		// Let us use plaintext communication because we do not have certificates
-		// final ManagedChannel channel = ManagedChannelBuilder.forTarget(target).usePlaintext().build();
-
-		// It is up to the client to determine whether to block the call
-		// Here we create a blocking stub, but an async stub,
-		// or an async stub with Future are always possible.
-		// ClientToServerServiceGrpc.ClientToServerServiceBlockingStub stub = ClientToServerServiceGrpc.newBlockingStub(channel);
-		// commands.setStub(stub);
-		// BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		// while(true) {
-		// 	string command = br.readLine();
-		// }
 		Scanner inputScanner = new Scanner(System.in);
 		try {
 			do{
 				System.out.print("> ");
 			}while (commands.ExecuteCommand(inputScanner.nextLine()));			
 		} catch (Exception e) {
-			//TODO: handle exception
+			System.out.println("Failed to execute commands, will shutdown");
 		}
 
 		inputScanner.close();
 
-		// File file = new File("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/README.md");
-		// FileInputStream fis = new FileInputStream(file);
-
-		// ClientServer.WriteFileRequest request = ClientServer.WriteFileRequest.newBuilder()
-		// 											.setFileName("Blah")
-		// 											.setFile(ByteString.copyFrom(fis.readAllBytes()))
-		// 											.setHash("1")
-		// 											.build();
-		
-		// ClientServer.WriteFileResponse response = stub.writeFile(request);
-
-		// fis.close();
-
-		// System.out.println(response.getAck());
-		// ClientServer.HelloRequest request = ClientServer.HelloRequest.newBuilder().setName("friend").build();
-
-		// Finally, make the call using the stub
-		// ClientServer.HelloResponse response = stub.greeting(request);
-
-		// HelloResponse has auto-generated toString method that shows its contents
-		// System.out.println(response);
-
-		// A Channel should be shutdown before stopping the process.
-		// channel.shutdownNow();
 		commands.ShutdownChannel();
 	}
 

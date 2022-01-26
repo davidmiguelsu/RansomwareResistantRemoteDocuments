@@ -8,6 +8,7 @@ CREATE TABLE users (
 	u_id	 SERIAL,
 	username VARCHAR(512),
 	passwd	 VARCHAR(512),
+	salt	 VARCHAR(512),
 	UNIQUE(username),
 	PRIMARY KEY(u_id)
 );

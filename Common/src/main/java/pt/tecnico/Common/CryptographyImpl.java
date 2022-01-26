@@ -18,6 +18,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
@@ -63,7 +64,6 @@ public class CryptographyImpl {
 
 
         } catch (KeyStoreException kse) {
-            //TODO: handle exception
             System.out.println("KeyStore error: " + kse.getLocalizedMessage());
         } catch (IOException ioe) {
             try {
@@ -147,8 +147,6 @@ public class CryptographyImpl {
         Key key = keyGen.generateKey();
         System.out.println( "Finish generating AES key" );
         byte[] encoded = key.getEncoded();
-        // System.out.println("Key:");
-        // System.out.println(printHexBinary(encoded));
 
         System.out.println("Writing key to '" + keyPath + "' ..." );
 
@@ -165,16 +163,9 @@ public class CryptographyImpl {
         Key key = keyGen.generateKey();
         System.out.println( "Finish generating AES key" );
         byte[] encoded = key.getEncoded();
-        // System.out.println("Key:");
-        // System.out.println(printHexBinary(encoded));
 
         return new SecretKeySpec(encoded, 0, 16, "AES");
 
-        // System.out.println("Writing key to '" + keyPath + "' ..." );
-
-        // FileOutputStream fos = new FileOutputStream(keyPath);
-        // fos.write(encoded);
-        // fos.close();
     }
 
     public static Key readAESKey(String keyPath) throws GeneralSecurityException, IOException {
@@ -249,7 +240,6 @@ public class CryptographyImpl {
             // return new String(Base64.getEncoder().encode(encryptedbytes));
         } catch (Exception e) {
             System.out.println("Error in RSA encryption. " + e.getLocalizedMessage());
-            //TODO: handle exception
             return null;
         }
     }
@@ -263,7 +253,6 @@ public class CryptographyImpl {
             // return new String(Base64.getEncoder().encode(encryptedbytes));
         } catch (Exception e) {
             System.out.println("Error in RSA decryption. " + e.getLocalizedMessage());
-            //TODO: handle exception
             return null;
         }
     }
@@ -279,34 +268,13 @@ public class CryptographyImpl {
               new PKCS8EncodedKeySpec(keyBytes);
             KeyFactory kf = KeyFactory.getInstance("RSA");
             return kf.generatePrivate(spec);
-        } catch (IOException e) {
-            //TODO: handle exception
         } catch (Exception e) {
-
+            System.out.println("Failed to read private key: " + e.getMessage());
+            return null;
         }
-        return null;
     }
 
 
-    // public static PrivateKey readPrivateKey(KeyStore ks, String keyName, String password) {
-    //     char[] pwdArray = password.toCharArray();
-    //     try {
-    //         ks.getKey(keyName, pwdArray);
-    //         // // File file = new File(path);
-    //         // FileInputStream fis = new FileInputStream(file); 
-    //         // byte[] keyBytes = fis.readAllBytes();
-            
-    //         PKCS8EncodedKeySpec spec =
-    //           new PKCS8EncodedKeySpec(keyBytes);
-    //         KeyFactory kf = KeyFactory.getInstance("RSA");
-    //         return kf.generatePrivate(spec);
-    //     } catch (IOException e) {
-    //         //TODO: handle exception
-    //     } catch (Exception e) {
-
-    //     }
-    //     return null;
-    // }
     public static PublicKey readPublicKey(String path) {
         try {
             File file = new File(path);
@@ -319,7 +287,7 @@ public class CryptographyImpl {
             KeyFactory kf = KeyFactory.getInstance("RSA");
             return kf.generatePublic(spec);
         } catch (Exception e) {
-            //TODO: handle exception
+            System.out.println("Failed to read public key: " + e.getMessage());
             return null;
         }
     }
@@ -382,16 +350,6 @@ public class CryptographyImpl {
         }
     }
 
-    // private static void saveCert(X509Certificate cert, PrivateKey key) throws Exception {
-    //     KeyStore keyStore = KeyStore.getInstance("PKCS12");
-    //     //change key store password if considered necessary
-    //     keyStore.load(new FileInputStream("src/assets/keyStores/trustCertsServerKeyStore.p12"), "123456".toCharArray());
-    //     keyStore.setKeyEntry(CERTIFICATE_ALIAS, key, "".toCharArray(), new java.security.cert.Certificate[]{cert});
-    //     //File file = new File(".", CERTIFICATE_NAME);
-    //     //change key store password if considered necessary
-    //     keyStore.store(new FileOutputStream("src/assets/keyStores/trustCertsServerKeyStore.p12"), "123456".toCharArray());
-    // }
-
     public static byte[] GenerateSHA3Digest(byte[] message) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA3-256");
@@ -401,6 +359,25 @@ public class CryptographyImpl {
             return null;
         }
     }
+
+    public static byte[] GenerateSaltedSHA3Digest(byte[] message, byte[] salt) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA3-256");
+            digest.update(salt);
+            return digest.digest(message);
+        } catch (NoSuchAlgorithmException nsae) {
+            System.out.println("Failed to create digest");
+            return null;
+        }
+    }
+
+    public static byte[] GenerateSalt() {
+        SecureRandom random = new SecureRandom();
+        byte[] salt = new byte[16];
+        random.nextBytes(salt);
+        return salt;
+    }
+
     public static String bytesToHex(byte[] hash) {
         StringBuilder hexString = new StringBuilder(2 * hash.length);
         for (int i = 0; i < hash.length; i++) {

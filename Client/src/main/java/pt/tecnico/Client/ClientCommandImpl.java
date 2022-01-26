@@ -200,7 +200,8 @@ public class ClientCommandImpl {
 
                 System.out.println(response.getAck());
             } catch (InvalidProtocolBufferException ipbe) {
-                //TODO: handle exception
+                System.out.println("ERROR - Write - Failed to parse server response.");
+                System.out.println(ipbe.getMessage());
             }
         } catch (Exception e) {
              System.out.println("ERROR - Write - (File not found) | Dont forget you need to use this format ->  \" write arg / w arg \"  \n ");
@@ -253,8 +254,7 @@ public class ClientCommandImpl {
             
             // byte[] responseHash = Base64.getDecoder().decode(response.getHash());
 
-            //TODO: Readd this later!
-            
+          
             if(ByteBuffer.wrap(hashBytes).compareTo(ByteBuffer.wrap(response.getHash().toByteArray())) != 0) {
                 System.out.println("ERROR - Read - Hash of the downloaded file differs from the hash received! File may be compromised.");
                 return;
@@ -332,7 +332,6 @@ public class ClientCommandImpl {
     
             System.out.println(response.getAck());
         } catch (InvalidProtocolBufferException ipbe) {
-            //TODO: handle exception
             System.out.println("ERROR - Remove - Parsing response message error");
         }
     }
@@ -385,7 +384,12 @@ public class ClientCommandImpl {
                 caServer.SetKeyStore(null);
             }
         } catch (InvalidProtocolBufferException ipbe) {
-            //TODO: handle exception
+            System.out.println("ERROR - Register - Failed to register");
+            username = "";
+            pwdArray = "pwd".toCharArray();
+            caServer.SetUser("", "");
+            ks = null;
+            caServer.SetKeyStore(null);
         }
 
     }
@@ -405,7 +409,12 @@ public class ClientCommandImpl {
         pwdArray = args[2].toCharArray();
 
         ks = CryptographyImpl.InitializeKeyStore(pwdArray, keyStorePath + "standard_" + username + ".jceks");
-
+        if(ks == null) {
+            System.err.println("ERROR - Login - Keystore failed to initialize");
+            username = "";
+            pwdArray = "pwd".toCharArray();
+            return;
+        }
 
         caServer.SetUser(args[1], args[2]);
         caServer.SetKeyStore(ks);
@@ -439,7 +448,12 @@ public class ClientCommandImpl {
                 caServer.SetKeyStore(null);
             }
         } catch (InvalidProtocolBufferException ipbe) {
-            //TODO: handle exception
+            System.out.println("ERROR - Login - Authentication failed");
+            username = "";
+            pwdArray = "pwd".toCharArray();
+            caServer.SetUser("", "");
+            ks = null;
+            caServer.SetKeyStore(null);
         }
     }
 
@@ -525,7 +539,8 @@ public class ClientCommandImpl {
             byte[] responseBytes = DecryptResponse(res);
             response = ClientServer.UpdatePermissionsResponse.parseFrom(responseBytes);
         } catch (InvalidProtocolBufferException ipbe) {
-            //TODO: handle exception
+            System.out.println("Failed to decrypt response: " + ipbe.getMessage());
+            return;
         }
 
         int i = 0;
@@ -541,7 +556,8 @@ public class ClientCommandImpl {
                 ks.setEntry(fileName + "_key", secret, password);
             }
         } catch (KeyStoreException kse) {
-            //TODO: handle exception
+            System.out.println("Failed to store new keys: " + kse.getMessage());
+            return;
         }
         CryptographyImpl.UpdateKeyStore(ks, pwdArray, keyStorePath + "standard_" + username + ".jceks");
     }
@@ -581,9 +597,6 @@ public class ClientCommandImpl {
             stub = newStub;
             System.out.println("Located server at " + target);
 
-            //TODO: Change this
-            // ks = CryptographyImpl.InitializeKeyStore(pwdArray, keyStorePath + "standard_" + username + ".jceks");
-
             caServer = new CAServerCommandsImpl(zkNaming, null);
             leadServerPublicKey = caServer.requestPublicKeyOf("LeadServer", false, true);
 
@@ -593,10 +606,6 @@ public class ClientCommandImpl {
             return "ERROR_LIST_RECORDS";
         }
     }
-
-    // void checkForKeys() {
-    //     return ks.containsAlias(username + "")
-    // }
 
     ClientServer.EncryptedMessageRequest EncryptMessage(GeneratedMessageV3 request) {
         //TODO: Check IV input
@@ -628,8 +637,8 @@ public class ClientCommandImpl {
             return encryptedReq;
             
         } catch (Exception e) {
-            //TODO: handle exception
-            return null;
+            System.out.println("Failed to encrypt request: " + e.getMessage());
+            return ClientServer.EncryptedMessageRequest.getDefaultInstance();
         }
     }
 
@@ -638,7 +647,6 @@ public class ClientCommandImpl {
         try {
             privKey = (PrivateKey) ks.getKey(username + "_private_key", pwdArray);
         } catch (Exception e) {
-            //TODO: handle exception
             System.out.println("Error fetching key");
             return null;
         }
@@ -662,9 +670,7 @@ public class ClientCommandImpl {
 		}
 
         byte[] decryptedTempKeyBytes = CryptographyImpl.decryptRSA(response.getEncryptionKey().toByteArray(), privKey);
-        // byte[] decryptedTempKeyBytes = CryptographyImpl.decryptRSA(partiallyDecryptedTempKeyBytes, 
-		//     CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"));
-		Key decryptTempKey = new SecretKeySpec(decryptedTempKeyBytes, 0, 16, "AES");
+    	Key decryptTempKey = new SecretKeySpec(decryptedTempKeyBytes, 0, 16, "AES");
         
 		//TODO: Check IV later
 		byte[] responseDecryptedBytes = CryptographyImpl.decryptAES("", response.getMessageResponseBytes().toByteArray(), decryptTempKey);

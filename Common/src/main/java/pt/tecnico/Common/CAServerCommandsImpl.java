@@ -49,14 +49,15 @@ public class CAServerCommandsImpl {
         try {
             uri = zkNaming.lookup("/grpc/CAServer").getURI();
         } catch (ZKNamingException zkne) {
-            //TODO: handle exception
+            System.out.println("Failed to locate CAServer. Is it active? " + zkne.getMessage());
+            System.exit(0);
         }
 
         channel = ManagedChannelBuilder.forTarget(uri).usePlaintext().build();
         stub = CAServerServiceGrpc.newBlockingStub(channel);
 
-        Path caPublicKeyPath = Paths.get("/home/fenix/Documents/TempFolder/RansomwareResistantRemoteDocuments/Common/src/main/resources/CAserver_public.der");
-        // Path caPublicKeyPath = Paths.get("..", "Common", "src", "main", "resources", "CAserver_public.der");
+        // Path caPublicKeyPath = Paths.get("/home/fenix/Documents/TempFolder/RansomwareResistantRemoteDocuments/Common/src/main/resources/CAserver_public.der");
+        Path caPublicKeyPath = Paths.get("..", "Common", "src", "main", "resources", "CAserver_public.der");
         caPublicKey = CryptographyImpl.readPublicKey(caPublicKeyPath.toAbsolutePath().toString());
         ks = keyStore;
     }
@@ -205,8 +206,8 @@ public class CAServerCommandsImpl {
             return encryptedReq;
             
         } catch (Exception e) {
-            //TODO: handle exception
-            return null;
+            System.out.println("Failed to encrypt request: " + e.getMessage());
+            return CaServer.EncryptedCAMessageRequest.getDefaultInstance();
         }
     }
 
@@ -220,7 +221,7 @@ public class CAServerCommandsImpl {
                 privKey = ks.getKey(username + "_private_key", keyStorePassword.toCharArray());
             }
         } catch (Exception e) {
-            //TODO: handle exception
+            System.out.println("Failed to get private key: " + e.getMessage());
         }
 
         // PrivateKey privKey = CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der");
@@ -243,8 +244,6 @@ public class CAServerCommandsImpl {
 		}
 
         byte[] decryptedTempKeyBytes = CryptographyImpl.decryptRSA(response.getEncryptionKey().toByteArray(), privKey);
-        // byte[] decryptedTempKeyBytes = CryptographyImpl.decryptRSA(partiallyDecryptedTempKeyBytes, 
-		//     CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"));
 		Key decryptTempKey = new SecretKeySpec(decryptedTempKeyBytes, 0, 16, "AES");
         
 		//TODO: Check IV later
@@ -265,7 +264,6 @@ public class CAServerCommandsImpl {
         } catch (Exception e) {
             System.out.println("ERROR - Unable to fetch private key");
             return null;
-            //TODO: handle exception
         }
     }
 

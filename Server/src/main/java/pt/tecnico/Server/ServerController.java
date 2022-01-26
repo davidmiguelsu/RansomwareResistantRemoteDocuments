@@ -115,6 +115,7 @@ public class ServerController {
 			e.printStackTrace();
 			// System.out.println(e.printStackTrace(););
 			realPath += "/1";
+			serverName = "LeadServer";
 			System.out.println("Binding " + realPath + " to " + host + ":" + portForClient + "...");
 			zkNaming.rebind(realPath, host, Integer.toString(portForClient));
 		}
@@ -157,10 +158,11 @@ public class ServerController {
 
             }
         } catch (IOException ioe) {
-            //TODO: handle exception
+            System.out.println("Failed to bind server: " + ioe.getMessage());
+			System.exit(0);
         } catch (InterruptedException ie) {
-            //TODO: handle exception
-
+            System.out.println("Interruped: " + ie.getMessage());
+			System.exit(0);
         }
 	}
 
@@ -170,7 +172,8 @@ public class ServerController {
         try {
             uri = zkNaming.lookup(childPath).getURI();
         } catch (ZKNamingException zkne) {
-            //TODO: handle exception
+			System.out.println("Failed to locate child server");
+            return;
         }
 
 		ManagedChannel channel = ManagedChannelBuilder.forTarget(uri).usePlaintext().build();
@@ -213,7 +216,8 @@ public class ServerController {
 				CryptographyImpl.UpdateKeyStore(ks, keyStorePassword.toCharArray(), keyStorePath + "standard_" + serverName + ".jceks");
 			}
 		} catch (Exception e) {
-			//TODO: handle exception
+			System.out.println("Failed to load new keys, will shutdown");
+			System.exit(0);
 		}
 	}
 

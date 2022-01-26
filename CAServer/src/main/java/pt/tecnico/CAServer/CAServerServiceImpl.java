@@ -13,7 +13,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
@@ -26,8 +25,6 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Timestamp;
-
-import org.bouncycastle.util.io.pem.PemReader;
 
 import io.grpc.stub.StreamObserver;
 import pt.tecnico.Common.CryptographyImpl;
@@ -58,16 +55,7 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
             responseObserver.onNext(CaServer.EncryptedCAMessageResponse.getDefaultInstance());
             responseObserver.onCompleted();
             return;
-            //TODO: handle exception
         }
-        
-        // if(!VerifyRequest(requestDecryptedBytes, request.getDigitalSignature().toByteArray(), decryptedRequest.getUserName())) {
-        //     System.out.println("Digital signature missmatch");
-        //     CaServer.GenerateKeyPairResponse res = CaServer.GenerateKeyPairResponse.newBuilder().setAck("ERROR").build();
-        //     responseObserver.onNext(EncryptResponse(res, decryptedRequest.getUserName()));
-        //     responseObserver.onCompleted();
-        //     return;
-        // }
         
         try {
             //TODO: Check if this makes sense to do? Maybe this is only worth doing when username == "ca"
@@ -77,7 +65,6 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
                 responseObserver.onNext(EncryptResponse(CaServer.EncryptedCAMessageResponse.getDefaultInstance(), decryptedRequest.getUserName()));
                 responseObserver.onCompleted();
                 return;
-                //TODO: handle exception
             }
         } catch (KeyStoreException e) {
             System.out.println("Error when checking existing keys");
@@ -86,7 +73,6 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
             return;
         }
 
-        //TODO: Under correct circustances, these keys would be tied to a certificate?
         KeyPair keyPair = CryptographyImpl.generateRSAKeyPair();
         X509Certificate clientCert = CryptographyImpl.generateSelfSignedCertificate(keyPair, CERTIFICATE_DN, decryptedRequest.getUserName());
 
@@ -114,20 +100,10 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
             responseObserver.onNext(EncryptResponse(resBuilder.build(), decryptedRequest.getUserName(), pubKeyDecoded));
             responseObserver.onCompleted();
         } catch (Exception e) {
-            //TODO: handle exception
             System.out.println("Error generating keys: " + e.getLocalizedMessage());
             responseObserver.onNext(EncryptResponse(CaServer.EncryptedCAMessageResponse.getDefaultInstance(), decryptedRequest.getUserName()));
             responseObserver.onCompleted();
         } 
-        // catch (KeyStoreException kse) {
-        //     //TODO: handle exception
-        //     System.out.println("KeyStore error: " + kse.getLocalizedMessage());
-        // } catch (NoSuchAlgorithmException nsae) {
-        //     System.out.println("Invalid algorithm: " + nsae.getLocalizedMessage());
-        // } catch (InvalidKeySpecException ike) {
-        //     System.out.println("Invalid Key spec: " + ike.getLocalizedMessage());
-
-        // }
     }
 
     @Override
@@ -139,11 +115,9 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
             decryptedRequest = CaServer.PublicKeyRequest.parseFrom(requestDecryptedBytes);
         } catch (InvalidProtocolBufferException ipbe) {
             System.out.println("Failed to parse the request");
-            // responseObserver.onNext(EncryptResponse(CaServer.EncryptedCAMessageResponse.getDefaultInstance()));
             responseObserver.onNext(CaServer.EncryptedCAMessageResponse.getDefaultInstance());
             responseObserver.onCompleted();
             return;
-            //TODO: handle exception
         }
         
         if(!decryptedRequest.getUserName().isEmpty() && !VerifyRequest(requestDecryptedBytes, request.getDigitalSignature().toByteArray(), decryptedRequest.getUserName())) {
@@ -177,7 +151,6 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
                 }
 
                 return;
-                //TODO: handle exception
             }
             else {
                 System.out.println("No Keys for target: " + decryptedRequest.getTarget());
@@ -220,15 +193,6 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
         if(!dir.exists()) {
             dir.mkdirs();
         }
-        // try {
-        //     ks = KeyStore.getInstance("PKCS12");
-        //     FileInputStream fis = new FileInputStream(Paths.get("CAServer", "CAKeys", "CAserver_private.der").toAbsolutePath().toString());
-        //     ks.load(fis, password);
-        //     fis.close();
-        // } catch (Exception e) {
-        //     System.out.println("Exception: " + e.getLocalizedMessage());
-        //     //TODO: handle exception
-        // }
 
         boolean isKeyStoreNew = !(new File(keyStorePath + "keystore.jceks").exists());
         ks = CryptographyImpl.InitializeKeyStore(pwdArray, keyStorePath + "keystore.jceks");
@@ -241,13 +205,14 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
 
 
             } catch (Exception e) {
-                //TODO: handle exception
+                System.out.println("Failed to get private key: " + e.getMessage());
+                System.exit(0);
             }
         }
         else {
             try {
-                Path privKeyFile = Paths.get("/home/fenix/Documents/RansomwareResistantRemoteDocuments/CAServer/CAKeys/CAserver_private.der");
-                // Path privKeyFile = Paths.get("CAKeys", "CAserver_private.der");
+                // Path privKeyFile = Paths.get("/home/fenix/Documents/RansomwareResistantRemoteDocuments/CAServer/CAKeys/CAserver_private.der");
+                Path privKeyFile = Paths.get("CAKeys", "CAserver_private.der");
                 System.out.println(privKeyFile.toAbsolutePath().toString());
                 // Path pubKeyFile = Paths.get("CAServer", "CAKeys", "CAserver_public.der");
                 
@@ -263,8 +228,8 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
                 // caPublicKey = keyFactory.generatePublic(pubKeySpec);
 
                 CertificateFactory fac = CertificateFactory.getInstance("X509");
-                // FileInputStream is = new FileInputStream(Paths.get("CAKeys", "CAserver.crt").toAbsolutePath().toString());
-                FileInputStream is = new FileInputStream(Paths.get("/home/fenix/Documents/RansomwareResistantRemoteDocuments/CAServer/CAKeys/CAserver.crt").toString());
+                FileInputStream is = new FileInputStream(Paths.get("CAKeys", "CAserver.crt").toAbsolutePath().toString());
+                // FileInputStream is = new FileInputStream(Paths.get("/home/fenix/Documents/RansomwareResistantRemoteDocuments/CAServer/CAKeys/CAserver.crt").toString());
                 cert = (X509Certificate) fac.generateCertificate(is);
                 
                 X509Certificate[] certificateChain = new X509Certificate[1];
@@ -279,11 +244,6 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
             } catch (Exception e) {
                 System.out.println("Exception: " + e.getLocalizedMessage());
             }
-
-            // try {
-            // } catch (KeyStoreException kse) {
-            //     //TODO: handle exception
-            // }
         }
     }
 
@@ -361,8 +321,8 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
 			return encryptedRes;
 			
 		} catch (Exception e) {
-			//TODO: handle exception
-			return null;
+            System.out.println("Failed to encrypt response: " + e.getMessage());
+            return CaServer.EncryptedCAMessageResponse.getDefaultInstance();
 		}
 	}
 
@@ -393,8 +353,8 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
 			return encryptedRes;
 			
 		} catch (Exception e) {
-			//TODO: handle exception
-			return null;
+            System.out.println("Failed to encrypt response (Temp Public Key encryption): " + e.getMessage());
+            return CaServer.EncryptedCAMessageResponse.getDefaultInstance();
 		}
 	}
 

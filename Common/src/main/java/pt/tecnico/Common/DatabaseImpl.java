@@ -24,7 +24,7 @@ public class DatabaseImpl{
     private final String user = "postgres";
     private final String password = "1234";
 
-    private final String addUserStatement ="INSERT INTO users (username, passwd) VALUES(?,?);"; // usar no register
+    private final String addUserStatement ="INSERT INTO users (username, passwd, salt) VALUES(?,?,?);"; // usar no register
     private final String addFileStatement ="INSERT INTO files (filename,filehash) VALUES(?,?);"; // usar no writefile
     private final String addUserFileStatement ="INSERT INTO user_files (user_id, file_id, read_perm, write_perm, file_owner ) VALUES(?,?,?,?,?);";
 
@@ -46,6 +46,7 @@ public class DatabaseImpl{
     private final String checkIsOwnerByID ="SELECT file_owner FROM user_files WHERE user_id = ? AND file_id = ? ";
     private final String getFileList ="SELECT file_id FROM user_files WHERE user_id = ? AND read_perm = ? ";
     private final String getUserPWbyName ="SELECT passwd FROM users WHERE username = ? ";
+    private final String getUserSaltyName ="SELECT salt FROM users WHERE username = ? ";
     private final String fileExists ="SELECT f_id FROM files WHERE filename = ? ";
     private final String getFileHashbyName ="SELECT filehash FROM files WHERE filename = ?";
 
@@ -56,7 +57,15 @@ public class DatabaseImpl{
             PreparedStatement ps = con.prepareStatement(addUserStatement);
             
             ps.setString(1, name);
-            ps.setString(2, passwdKey);
+            
+            byte[] salt = CryptographyImpl.GenerateSalt();
+            String encodedSalt = Base64.getEncoder().encodeToString(salt);
+            
+            byte[] hashedPassword = CryptographyImpl.GenerateSaltedSHA3Digest(passwdKey.getBytes(), salt);
+            String encodedPass = Base64.getEncoder().encodeToString(hashedPassword);
+            
+            ps.setString(2, encodedPass);
+            ps.setString(3, encodedSalt);
             ps.executeUpdate();
             
             con.commit();
@@ -459,6 +468,34 @@ public class DatabaseImpl{
         return erro;
         }
     }  
+
+    public String getUserSaltbyUsername (Connection con, String userName){
+        String erro = "username does not exist";
+        String result= null;
+        try{
+            PreparedStatement ps = con.prepareStatement(getUserSaltyName);
+            ps.setString(1, userName);
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+                System.out.println("Column 1 returned");
+                result = rs.getString(1);
+            }
+            rs.close();
+            con.commit();        
+            return result;
+
+        } catch (SQLException e){
+            System.out.println("username not found");
+            e.printStackTrace();
+            try{
+                 con.rollback();
+        
+            } catch (SQLException ignore){              
+            }
+        return erro;
+        }
+    } 
 
     public byte[] getFileHashbyFilename (Connection con, String fileName){
         String erro = "404";
