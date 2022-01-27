@@ -82,6 +82,16 @@ message UpdatePermissionsResponse {
 	repeated string fileName = 2;
 }
 
+message GiveKeysToPermittedUsersRequest {
+	bytes key = 1;
+	string userName = 2;
+	string fileName = 4;
+}
+
+message GiveKeysToPermittedUsersResponse {
+	repeated string ack = 1;
+}
+
 // Request payload
 message HelloRequest {
 	// Each message attribute is strongly typed.
@@ -135,4 +145,5 @@ service ClientToServerService {
 	rpc listFiles(EncryptedMessageRequest) returns (EncryptedMessageResponse);
 	rpc givePermission(EncryptedMessageRequest) returns (EncryptedMessageResponse);
 	rpc updatePermissions(EncryptedMessageRequest) returns (EncryptedMessageResponse);
+	rpc giveKeysToPermittedUsers(EncryptedMessageRequest) returns (EncryptedMessageResponse);
 }

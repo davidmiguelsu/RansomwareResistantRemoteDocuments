@@ -41,15 +41,17 @@ public class DatabaseImpl{
     private final String deleteFileUserDB ="DELETE FROM user_files where user_id = ? AND file_id = ?";
     private final String deleteFileDB ="DELETE FROM files where f_id = ?";
     private final String getUserIDbyName ="SELECT u_id FROM users WHERE username = ?";
+    private final String getUserNameByID ="SELECT username FROM users WHERE u_id = ?";
     private final String getFileIDbyName ="SELECT f_id FROM files WHERE filename = ?";
     private final String getFilenamebyID ="SELECT filename FROM files WHERE f_id = ?";
     private final String checkIsOwnerByID ="SELECT file_owner FROM user_files WHERE user_id = ? AND file_id = ? ";
     private final String getFileList ="SELECT file_id FROM user_files WHERE user_id = ? AND read_perm = ? ";
     private final String getUserPWbyName ="SELECT passwd FROM users WHERE username = ? ";
-    private final String getUserSaltyName ="SELECT salt FROM users WHERE username = ? ";
+    private final String getUserSaltbyName ="SELECT salt FROM users WHERE username = ? ";
     private final String fileExists ="SELECT f_id FROM files WHERE filename = ? ";
     private final String getFileHashbyName ="SELECT filehash FROM files WHERE filename = ?";
 
+    private final String getAllUsersWithAccessToFile = "SELECT user_id FROM user_files WHERE file_id = ?";
 
     public void addUserDatabase (Connection con, String name, String passwdKey){
         
@@ -382,6 +384,36 @@ public class DatabaseImpl{
         return erro;
         }
     }  
+   
+    public String getUsernamebyID (Connection con, int userID){
+        int erro = 404;
+        String result = "";
+        try{
+            PreparedStatement ps = con.prepareStatement(getUserNameByID);
+            ps.setInt(1, userID);
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+                System.out.println("Column 1 returned");
+                result = rs.getString(1);
+                System.out.println(result);
+            }
+            rs.close();
+            con.commit();    
+            System.out.println("username has been found!");      
+            return result;
+
+        } catch (SQLException e){
+            System.out.println("CHEGOU AQUI AMIGOSSSS");
+            e.printStackTrace();
+            try{
+                 con.rollback();
+        
+            } catch (SQLException ignore){              
+            }
+        return null;
+        }
+    }  
 
     public int getFileIDbyFileName (Connection con, String fileName){
         int erro = 404;
@@ -473,7 +505,7 @@ public class DatabaseImpl{
         String erro = "username does not exist";
         String result= null;
         try{
-            PreparedStatement ps = con.prepareStatement(getUserSaltyName);
+            PreparedStatement ps = con.prepareStatement(getUserSaltbyName);
             ps.setString(1, userName);
             ResultSet rs = ps.executeQuery();
 
@@ -575,7 +607,40 @@ public class DatabaseImpl{
         }
     }
 
+    public List<Integer> getUsersWithAccessToFile (Connection con, int file_id){
+        
+        List<String> erro = new ArrayList<String>();
+        List<Integer> result = new ArrayList<Integer>();
+        List<String> resultado = new ArrayList<String>();
+        erro.add(0, "DEU MAL VIU");
+        try{
+            PreparedStatement ps = con.prepareStatement(getAllUsersWithAccessToFile);
+            ps.setInt(1, file_id);
 
+            ResultSet rs = ps.executeQuery();
+            int i = 0;
+
+            while(rs.next()){
+                result.add(i,rs.getInt(1)); // get int dá a column
+                i++;
+            }
+            rs.close();
+            con.commit();    
+            
+            return result;
+
+        } catch (SQLException e){
+            System.out.println("CHEGOU AQUI AMIGOSSSS getListFile");
+            e.printStackTrace();
+            try{
+                 con.rollback();
+        
+            } catch (SQLException ignore){              
+            }
+        return null;
+        }
+        
+    }
 
     /**
      * Connect to the PostgreSQL database-

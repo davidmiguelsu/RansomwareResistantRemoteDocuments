@@ -199,6 +199,10 @@ public class ClientCommandImpl {
 
 
                 System.out.println(response.getAck());
+                if(response.getAck().startsWith("OK")) {
+                    giveKeysToPermittedUsers(fileName, key);
+                }
+                
             } catch (InvalidProtocolBufferException ipbe) {
                 System.out.println("ERROR - Write - Failed to parse server response.");
                 System.out.println(ipbe.getMessage());
@@ -512,6 +516,36 @@ public class ClientCommandImpl {
             response = ClientServer.GivePermissionsResponse.parseFrom(responseBytes);
 
             System.out.println(response.getAck());
+        } catch (InvalidProtocolBufferException ipbe) {
+            System.out.println("ERROR - Read - Failed to decrypt response");
+            return;
+        }
+    }
+
+    void giveKeysToPermittedUsers(String filename, Key secretKey) {
+        if (username == null) {
+            System.err.println("ERROR - Please login first");
+            return;
+        }
+ 
+        byte[] encryptedKey = CryptographyImpl.encryptRSA(secretKey.getEncoded(), leadServerPublicKey);
+        ClientServer.GiveKeysToPermittedUsersRequest request = ClientServer.GiveKeysToPermittedUsersRequest.newBuilder()
+                                                        .setFileName(filename)
+                                                        .setUserName(username)
+                                                        .setKey(ByteString.copyFrom(encryptedKey))
+                                                        .build();
+
+        ClientServer.EncryptedMessageRequest encryptedReq = EncryptMessage(request);
+        ClientServer.EncryptedMessageResponse res = stub.giveKeysToPermittedUsers(encryptedReq);
+
+        ClientServer.GiveKeysToPermittedUsersResponse response = null;
+        try {
+            byte[] responseBytes = DecryptResponse(res);
+            response = ClientServer.GiveKeysToPermittedUsersResponse.parseFrom(responseBytes);
+
+            for (String ack : response.getAckList()) {
+                System.out.println(ack);
+            }
         } catch (InvalidProtocolBufferException ipbe) {
             System.out.println("ERROR - Read - Failed to decrypt response");
             return;

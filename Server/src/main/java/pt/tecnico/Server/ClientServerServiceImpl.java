@@ -652,6 +652,7 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 
 		}
 	}
+
 	@Override
 	public void updatePermissions(ClientServer.EncryptedMessageRequest request, StreamObserver<ClientServer.EncryptedMessageResponse> responseObserver) {
 		if(serverController.isLeader) {
@@ -695,6 +696,72 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		ClientServer.UpdatePermissionsResponse permsRes = permsBuilder.build();
 		responseObserver.onNext(EncryptResponse(permsRes, targetPubKey));
 		responseObserver.onCompleted();
+		}
+	}
+
+	@Override
+	public void giveKeysToPermittedUsers(ClientServer.EncryptedMessageRequest request, StreamObserver<ClientServer.EncryptedMessageResponse> responseObserver) {
+		if(serverController.isLeader) {
+			PublicKey targetPubKey = serverController.caServer.requestPublicKeyOf(request.getUserName(), true, false);
+
+			byte[] requestDecryptedBytes = DecryptRequest(request, targetPubKey);
+			ClientServer.GiveKeysToPermittedUsersRequest decryptRequest = null;
+			try {
+				decryptRequest = ClientServer.GiveKeysToPermittedUsersRequest.parseFrom(requestDecryptedBytes);	
+			} catch (InvalidProtocolBufferException ipbe) {
+				System.out.println("Failed to decrypt request: " + ipbe.getMessage());
+				responseObserver.onNext(EncryptResponse(ClientServer.GiveKeysToPermittedUsersResponse.getDefaultInstance(), targetPubKey));
+				responseObserver.onCompleted();
+				return;			
+			}
+
+			int tempUserID = serverController.db.getUserIDbyUsername(serverController.conn, decryptRequest.getUserName());
+			int tempFileID = serverController.db.getFileIDbyFileName(serverController.conn, decryptRequest.getFileName());
+
+			List<Integer> userIDList = serverController.db.getUsersWithAccessToFile(serverController.conn, tempFileID);
+			if(userIDList == null) {
+				ClientServer.GiveKeysToPermittedUsersResponse response = ClientServer.GiveKeysToPermittedUsersResponse.newBuilder()
+					.addAck("ERROR - Failed to fetch users")
+					.build();
+				responseObserver.onNext(EncryptResponse(response, targetPubKey));
+				responseObserver.onCompleted();
+				return;
+			}
+
+			PrivateKey privKey = (PrivateKey) serverController.caServer.FetchPrivateKey();
+			byte[] decryptedSecretKey = CryptographyImpl.decryptRSA(decryptRequest.getKey().toByteArray(), privKey);
+
+			ClientServer.GiveKeysToPermittedUsersResponse.Builder responseBuilder = ClientServer.GiveKeysToPermittedUsersResponse.newBuilder();
+			for (Integer userID : userIDList) {
+				String targetName = serverController.db.getUsernamebyID(serverController.conn, userID);
+				if(targetName == null) {
+					System.out.println("ERROR - Failed to find username for ID " + userID);
+	
+					responseBuilder.addAck("ERROR - Failed to find username for a user");
+					continue;
+				}
+
+				PublicKey targetKey = serverController.caServer.requestPublicKeyOf(targetName, true, false);
+
+				byte[] encryptedKeyForTarget = CryptographyImpl.encryptRSA(decryptedSecretKey, targetKey);
+				File file = new File(filePath + decryptRequest.getFileName() + "_" + targetName);
+				try {
+					FileOutputStream writer = new FileOutputStream(file, false);
+					writer.write(encryptedKeyForTarget);
+					writer.close();
+				} catch (FileNotFoundException fnfe) {
+					System.out.println("ERROR - Failed to write file, as it wasn't found? " + fnfe.getLocalizedMessage());
+	
+					responseBuilder.addAck("ERROR - Failed write of key for user: " + targetName);
+				} catch (IOException ioe) {
+					System.out.println("ERROR - Failed due to IO: " + ioe.getMessage());
+					responseBuilder.addAck("ERROR - Failed write of key for user: " + targetName);
+				}
+
+			}
+
+			responseObserver.onNext(EncryptResponse(responseBuilder.build(), targetPubKey));
+			responseObserver.onCompleted();
 		}
 	}
 	//-------
