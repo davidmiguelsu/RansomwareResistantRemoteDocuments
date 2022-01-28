@@ -189,7 +189,6 @@ public class CAServerCommandsImpl {
             Timestamp timestamp = Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
 			byte[] encryptedTimestamp = CryptographyImpl.encryptRSA(timestamp.toByteArray(), caPublicKey);
             
-            // byte[] encryptedKey = CryptographyImpl.encryptRSA(noSignatureEncryptedKey, CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der"));
             byte[] digitalSignature = {};
             if(withDigitalSignature) {
                 Key privKey = ks.getKey(username + "_private_key", keyStorePassword.toCharArray());
@@ -223,7 +222,6 @@ public class CAServerCommandsImpl {
             System.out.println("Failed to get private key: " + e.getMessage());
         }
 
-        // PrivateKey privKey = CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der");
         byte[] decryptedTimestamp = CryptographyImpl.decryptRSA(response.getTimestamp().toByteArray(), privKey);
 
 		Timestamp timestamp = null;

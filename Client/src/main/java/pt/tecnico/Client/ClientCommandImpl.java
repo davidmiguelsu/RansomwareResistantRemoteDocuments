@@ -610,8 +610,7 @@ public class ClientCommandImpl {
             }
 
             ArrayList<ZKRecord> recordList = new ArrayList<>(records);
-            // Random rand = new Random();
-            // int chosenServerIndex = rand.nextInt(numberOfServers);
+
             String target = recordList.get(0).getURI();     //Always connects to the first server (First server == Master server)
 
             channel = ManagedChannelBuilder.forTarget(target).usePlaintext().build();
@@ -636,17 +635,12 @@ public class ClientCommandImpl {
             byte[] encryptedData = CryptographyImpl.encryptAES("", request.toByteArray(), tempKey);
 
             byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), leadServerPublicKey);
-            // byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"));
         
             byte[] digitalSignature = CryptographyImpl.generateDigitalSignature(request.toByteArray(), (PrivateKey) ks.getKey(username + "_private_key", pwdArray));
-            // byte[] digitalSignature = CryptographyImpl.generateDigitalSignature(request.toByteArray(), CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der"));
             
             Timestamp timestamp = Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
 
             byte[] encryptedTimestamp = CryptographyImpl.encryptRSA(timestamp.toByteArray(), leadServerPublicKey);
-			// byte[] encryptedTimestamp = CryptographyImpl.encryptRSA(timestamp.toByteArray(), CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"));
-
-            // byte[] encryptedKey = CryptographyImpl.encryptRSA(noSignatureEncryptedKey, CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der"));
             
             ClientServer.EncryptedMessageRequest encryptedReq = ClientServer.EncryptedMessageRequest.newBuilder()
                                                     .setMessageRequestBytes(ByteString.copyFrom(encryptedData))
