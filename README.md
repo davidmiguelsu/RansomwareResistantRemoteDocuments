@@ -56,7 +56,7 @@ We can now try to proceed with this guide, however we advise creating a new user
 ```
 createuser --interactive --pwprompt
 ```
-When prompted, insert the username SIRS and password SIRS. No need to give root permissions. We can then quit postgres with:
+When prompted, insert the username SIRS and password SIRS. Make sure to give it root permissions. We can then quit postgres with:
 ```
 exit
 ```

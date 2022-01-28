@@ -186,7 +186,6 @@ public class CryptographyImpl {
 
             // get a DES cipher object and print the provider
             Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
-            System.out.println(cipher.getProvider().getInfo());
 
 
             System.out.println("Ciphering ...");
@@ -211,7 +210,6 @@ public class CryptographyImpl {
 
             // get a DES cipher object and print the provider
             Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
-            System.out.println(cipher.getProvider().getInfo());
 
 
             System.out.println("Deciphering ...");

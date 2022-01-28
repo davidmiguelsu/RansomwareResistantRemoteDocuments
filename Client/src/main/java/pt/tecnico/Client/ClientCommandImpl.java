@@ -589,6 +589,7 @@ public class ClientCommandImpl {
                 KeyStore.SecretKeyEntry secret = new KeyStore.SecretKeyEntry(newKey);
                 KeyStore.ProtectionParameter password = new KeyStore.PasswordProtection(pwdArray);
                 ks.setEntry(fileName + "_key", secret, password);
+                i++;
             }
         } catch (KeyStoreException kse) {
             System.out.println("Failed to store new keys: " + kse.getMessage());
