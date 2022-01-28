@@ -228,7 +228,8 @@ public class ClientCommandImpl {
         String fileName = args[1];
 
         try{
-
+            updatePendingKeys();
+            
             ClientServer.ReadFileRequest request =  ClientServer.ReadFileRequest.newBuilder()
                                                         .setFileName(fileName)
                                                         .setUsername(username)

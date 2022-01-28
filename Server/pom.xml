@@ -22,6 +22,8 @@
         <server.path>/grpc/Ransom</server.path>
         <server.host>localhost</server.host>
         <server.port>8001</server.port>
+        <db.user>SIRS</db.user>
+        <db.pass>SIRS</db.pass>
     </properties>
 
     <dependencies>
@@ -77,6 +79,8 @@
                         <argument>${server.path}</argument>
                         <argument>${server.host}</argument>
                         <argument>${server.port}</argument>
+                        <argument>${db.user}</argument>
+                        <argument>${db.pass}</argument>
                     </arguments>
                 </configuration>
             </plugin>

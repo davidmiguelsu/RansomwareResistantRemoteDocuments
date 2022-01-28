@@ -11,9 +11,9 @@ public class ServerMain {
 		}
 
 		// Check arguments.
-		if (args.length < 5) {
+		if (args.length < 5 || args.length > 7) {
 			System.err.println("Argument(s) missing!");
-			System.err.printf("Usage: java %s zooHost zooPort path host port%n", ServerMain.class.getName());
+			System.err.printf("Usage: java %s zooHost zooPort path host port [dbUser] [dbPass] %n", ServerMain.class.getName());
 			return;
 		}
 

@@ -21,8 +21,8 @@ public class DatabaseImpl{
     
     
     //Credentials
-    private final String user = "postgres";
-    private final String password = "1234";
+    // private final String user = "postgres";
+    // private final String password = "1234";
 
     private final String addUserStatement ="INSERT INTO users (username, passwd, salt) VALUES(?,?,?);"; // usar no register
     private final String addFileStatement ="INSERT INTO files (filename,filehash) VALUES(?,?);"; // usar no writefile
@@ -647,10 +647,10 @@ public class DatabaseImpl{
      *
      * @return a Connection object
      */
-    public Connection connect() {
+    public Connection connect(String username, String password) {
         Connection conn = null;
         try {
-            conn = DriverManager.getConnection(url, user, password);
+            conn = DriverManager.getConnection(url, username, password);
             conn.setAutoCommit(false);
             System.out.println("Connected to the PostgreSQL server successfully.");
         } catch (SQLException e) {
@@ -660,13 +660,13 @@ public class DatabaseImpl{
         return conn;
     }
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        DatabaseImpl app = new DatabaseImpl();
-         app.connect();
-    }
+    // /**
+    //  * @param args the command line arguments
+    //  */
+    // public static void main(String[] args) {
+    //     DatabaseImpl app = new DatabaseImpl();
+    //      app.connect();
+    // }
 
 
 }

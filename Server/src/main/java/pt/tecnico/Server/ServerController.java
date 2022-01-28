@@ -1,5 +1,6 @@
 package pt.tecnico.Server;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.sql.Connection;
@@ -41,6 +42,9 @@ public class ServerController {
 	private static int portForClient;
 	private static int portForServer;
 
+	private static String dbUser;
+	private static String dbPass;
+
 	public boolean isLeader;
 	public List<ChildServerInfo> childServerList = new ArrayList<ChildServerInfo>();
 	public DatabaseImpl db;
@@ -53,6 +57,7 @@ public class ServerController {
 
 
     public void main(String[] args) throws ZKNamingException {
+		SetKeyStorePath();
 
 		zooHost = args[0];
 		zooPort = Integer.valueOf(args[1]);
@@ -61,6 +66,12 @@ public class ServerController {
 		host = args[3];
 		portForClient = Integer.valueOf(args[4]);
 		portForServer = portForClient + 1000;
+
+		if(args.length >= 6)
+			dbUser = args[5];
+		
+		if(args.length >= 7)
+			dbPass = args[6];
 
         ClientServerServiceImpl clientServerImpl = new ClientServerServiceImpl();
 		// clientServerImpl.SetupStoragePath();
@@ -112,7 +123,7 @@ public class ServerController {
 			}
 			
 		} catch (ZKNamingException e) {
-			e.printStackTrace();
+			// e.printStackTrace();
 			// System.out.println(e.printStackTrace(););
 			realPath += "/1";
 			serverName = "LeadServer";
@@ -141,7 +152,7 @@ public class ServerController {
                 System.out.println("Server started and awaiting requests from clients on port " + portForClient + ", and pings from servers on port " + portForServer);
                
 				db = new DatabaseImpl();
-				conn = db.connect(); 
+				conn = db.connect(dbUser, dbPass); 
 				System.out.println("Database ON && conn updated");
 				
                 serverMain.awaitTermination();
@@ -218,6 +229,14 @@ public class ServerController {
 		} catch (Exception e) {
 			System.out.println("Failed to load new keys, will shutdown");
 			System.exit(0);
+		}
+	}
+
+	void SetKeyStorePath() {
+		File dir = new File(keyStorePath);
+		if(!dir.exists()){
+			System.out.println("folder created");
+			dir.mkdirs();
 		}
 	}
 
