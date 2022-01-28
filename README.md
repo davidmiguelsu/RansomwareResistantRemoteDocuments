@@ -132,3 +132,16 @@ mvn compile exec:java -Dexec.mainClass="pt.tecnico.Client.ClientMain" -Dexec.arg
 - __zooPort__: The port of the ZooKeeper server
 - __serverPath__: The path name associated to the leader/file servers, stored in the ZooKeeper server
 
+#### 4. Client Commands
+
+With the client, you are able to do the following commands:
+- __register/reg__ \<username\> \<password\> -- Registers a new user in the system;
+- __login/log__ \<username\> \<password\> -- Logs into an existing user;
+- __write/w__ \<filepath\> -- Writes file pointed by filepath in the system;
+- __download/d__ \<filename\> -- Reads file with the corresponding filename;
+- __remove/rm__ \<filename\> -- Removes the file from the system;
+- __list/ls__ -- Lists all accessible files;
+- __permission/perm__ \<filename\> \<target_user\> \<read/all\> -- Gives permissions to a specific file to a specific user;
+- __help/h__ -- Lists all available commands;
+- __logout__ -- Logs out of the current user;
+- __exit__ -- Exits out of the application;
