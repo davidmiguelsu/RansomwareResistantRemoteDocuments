@@ -160,12 +160,8 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
         } 
         catch (KeyStoreException e) {
             System.out.println("ERROR - Error when checking existing keys");
-            // CaServer.PublicKeyResponse res = CaServer.PublicKeyResponse.newBuilder()
-            // .setAck("ERROR")
-            // .build();
 
             responseObserver.onNext(CaServer.EncryptedCAMessageResponse.getDefaultInstance());
-            // responseObserver.onNext(EncryptResponse(res, decryptedRequest.getUserName()));
             responseObserver.onCompleted();
             return;
         }
@@ -211,25 +207,19 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
         }
         else {
             try {
-                // Path privKeyFile = Paths.get("/home/fenix/Documents/RansomwareResistantRemoteDocuments/CAServer/CAKeys/CAserver_private.der");
                 Path privKeyFile = Paths.get("CAKeys", "CAserver_private.der");
                 System.out.println(privKeyFile.toAbsolutePath().toString());
-                // Path pubKeyFile = Paths.get("CAServer", "CAKeys", "CAserver_public.der");
                 
                 byte[] privKeyBytes = Files.readAllBytes(privKeyFile);
-                // byte[] pubKeyBytes = Files.readAllBytes(pubKeyFile);
 
                 PKCS8EncodedKeySpec privKeySpec = new PKCS8EncodedKeySpec(privKeyBytes);
-                // PKCS8EncodedKeySpec pubKeySpec = new PKCS8EncodedKeySpec(pubKeyBytes);
 
                 KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 
                 caPrivateKey = keyFactory.generatePrivate(privKeySpec);
-                // caPublicKey = keyFactory.generatePublic(pubKeySpec);
 
                 CertificateFactory fac = CertificateFactory.getInstance("X509");
                 FileInputStream is = new FileInputStream(Paths.get("CAKeys", "CAserver.crt").toAbsolutePath().toString());
-                // FileInputStream is = new FileInputStream(Paths.get("/home/fenix/Documents/RansomwareResistantRemoteDocuments/CAServer/CAKeys/CAserver.crt").toString());
                 cert = (X509Certificate) fac.generateCertificate(is);
                 
                 X509Certificate[] certificateChain = new X509Certificate[1];
@@ -249,7 +239,6 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
 
     byte[] DecryptRequest(CaServer.EncryptedCAMessageRequest request) {
 
-        // PrivateKey privKey = CryptographyImpl.readPrivateKey(keyPaths + "LeadServerKeys/leadServer_private.der");
         byte[] decryptedTimestamp = CryptographyImpl.decryptRSA(request.getTimestamp().toByteArray(), caPrivateKey);
 
         Timestamp timestamp = null;
@@ -269,9 +258,7 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
         }
 
         byte[] decryptedTempKeyBytes = CryptographyImpl.decryptRSA(request.getEncryptionKey().toByteArray(), caPrivateKey);
-        // byte[] decryptedTempKeyBytes = CryptographyImpl.decryptRSA(request.getEncryptionKey().toByteArray(), 
-        //     CryptographyImpl.readPublicKey(keyPaths + "ClientKeys/client_public.der"));
-        // CryptographyImpl.readPrivateKey("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/CAServer/LeadServerKeys/leadServer_private.der"));
+
         Key decryptTempKey = new SecretKeySpec(decryptedTempKeyBytes, 0, 16, "AES");
 
         //TODO: Check IV later
@@ -307,10 +294,7 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
 
 			Timestamp timestamp = Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
 			byte[] encryptedTimestamp = CryptographyImpl.encryptRSA(timestamp.toByteArray(), targetPublicKey);
-			// byte[] encryptedKey = CryptographyImpl.encryptRSA(noSignatureEncryptedKey, CryptographyImpl.readPrivateKey(keyPaths + "LeadServerKeys/leadServer_private.der"));
 
-			// byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), CryptographyImpl.readPublicKey("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/CAServer/ClientKeys/client_public.der"));
-			
 			CaServer.EncryptedCAMessageResponse encryptedRes = CaServer.EncryptedCAMessageResponse.newBuilder()
 													.setMessageResponseBytes(ByteString.copyFrom(encryptedData))
 													.setEncryptionKey(ByteString.copyFrom(encryptedKey))
@@ -332,17 +316,13 @@ public class CAServerServiceImpl extends CAServerServiceGrpc.CAServerServiceImpl
 			Key tempKey = CryptographyImpl.generateAESKey();
 			byte[] encryptedData = CryptographyImpl.encryptAES("", response.toByteArray(), tempKey);
 
-            // Key targetPublicKey = ks.getCertificate(targetName + "_certificate").getPublicKey();
 			byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), tempPubKey);
 
             byte[] digitalSignature = CryptographyImpl.generateDigitalSignature(response.toByteArray(), (PrivateKey) caPrivateKey);
 
 			Timestamp timestamp = Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
 			byte[] encryptedTimestamp = CryptographyImpl.encryptRSA(timestamp.toByteArray(), tempPubKey);
-			// byte[] encryptedKey = CryptographyImpl.encryptRSA(noSignatureEncryptedKey, CryptographyImpl.readPrivateKey(keyPaths + "LeadServerKeys/leadServer_private.der"));
 
-			// byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), CryptographyImpl.readPublicKey("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/CAServer/ClientKeys/client_public.der"));
-			
 			CaServer.EncryptedCAMessageResponse encryptedRes = CaServer.EncryptedCAMessageResponse.newBuilder()
 													.setMessageResponseBytes(ByteString.copyFrom(encryptedData))
 													.setEncryptionKey(ByteString.copyFrom(encryptedKey))

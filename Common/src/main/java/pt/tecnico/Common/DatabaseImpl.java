@@ -71,7 +71,7 @@ public class DatabaseImpl{
             ps.executeUpdate();
             
             con.commit();
-            System.out.println("User added !!");
+            System.out.println("User successfully added to database");
 
         } catch (SQLException e){
             e.printStackTrace();
@@ -91,11 +91,11 @@ public class DatabaseImpl{
             ps.setString(2, encodedBytes);
             ps.executeUpdate();
             con.commit();          
-            System.out.println("File added !! with hash");
+            System.out.println("File successfully added to database");
          
 
         } catch (SQLException e){
-            System.out.println("CHEGOU AQUI AMIGOSSSS ADDFILEDATABASE");
+            System.out.println("Failed to add file to database");
             e.printStackTrace();
             try{
                  con.rollback();
@@ -136,11 +136,11 @@ public class DatabaseImpl{
             ps.setBoolean(5, true);
             ps.executeUpdate();
             con.commit();          
-            System.out.println("user_files added  !!");
+            System.out.println("User-File association successfully added to database");
          
 
         } catch (SQLException e){
-            System.out.println("CHEGOU AQUI AMIGOSSSS ADD USERFILE DATABASE");
+            System.out.println("Failed to add User-File association to database");
             e.printStackTrace();
             try{
                  con.rollback();
@@ -154,7 +154,7 @@ public class DatabaseImpl{
         List<String> erro = new ArrayList<String>();
         List<Integer> result = new ArrayList<Integer>();
         List<String> resultado = new ArrayList<String>();
-        erro.add(0, "DEU MAL VIU");
+        erro.add(0, "ERROR");
         try{
             PreparedStatement ps = con.prepareStatement(getFileList);
             ps.setInt(1, userID);
@@ -175,7 +175,7 @@ public class DatabaseImpl{
             return resultado;
 
         } catch (SQLException e){
-            System.out.println("CHEGOU AQUI AMIGOSSSS getListFile");
+            System.out.println("Failed to fetch file list from the database");
             e.printStackTrace();
             try{
                  con.rollback();
@@ -201,12 +201,12 @@ public class DatabaseImpl{
             }
             rs.close();
             con.commit();    
-            System.out.println("It is " + result + " that the user has read perms on the file");      
+            System.out.println("It is [" + result + "] that the user has read perms on the file");      
            
             return result;
 
         } catch (SQLException e){
-            System.out.println("CHEGOU doesUserHaveReadPerms");
+            System.out.println("Failed to check user's read permissions");
             e.printStackTrace();
             try{
                  con.rollback();
@@ -231,12 +231,12 @@ public class DatabaseImpl{
             }
             rs.close();
             con.commit();    
-            System.out.println("It is " + result + " that the user has write perms on the file");      
+            System.out.println("It is [" + result + "] that the user has write perms on the file");      
            
             return result;
 
         } catch (SQLException e){
-            System.out.println("CHEGOU doesUserHaveReadPerms");
+            System.out.println("Failed to check user's write permissions");
             e.printStackTrace();
             try{
                  con.rollback();
@@ -261,12 +261,12 @@ public class DatabaseImpl{
             }
             rs.close();
             con.commit();    
-            System.out.println("It is " + result + " that the user is the owner of the file");      
+            System.out.println("It is [" + result + "] that the user is the owner of the file");      
            
             return result;
 
         } catch (SQLException e){
-            System.out.println("CHEGOU checkIsUserOwner");
+            System.out.println("Failed to check if the user is the owner of the file");
             e.printStackTrace();
             try{
                  con.rollback();
@@ -291,7 +291,7 @@ public class DatabaseImpl{
             }
             rs.close();
             con.commit();    
-            System.out.println("It is " + result + " that the file already exists");      
+            System.out.println("It is [" + result + "] that the file already exists");      
            
             if (oi != 0){
                 return true;
@@ -301,7 +301,7 @@ public class DatabaseImpl{
             }
 
         } catch (SQLException e){
-            System.out.println("CHEGOU checkIsUserOwner");
+            System.out.println("Failed to check if the file already exists");
             e.printStackTrace();
             try{
                  con.rollback();
@@ -322,11 +322,11 @@ public class DatabaseImpl{
             ps.executeUpdate();
             
             con.commit();
-            System.out.println("File has been deleted sucessfully !!");
+            System.out.println("File has been deleted sucessfully");
 
         } catch (SQLException e){
             e.printStackTrace();
-            System.out.println("Error deleting file DB !!");
+            System.out.println("Error deleting the file from the database");
             try{
                 con.rollback();
             } catch (SQLException ignore){              
@@ -342,11 +342,11 @@ public class DatabaseImpl{
             ps.setInt(1, fileID);
             ps.executeUpdate();   
             con.commit();
-            System.out.println("File has been deleted sucessfully !!");
+            System.out.println("File has been deleted sucessfully");
 
         } catch (SQLException e){
             e.printStackTrace();
-            System.out.println("Error deleting file DB !!");
+            System.out.println("Error deleting the file from the database");
             try{
                 con.rollback();
             } catch (SQLException ignore){              
@@ -364,17 +364,15 @@ public class DatabaseImpl{
             ResultSet rs = ps.executeQuery();
 
             while(rs.next()){
-                System.out.println("Column 1 returned");
                 result = rs.getInt(1);
-                System.out.println(result);
             }
             rs.close();
             con.commit();    
-            System.out.println("userID has been found!");      
+            System.out.println("UserID has been found");      
             return result;
 
         } catch (SQLException e){
-            System.out.println("CHEGOU AQUI AMIGOSSSS");
+            System.out.println("Error fetching he userID from the database");
             e.printStackTrace();
             try{
                  con.rollback();
@@ -394,17 +392,15 @@ public class DatabaseImpl{
             ResultSet rs = ps.executeQuery();
 
             while(rs.next()){
-                System.out.println("Column 1 returned");
                 result = rs.getString(1);
-                System.out.println(result);
             }
             rs.close();
             con.commit();    
-            System.out.println("username has been found!");      
+            System.out.println("Username has been found!");      
             return result;
 
         } catch (SQLException e){
-            System.out.println("CHEGOU AQUI AMIGOSSSS");
+            System.out.println("Error fetching the username from the database");
             e.printStackTrace();
             try{
                  con.rollback();
@@ -424,17 +420,15 @@ public class DatabaseImpl{
             ResultSet rs = ps.executeQuery();
 
             while(rs.next()){
-                System.out.println("Column 1 returned");
                 result = rs.getInt(1);
-                System.out.println(result);
             }
             rs.close();
             con.commit();    
-            System.out.println("fileID has been found!");      
+            System.out.println("FileID has been found");      
             return result;
 
         } catch (SQLException e){
-            System.out.println("CHEGOU AQUI AMIGOSSSS");
+            System.out.println("Error fetching the fileID from the database");
             e.printStackTrace();
             try{
                  con.rollback();
@@ -461,7 +455,7 @@ public class DatabaseImpl{
             return result;
 
         } catch (SQLException e){
-            System.out.println("CHEGOU AQUI AMIGOSSSS getFileNamebyFileID");
+            System.out.println("Error fetching the file name from the database");
             e.printStackTrace();
             try{
                  con.rollback();
@@ -482,7 +476,6 @@ public class DatabaseImpl{
             ResultSet rs = ps.executeQuery();
 
             while(rs.next()){
-                System.out.println("Column 1 returned");
                 result = rs.getString(1);
             }
             rs.close();
@@ -490,7 +483,7 @@ public class DatabaseImpl{
             return result;
 
         } catch (SQLException e){
-            System.out.println("username not found");
+            System.out.println("Error fetching the user's password from the database");
             e.printStackTrace();
             try{
                  con.rollback();
@@ -510,7 +503,6 @@ public class DatabaseImpl{
             ResultSet rs = ps.executeQuery();
 
             while(rs.next()){
-                System.out.println("Column 1 returned");
                 result = rs.getString(1);
             }
             rs.close();
@@ -518,7 +510,7 @@ public class DatabaseImpl{
             return result;
 
         } catch (SQLException e){
-            System.out.println("username not found");
+            System.out.println("Error fetching the user's salt from the database");
             e.printStackTrace();
             try{
                  con.rollback();
@@ -548,7 +540,7 @@ public class DatabaseImpl{
             return decodedHash;
 
         } catch (SQLException e){
-            System.out.println("CHEGOU AQUI AMIGOSSSS getFileNamebyFileID");
+            System.out.println("Error fetching the file's hash from the database");
             e.printStackTrace();
             try{
                  con.rollback();
@@ -612,7 +604,7 @@ public class DatabaseImpl{
         List<String> erro = new ArrayList<String>();
         List<Integer> result = new ArrayList<Integer>();
         List<String> resultado = new ArrayList<String>();
-        erro.add(0, "DEU MAL VIU");
+        erro.add(0, "ERROR");
         try{
             PreparedStatement ps = con.prepareStatement(getAllUsersWithAccessToFile);
             ps.setInt(1, file_id);
@@ -630,7 +622,7 @@ public class DatabaseImpl{
             return result;
 
         } catch (SQLException e){
-            System.out.println("CHEGOU AQUI AMIGOSSSS getListFile");
+            System.out.println("Error fetching users with access to the file");
             e.printStackTrace();
             try{
                  con.rollback();
@@ -659,14 +651,6 @@ public class DatabaseImpl{
 
         return conn;
     }
-
-    // /**
-    //  * @param args the command line arguments
-    //  */
-    // public static void main(String[] args) {
-    //     DatabaseImpl app = new DatabaseImpl();
-    //      app.connect();
-    // }
 
 
 }

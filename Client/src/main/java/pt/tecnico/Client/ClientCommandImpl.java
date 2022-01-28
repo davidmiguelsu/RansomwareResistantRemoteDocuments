@@ -75,7 +75,6 @@ public class ClientCommandImpl {
                 return handleCommand(args);      //Repeat the parsing if it managed to reconnect
             }
         }
-        // return true;
     }
 
     boolean handleCommand(String[] args) {
@@ -195,7 +194,6 @@ public class ClientCommandImpl {
             try {
                 byte[] responseBytes = DecryptResponse(res);
                 ClientServer.WriteFileResponse response = ClientServer.WriteFileResponse.parseFrom(responseBytes);
-                // if(CryptographyImpl.verifyDigitalSignature(response., signature, publicKey))
 
 
                 System.out.println(response.getAck());
@@ -247,19 +245,13 @@ public class ClientCommandImpl {
                 return;
             }
 
-            // System.out.println(response.getFile().toStringUtf8());
-
             
             Key key = ks.getKey(fileName + "_key", pwdArray);
 
             byte[] decryptedFile = CryptographyImpl.decryptAES(fileName, response.getFile().toByteArray(), key);
             MessageDigest digest = MessageDigest.getInstance("SHA3-256");
             byte[] hashBytes = digest.digest(decryptedFile);
-            // String sha3Hex = CryptographyImpl.bytesToHex(hashBytes);
-            
-            // byte[] responseHash = Base64.getDecoder().decode(response.getHash());
 
-          
             if(ByteBuffer.wrap(hashBytes).compareTo(ByteBuffer.wrap(response.getHash().toByteArray())) != 0) {
                 System.out.println("ERROR - Read - Hash of the downloaded file differs from the hash received! File may be compromised.");
                 return;
@@ -269,8 +261,6 @@ public class ClientCommandImpl {
             
             FileOutputStream writer = new FileOutputStream(dirPath + fileName);
             writer.write(decryptedFile);
-			// writer.write(CryptographyImpl.decryptAES(fileName, response.getFile().toByteArray(), 
-            //     CryptographyImpl.readAESKey(System.getProperty("user.home") + "/SIRS_KEYS/" + fileName + ".key")));
 
 			writer.close();
             System.out.println("Download complete, file stored in the Download folder");
@@ -301,7 +291,6 @@ public class ClientCommandImpl {
             byte[] responseBytes = DecryptResponse(res);
             ClientServer.ListFileResponse response = ClientServer.ListFileResponse.parseFrom(responseBytes);
     
-            // ClientServer.ListFileResponse response = ClientServer.ListFileResponse.parseFrom(res.getMessageResponseBytes());
     
             for (String fileName : response.getFileNameList()) {
                 System.out.println(fileName);
@@ -378,7 +367,6 @@ public class ClientCommandImpl {
                 username = args[1];
 
                 CryptographyImpl.CreateNewKeyStore(ks, pwdArray, keyStorePath + "standard_" + username + ".jceks");
-                // CryptographyImpl.UpdateKeyStore(ks, pwdArray, keyStorePath + "standard_" + username + ".jceks");
             }
             else {
                 System.out.println("ERROR - Register - Username already exists");
@@ -607,8 +595,6 @@ public class ClientCommandImpl {
         System.out.println("Contacting ZooKeeper at " + host + ":" + port + "...");
         ZKNaming zkNaming = new ZKNaming(host, port);
 		System.out.println("Looking up " + serverPath + "...");
-		// final String target = zkNaming.lookup(path).getURI();
-		// Collection<ZKRecord> records = zkNaming.listRecords(path);
 
         try {
             if(channel != null) {
@@ -686,7 +672,6 @@ public class ClientCommandImpl {
             System.out.println("Error fetching key");
             return null;
         }
-        // PrivateKey privKey = CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der");
         byte[] decryptedTimestamp = CryptographyImpl.decryptRSA(response.getTimestamp().toByteArray(), privKey);
 
 		Timestamp timestamp = null;
@@ -711,7 +696,6 @@ public class ClientCommandImpl {
 		//TODO: Check IV later
 		byte[] responseDecryptedBytes = CryptographyImpl.decryptAES("", response.getMessageResponseBytes().toByteArray(), decryptTempKey);
 		
-        // if(!CryptographyImpl.verifyDigitalSignature(responseDecryptedBytes, response.getDigitalSignature().toByteArray(), CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"))) {
         if(!CryptographyImpl.verifyDigitalSignature(responseDecryptedBytes, response.getDigitalSignature().toByteArray(), (PublicKey) leadServerPublicKey)) {
             System.out.println("ERROR - Received message doesn't match with the digital signature!");
             return null;

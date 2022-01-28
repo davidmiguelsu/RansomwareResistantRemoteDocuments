@@ -182,7 +182,6 @@ public class CryptographyImpl {
         try {
             //TODO: Make this not be always 0
             byte[] ivBytes = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-            // System.out.println(ivString.getBytes());
 
             // get a DES cipher object and print the provider
             Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
@@ -219,10 +218,8 @@ public class CryptographyImpl {
             return cipher.doFinal(cipheredBytes);
 
         } catch (InvalidKeyException ike) {
-            // Pokemon exception handling!
             System.out.println("No key/wrong key associated: " + ike.getMessage());
         } catch (Exception e) {
-            // Pokemon exception handling!
             e.printStackTrace();
         }
 
@@ -232,10 +229,8 @@ public class CryptographyImpl {
     public static byte[] encryptRSA(byte[] data, Key key) {
         try {
             Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-            // PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(Base64.getDecoder().decode(Key.getBytes())));
             cipher.init(Cipher.ENCRYPT_MODE, key);
             return cipher.doFinal(data);
-            // return new String(Base64.getEncoder().encode(encryptedbytes));
         } catch (Exception e) {
             System.out.println("Error in RSA encryption. " + e.getLocalizedMessage());
             return null;
@@ -245,10 +240,8 @@ public class CryptographyImpl {
     public static byte[] decryptRSA(byte[] data, Key key) {
         try {
             Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-            // PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(Base64.getDecoder().decode(Key.getBytes())));
             cipher.init(Cipher.DECRYPT_MODE, key);
             return cipher.doFinal(data);
-            // return new String(Base64.getEncoder().encode(encryptedbytes));
         } catch (Exception e) {
             System.out.println("Error in RSA decryption. " + e.getLocalizedMessage());
             return null;
@@ -340,7 +333,6 @@ public class CryptographyImpl {
         v3CertGen.setSignatureAlgorithm("SHA256WithRSA");
         try {
             cert = v3CertGen.generate(keyPair.getPrivate());
-            // saveCert(cert, keyPair.getPrivate());
             return cert;
         } catch (Exception e) {
             System.out.println("Unable to generate X509 certificate!");

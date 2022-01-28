@@ -52,8 +52,6 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 
 	@Override
 	public void register(ClientServer.EncryptedMessageRequest request, StreamObserver<ClientServer.EncryptedMessageResponse> responseObserver) {
-		// byte[] requestDecryptedBytes = CryptographyImpl.decryptRSA(request.getMessageRequestBytes().toByteArray(), 
-		// 	CryptographyImpl.readPrivateKey("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/CAServer/LeadServerKeys/leadServer_private.der"));
 
 		PublicKey targetPubKey = serverController.caServer.requestPublicKeyOf(request.getUserName(), true, false);
 		byte[] requestDecryptedBytes = DecryptRequest(request, targetPubKey);
@@ -75,19 +73,15 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 
 		ClientServer.RegisterResponse res;
 		int id = serverController.db.getUserIDbyUsername(serverController.conn, decryptRequest.getUserName());
-		//TODO: Confirm this
-		System.out.println("OBTAINED ID:" + id);
+
 		if(id > 0) {
-		// if(userDictionary.containsKey(decryptRequest.getUserName())) {
 			res = ClientServer.RegisterResponse.newBuilder()
 				.setAck("ERROR").build();
 		}
 		else {
-			// userDictionary.put(decryptRequest.getUserName(), decryptRequest.getCipheredPassword());
 			res = ClientServer.RegisterResponse.newBuilder()
 			.setAck("OK").build();
 
-			//TODO: Password needs to be encrypted
 			serverController.db.addUserDatabase(serverController.conn , decryptRequest.getUserName(), decryptRequest.getCipheredPassword());
 		}
 
@@ -97,9 +91,6 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 
 	@Override
 	public void login(ClientServer.EncryptedMessageRequest request, StreamObserver<ClientServer.EncryptedMessageResponse> responseObserver) {
-
-		// byte[] requestDecryptedBytes = CryptographyImpl.decryptRSA(request.getMessageRequestBytes().toByteArray(), 
-		// 	CryptographyImpl.readPrivateKey("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/CAServer/LeadServerKeys/leadServer_private.der"));
 		PublicKey targetPubKey = serverController.caServer.requestPublicKeyOf(request.getUserName(), true, false);
 
 
@@ -128,7 +119,6 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		ByteBuffer newSaltedPassword = ByteBuffer.wrap(CryptographyImpl.GenerateSaltedSHA3Digest(decryptRequest.getCipheredPassword().getBytes(), decodedSalt));
 
 		if (newSaltedPassword.compareTo(ByteBuffer.wrap(decodedPassword)) == 0) {
-		// if(decryptRequest.getCipheredPassword().equals(tempPW)) {
 			res = ClientServer.LoginResponse.newBuilder()
 			.setAck("OK").build();				
 		}
@@ -136,10 +126,6 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 			res = ClientServer.LoginResponse.newBuilder()
 			.setAck("ERROR").build();
 		}
-		
-
-		// ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
-		// 	.setMessageResponseBytes(res.toByteString()).build();
 
 		responseObserver.onNext(EncryptResponse(res, targetPubKey));
 		responseObserver.onCompleted();
@@ -179,7 +165,6 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 				return;
 			}
 
-			// if(serverController.isLeader) {
 				List<ClientServer.WriteFileResponse> responseList = new ArrayList<>();
 
 				int i = 2;
@@ -196,10 +181,7 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 						responseList.add(decryptedChildRes);
 					} catch (InvalidProtocolBufferException e) {
 						System.out.println("ERROR - Failed to decrypt response from server" + i + " -- " + e.getMessage());
-						// responseObserver.onNext(ClientServer.EncryptedMessageResponse.getDefaultInstance());
-						
-						// responseObserver.onCompleted();
-						// return;
+
 					} 
 				}
 				int resOK = 0;
@@ -244,7 +226,6 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 					return;
 				}
 
-			// }
 		}
 
 		File file = new File(filePath + decryptRequest.getFileName());
@@ -329,10 +310,7 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 					responseList.add(decryptedChildRes);
 				} catch (InvalidProtocolBufferException e) {
 					System.out.println("ERROR - Failed to decrypt response from server" + i + " -- "+ e.getMessage());
-					// responseObserver.onNext(ClientServer.EncryptedMessageResponse.getDefaultInstance());
-					
-					// responseObserver.onCompleted();
-					// return;
+
 				} 
 				i++;
 
@@ -383,15 +361,9 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 														.setHash(ByteString.copyFrom("".getBytes()))
 														.build();
 
-			// ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
-			// 											.setMessageResponseBytes(response.toByteString()).build();
 			ClientServer.EncryptedMessageResponse encryptedRes = EncryptResponse(response, targetPubKey);	
 			fis.close();
-			// hashFIS.close();
-
-			// responseList.add(response);
 			
-
 			responseObserver.onNext(encryptedRes);
 
 			responseObserver.onCompleted();
@@ -403,8 +375,6 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		}
 	}
 
-
-	// public void listFiles(ClientServer.ListFileRequest request, StreamObserver<ClientServer.ListFileResponse> responseObserver) {
 	@Override
 	public void listFiles(ClientServer.EncryptedMessageRequest request, StreamObserver<ClientServer.EncryptedMessageResponse> responseObserver) {
 		
@@ -422,9 +392,7 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 				ClientServer.ListFileResponse response = ClientServer.ListFileResponse.newBuilder()
 				.addAllFileName(listaFiles)
 				.build();
-				
-				// ClientServer.EncryptedMessageResponse encryptedRes = ClientServer.EncryptedMessageResponse.newBuilder()
-				// .setMessageResponseBytes(response.toByteString()).build();
+
 				responseObserver.onNext(EncryptResponse(response, targetPubKey));
 				responseObserver.onCompleted();
 			} catch (Exception e) {
@@ -438,13 +406,6 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 	@Override
 	public void deleteFile(ClientServer.EncryptedMessageRequest request, StreamObserver<ClientServer.EncryptedMessageResponse> responseObserver) {
 
-		// byte[] decryptedTempKeyBytes = CryptographyImpl.decryptRSA(request.getEncryptionKey().toByteArray(), 
-		// CryptographyImpl.readPrivateKey("/home/fenix/Documents/SIRS_Stuff/Repo/RansomwareResistantRemoteDocuments/CAServer/LeadServerKeys/leadServer_private.der"));
-		// Key decryptTempKey = new SecretKeySpec(decryptedTempKeyBytes, 0, 16, "AES");
-
-		// //TODO: Check IV later
-		// byte[] requestDecryptedBytes = CryptographyImpl.decryptAES("", request.getMessageRequestBytes().toByteArray(), decryptTempKey);
-		
 		PublicKey targetPubKey = serverController.caServer.requestPublicKeyOf(request.getUserName(), true, false);
 
 		byte[] requestDecryptedBytes = DecryptRequest(request, targetPubKey);
@@ -474,7 +435,6 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 
 			List<ClientServer.DeleteFileResponse> responseList = new ArrayList<>();
 			int i = 2;
-			// HashMap<ByteBuffer, MessageOccurence> messageDigests = new HashMap<>();
 
 			for (ChildServerInfo info : serverController.childServerList) {
 				
@@ -489,10 +449,6 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 					responseList.add(decryptedChildRes);
 				} catch (InvalidProtocolBufferException e) {
 					System.out.println("ERROR - Failed to decrypt response from server" + i + " -- "+ e.getMessage());
-					// responseObserver.onNext(ClientServer.EncryptedMessageResponse.getDefaultInstance());
-					
-					// responseObserver.onCompleted();
-					// return;
 				} 
 				i++;
 			}
@@ -531,7 +487,6 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 					
 				return;
 			}
-
 		}
 
 		String filename = decryptRequest.getFileName();
@@ -769,7 +724,6 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 	byte[] DecryptRequest(ClientServer.EncryptedMessageRequest request, PublicKey targetPubKey) {
 
 		PrivateKey privKey = (PrivateKey) serverController.caServer.FetchPrivateKey();
-		// PrivateKey privKey = CryptographyImpl.readPrivateKey(keyPaths + "LeadServerKeys/leadServer_private.der");
 		byte[] decryptedTimestamp = CryptographyImpl.decryptRSA(request.getTimestamp().toByteArray(), privKey);
 
 		Timestamp timestamp = null;
@@ -794,7 +748,6 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 		//TODO: Check IV later
 		byte[] requestDecryptedBytes = CryptographyImpl.decryptAES("", request.getMessageRequestBytes().toByteArray(), decryptTempKey);
 
-		// PublicKey pubKey = serverController.caServer.requestPublicKeyOf(request.getUserName(), true, false);
 
 		if(!CryptographyImpl.verifyDigitalSignature(requestDecryptedBytes, request.getDigitalSignature().toByteArray(), targetPubKey)) {
             System.out.println("ERROR - Received message doesn't match with the digital signature!");
@@ -807,7 +760,6 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
 	byte[] DecryptResponse(ClientServer.EncryptedMessageResponse response, PublicKey targetPubKey) {
 		PrivateKey privKey = (PrivateKey) serverController.caServer.FetchPrivateKey();
 
-        // PrivateKey privKey = CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der");
         byte[] decryptedTimestamp = CryptographyImpl.decryptRSA(response.getTimestamp().toByteArray(), privKey);
 
 		Timestamp timestamp = null;
@@ -882,17 +834,12 @@ public class ClientServerServiceImpl extends ClientToServerServiceGrpc.ClientToS
             byte[] encryptedData = CryptographyImpl.encryptAES("", request.toByteArray(), tempKey);
 
             byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), targetPublicKey);
-            // byte[] encryptedKey = CryptographyImpl.encryptRSA(tempKey.getEncoded(), CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"));
         
             byte[] digitalSignature = CryptographyImpl.generateDigitalSignature(request.toByteArray(), privKey);
-            // byte[] digitalSignature = CryptographyImpl.generateDigitalSignature(request.toByteArray(), CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der"));
             
             Timestamp timestamp = Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
 
             byte[] encryptedTimestamp = CryptographyImpl.encryptRSA(timestamp.toByteArray(), targetPublicKey);
-			// byte[] encryptedTimestamp = CryptographyImpl.encryptRSA(timestamp.toByteArray(), CryptographyImpl.readPublicKey(keyPath + "LeadServerKeys/leadServer_public.der"));
-
-            // byte[] encryptedKey = CryptographyImpl.encryptRSA(noSignatureEncryptedKey, CryptographyImpl.readPrivateKey(keyPath + "ClientKeys/client_private.der"));
             
             ClientServer.EncryptedMessageRequest encryptedReq = ClientServer.EncryptedMessageRequest.newBuilder()
                                                     .setMessageRequestBytes(ByteString.copyFrom(encryptedData))

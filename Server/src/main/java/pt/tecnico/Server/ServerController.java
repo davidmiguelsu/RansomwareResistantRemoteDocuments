@@ -74,7 +74,6 @@ public class ServerController {
 			dbPass = args[6];
 
         ClientServerServiceImpl clientServerImpl = new ClientServerServiceImpl();
-		// clientServerImpl.SetupStoragePath();
 
 		ServerServerServiceImpl serverServerImpl = new ServerServerServiceImpl();
 
@@ -108,7 +107,6 @@ public class ServerController {
 			else {
 				String[] nameList = recordList.get(recordList.size() - 1).getPath().split("/");
 				int lastToken = Integer.parseInt(nameList[nameList.length - 1]);
-				// System.out.println(lastToken);
 				System.out.println("NUMBER: " + numberOfServers);
 				portForServer += lastToken;
 				
@@ -123,8 +121,6 @@ public class ServerController {
 			}
 			
 		} catch (ZKNamingException e) {
-			// e.printStackTrace();
-			// System.out.println(e.printStackTrace(););
 			realPath += "/1";
 			serverName = "LeadServer";
 			System.out.println("Binding " + realPath + " to " + host + ":" + portForClient + "...");
