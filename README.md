@@ -47,7 +47,7 @@ But we have yet to initialize it. To do so, we now execute the following command
 ```bash
 psql    #Connects to a default postgres database with a default user
 \c Ransom   #Connects to the newly create database
-\i <full-path-to-root-project-directory>/init.sql
+\i <full-path-to-RansomwareResistantRemoteDocuments>/init.sql
 # For an example of the command above: 
 # \i /home/seed/RansomwareResistantRemoteDocuments/init.sql
 \q  #Quit psql
@@ -61,19 +61,19 @@ When prompted, insert the username SIRS and password SIRS. No need to give root 
 exit
 ```
 
-3. Open `<root-project-directory>/zkNaming` and run the following maven command:
+3. Open `RansomwareResistantRemoteDocuments/zkNaming` and run the following maven command:
 ```bash
 mvn clean install
 ```
 
-4. Now back in `<root-project-directory>`, you can run the following maven command to install the entire program:
+4. Now back in `RansomwareResistantRemoteDocuments` directory, you can run the following maven command to install the entire program:
 ```bash
 mvn clean install
 ```
 
 #### 1. CA Server
 
-If you wish to run the module in its default configuration as set by its `pom.xml` file, simply run the following command in the `<root-project-directory>/CAServer` directory:
+If you wish to run the module in its default configuration as set by its `pom.xml` file, simply run the following command in the `RansomwareResistantRemoteDocuments/CAServer` directory:
 ```bash
 mvn compile exec:java
 ``` 
@@ -94,7 +94,7 @@ mvn compile exec:java -Dexec.mainClass="pt.tecnico.CAServer.CAServerMain" -Dexec
 
 #### 2. Leader Server and File Servers
 
-If you wish to run the module in its default configuration as set by its `pom.xml` file, simply run the following command in the `<root-project-directory>/Server` directory:
+If you wish to run the module in its default configuration as set by its `pom.xml` file, simply run the following command in the `RansomwareResistantRemoteDocuments/Server` directory:
 ```bash
 mvn compile exec:java
 ``` 
@@ -117,7 +117,7 @@ Of note that, since the Leader Server and the file server use the exact same cod
 
 #### 3. Client Initialization
 
-If you wish to run the module in its default configuration as set by its `pom.xml` file, simply run the following command in the `<root-project-directory>/Client` directory:
+If you wish to run the module in its default configuration as set by its `pom.xml` file, simply run the following command in the `RansomwareResistantRemoteDocuments/Client` directory:
 ```bash
 mvn compile exec:java
 ``` 
